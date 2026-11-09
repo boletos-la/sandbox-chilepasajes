@@ -1,14 +1,16 @@
+"use client";
+
 import React, { useState } from "react";
-import { Header } from "./components/Header";
-import { BookingProgress } from "./components/BookingProgress";
-import { Step1Search } from "./components/Step1Search";
-import { Step2Seatmap } from "./components/Step2Seatmap";
-import { Step3Passengers } from "./components/Step3Passengers";
-import { Step4HoldAndPay } from "./components/Step4HoldAndPay";
-import { Step5Confirmation } from "./components/Step5Confirmation";
-import { AnularBoletoSection } from "./components/AnularBoletoSection";
-import { ApiInspectorModal } from "./components/ApiInspectorModal";
-import { MyTicketsModal } from "./components/MyTicketsModal";
+import { Header } from "../components/Header";
+import { BookingProgress } from "../components/BookingProgress";
+import { Step1Search } from "../components/Step1Search";
+import { Step2Seatmap } from "../components/Step2Seatmap";
+import { Step3Passengers } from "../components/Step3Passengers";
+import { Step4HoldAndPay } from "../components/Step4HoldAndPay";
+import { Step5Confirmation } from "../components/Step5Confirmation";
+import { AnularBoletoSection } from "../components/AnularBoletoSection";
+import { ApiInspectorModal } from "../components/ApiInspectorModal";
+import { MyTicketsModal } from "../components/MyTicketsModal";
 import type {
   BusService,
   Seat,
@@ -16,10 +18,9 @@ import type {
   BuyerData,
   PassengerData,
   IssuedTicket,
-} from "./types";
-import { Bus, ShieldCheck, Heart, Terminal } from "lucide-react";
+} from "../types";
 
-export function App() {
+export default function HomePage() {
   const [activeTab, setActiveTab] = useState<"booking" | "cancel" | "my-tickets">("booking");
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [sessionUuid, setSessionUuid] = useState<string>(() => crypto.randomUUID());
@@ -58,7 +59,9 @@ export function App() {
     setPassengerCount(count);
     setSearchParams(params);
     setCurrentStep(2);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   // Step 2: Seats Chosen
@@ -66,7 +69,9 @@ export function App() {
     setSelectedSeats(seats);
     setSelectedStops(stops);
     setCurrentStep(3);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   // Step 3: Passengers Filled
@@ -74,14 +79,18 @@ export function App() {
     setBuyerData(buyer);
     setPassengersData(passengers);
     setCurrentStep(4);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   // Step 4: Reservation & Payment Confirmed
   const handleBookingSuccess = (ticket: IssuedTicket) => {
     setIssuedTicket(ticket);
     setCurrentStep(5);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   // Step 5: Start new search
@@ -95,7 +104,9 @@ export function App() {
     setIssuedTicket(null);
     setCurrentStep(1);
     setActiveTab("booking");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   // Trigger Cancel from anywhere (e.g., ticket confirmation or modal)
@@ -103,7 +114,9 @@ export function App() {
     setCancelTicketCode(ticketCode);
     setCancelTicketRut(rut || "");
     setActiveTab("cancel");
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
   };
 
   return (
@@ -224,7 +237,7 @@ export function App() {
           <div className="flex items-center gap-2">
             <span className="font-extrabold text-slate-800">Chilepasajes / Enbus</span>
             <span>•</span>
-            <span>Flujo de Compra y Post-Venta 100% Chile</span>
+            <span>Flujo de Compra y Post-Venta 100% Chile (Next.js)</span>
           </div>
 
           <div className="flex items-center gap-4 text-slate-400">
@@ -242,4 +255,4 @@ export function App() {
     </div>
   );
 }
-export default App;
+

@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Check, Search, Armchair, UserCheck, CreditCard, Ticket } from "lucide-react";
 

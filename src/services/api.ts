@@ -15,22 +15,33 @@ import type {
 const CONFIG_STORAGE_KEY = "chilepasajes_api_config";
 const TICKETS_STORAGE_KEY = "chilepasajes_local_tickets";
 
-// Configuración GDS Oficial (Leída desde variables de entorno con fallback)
+// Configuración GDS Oficial (Leída desde variables de entorno Next.js con fallback)
 export const DEFAULT_CONFIG: ApiConfig = {
-  baseUrl: (import.meta.env.VITE_CHILEPASAJES_BASE_URL || "https://back-qas.enbus.cl/api/v1").trim(),
-  apiKey: (import.meta.env.VITE_CHILEPASAJES_API_KEY || "sk_test_FtC48QXZHlbvE").trim(),
+  baseUrl: (
+    process.env.NEXT_PUBLIC_CHILEPASAJES_BASE_URL ||
+    "https://back-qas.enbus.cl/api/v1"
+  ).trim(),
+  apiKey: (
+    process.env.NEXT_PUBLIC_CHILEPASAJES_API_KEY ||
+    "sk_test_FtC48QXZHlbvE"
+  ).trim(),
   mode: "gds_direct",
 };
 
-export const GDS_COMPLEMENT = import.meta.env.VITE_CHILEPASAJES_COMPLEMENT || "pasajes";
-export const GDS_DEVICE = import.meta.env.VITE_CHILEPASAJES_DEVICE || "P";
-export const HOLD_MINUTES = Number(import.meta.env.VITE_HOLD_DURATION_MINUTES) || 15;
+export const GDS_COMPLEMENT =
+  process.env.NEXT_PUBLIC_CHILEPASAJES_COMPLEMENT || "pasajes";
+export const GDS_DEVICE =
+  process.env.NEXT_PUBLIC_CHILEPASAJES_DEVICE || "P";
+export const HOLD_MINUTES =
+  Number(process.env.NEXT_PUBLIC_HOLD_DURATION_MINUTES) || 15;
 
 export function getApiConfig(): ApiConfig {
   try {
-    const raw = localStorage.getItem(CONFIG_STORAGE_KEY);
-    if (raw) {
-      return { ...DEFAULT_CONFIG, ...JSON.parse(raw) };
+    if (typeof window !== "undefined") {
+      const raw = localStorage.getItem(CONFIG_STORAGE_KEY);
+      if (raw) {
+        return { ...DEFAULT_CONFIG, ...JSON.parse(raw) };
+      }
     }
   } catch (e) {
     console.error("Error al leer configuración de API:", e);
@@ -39,8 +50,10 @@ export function getApiConfig(): ApiConfig {
 }
 
 export function saveApiConfig(config: ApiConfig): void {
-  localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
-  window.dispatchEvent(new Event("chilepasajes_config_changed"));
+  if (typeof window !== "undefined") {
+    localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
+    window.dispatchEvent(new Event("chilepasajes_config_changed"));
+  }
 }
 
 // Log listener bus para el Inspector de API en tiempo real
@@ -70,6 +83,7 @@ function recordLog(entry: ApiLogEntry): void {
 // Almacenamiento local de boletos emitidos por el GDS
 export function getSavedTickets(): IssuedTicket[] {
   try {
+    if (typeof window === "undefined") return [];
     const raw = localStorage.getItem(TICKETS_STORAGE_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch {
@@ -78,6 +92,7 @@ export function getSavedTickets(): IssuedTicket[] {
 }
 
 export function saveTicket(ticket: IssuedTicket): void {
+  if (typeof window === "undefined") return;
   const current = getSavedTickets();
   const filtered = current.filter(
     (t) => t.ticket_code !== ticket.ticket_code && t.ticket_id !== ticket.ticket_id
@@ -86,6 +101,7 @@ export function saveTicket(ticket: IssuedTicket): void {
 }
 
 export function updateSavedTicket(ticketIdentifier: string, patch: Partial<IssuedTicket>): void {
+  if (typeof window === "undefined") return;
   const current = getSavedTickets();
   const updated = current.map((t) => {
     if (

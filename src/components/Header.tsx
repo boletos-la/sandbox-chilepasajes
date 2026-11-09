@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import { Bus, RotateCcw, Ticket, Terminal, Activity, CheckCircle2 } from "lucide-react";
 import { getApiConfig, getSavedTickets, subscribeApiLogs } from "../services/api";
