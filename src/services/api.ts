@@ -15,12 +15,16 @@ import type {
 const CONFIG_STORAGE_KEY = "chilepasajes_api_config";
 const TICKETS_STORAGE_KEY = "chilepasajes_local_tickets";
 
-// Configuración GDS Oficial
+// Configuración GDS Oficial (Leída desde variables de entorno con fallback)
 export const DEFAULT_CONFIG: ApiConfig = {
-  baseUrl: "https://back-qas.enbus.cl/api/v1",
-  apiKey: "sk_test_FtC48QXZHlbvE",
+  baseUrl: (import.meta.env.VITE_CHILEPASAJES_BASE_URL || "https://back-qas.enbus.cl/api/v1").trim(),
+  apiKey: (import.meta.env.VITE_CHILEPASAJES_API_KEY || "sk_test_FtC48QXZHlbvE").trim(),
   mode: "gds_direct",
 };
+
+export const GDS_COMPLEMENT = import.meta.env.VITE_CHILEPASAJES_COMPLEMENT || "pasajes";
+export const GDS_DEVICE = import.meta.env.VITE_CHILEPASAJES_DEVICE || "P";
+export const HOLD_MINUTES = Number(import.meta.env.VITE_HOLD_DURATION_MINUTES) || 15;
 
 export function getApiConfig(): ApiConfig {
   try {
@@ -205,7 +209,7 @@ let cachedRoads: any[] | null = null;
 
 export async function getLiveRoads(): Promise<any[]> {
   if (cachedRoads && cachedRoads.length > 0) return cachedRoads;
-  const res = await apiFetch<any[]>("/buses/get-roads?complement=pasajes", { method: "GET" });
+  const res = await apiFetch<any[]>(`/buses/get-roads?complement=${encodeURIComponent(GDS_COMPLEMENT)}`, { method: "GET" });
   if (Array.isArray(res.data) && res.data.length > 0) {
     cachedRoads = res.data;
     return cachedRoads;
@@ -295,7 +299,7 @@ export async function searchServices(
   const dClean = encodeURIComponent(destName.toLowerCase().trim());
 
   const res = await apiFetch<any>(
-    `/buses/schedules?city_or=${oClean}&city_de=${dClean}&date_or=${ddmmyyyy}&complement=pasajes`,
+    `/buses/schedules?city_or=${oClean}&city_de=${dClean}&date_or=${ddmmyyyy}&complement=${encodeURIComponent(GDS_COMPLEMENT)}`,
     { method: "GET" }
   );
 
@@ -407,8 +411,8 @@ export async function createReservation(payload: {
     method: "POST",
     body: JSON.stringify({
       session: payload.session,
-      complement: "pasajes",
-      device: "P",
+      complement: GDS_COMPLEMENT,
+      device: GDS_DEVICE,
       reserves: payload.reserves,
     }),
   });
