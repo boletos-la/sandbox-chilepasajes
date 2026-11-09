@@ -1,0 +1,1102 @@
+openapi: 3.0.3
+
+info:
+  title: API de Integración Chilepasajes
+  version: "1.1.0"
+  description: |
+    API para integradores externos de **Chilepasajes**. Permite buscar
+    horarios, seleccionar asientos, reservar, registrar los datos del comprador,
+    recibir el pago y obtener los tickets resultantes.
+
+    ## Autenticación
+    Todas las peticiones requieren un token Bearer:
+
+    ```
+    Authorization: Bearer TU_API_KEY
+    ```
+
+    El `api_key` lo entrega Chilepasajes a cada vendedor (seller). Respuestas de
+    error de autenticación:
+    - `401` token no enviado o inválido.
+    - `403` vendedor inactivo / suspendido o sin permiso para el recurso.
+
+    Cada seller tiene un mapa de permisos por recurso. Los endpoints que
+    dependen de un permiso lo indican en su descripción (ej.
+    `available_payment_methods`, `available_cancel`).
+
+    ## Flujo de compra (orden recomendado)
+    1. **Obtener Horarios** — `GET /buses/schedules` (ida y opcional regreso) o
+       `GET /buses/schedules/single` (un sentido por llamada). Devuelve servicios
+       con un `token` por viaje.
+    2. **Obtener Asientos** — `POST /buses/seat-map`. Mapa de asientos del/los
+       servicio(s). Cada asiento trae su `idreserve`; entrega paraderos en
+       `stops` (`subida` / `bajada`).
+    3. **Reservar Asientos** — `POST /buses/reserve`. Reserva los asientos por
+       su `idreserve`. Crea la orden y devuelve `order_id`, los `ticket_id`
+       reservados (reserva temporal) y, si el seller tiene el permiso
+       `available_payment_methods`, los `payment_methods` disponibles.
+    4. **Actualizar Reserva** — `POST /buses/update-reserve`. Registra datos del
+       comprador y pasajeros; devuelve la URL/identificador de pago.
+    5. **Notificar Pago** — el comprador paga en la pasarela del integrador y el
+       integrador notifica el pago con `POST /buses/payment/notification`. Con
+       esto se confirma la orden y se emiten los tickets.
+    6. **Estado / Resultado** — `GET /buses/payment-status` y `GET /buses/success`.
+    7. **Tickets y PDFs** — `POST /buses/get-tickets-by-uuid`,
+       `GET /buses/download-ticket`, `GET /buses/download-boarding-card`.
+
+    Si la reserva expira, `update-reserve` responde
+    `400 "Tiempo de reserva agotado, vuelva a realizar su compra"` y hay que
+    rehacer el flujo desde `/seat-map`.
+
+    ## Viajes con transbordo
+    Un **transbordo** es un viaje de ida compuesto por varios tramos
+    consecutivos, cada uno operado por un bus distinto (ej.
+    `Neuquén → Mendoza → Córdoba`, dos buses). El pasajero elige **un asiento
+    por tramo**, y el flujo emite **un boleto por tramo**.
+
+    - En `GET /buses/schedules` y `GET /buses/schedules/single` el servicio trae
+      `is_transfer: true`. Los tramos
+      **no viajan en el response**: van dentro del `token`, que se envía tal cual
+      a `/seat-map`. No hay que armar ni pedir tokens por tramo.
+    - `POST /buses/seat-map` detecta el transbordo desde el token y, en lugar del
+      mapa plano, devuelve bajo `IDA` (o `REG`) el objeto
+      `{ "is_transfer": true, "legs": [...] }`, con un mapa de asientos por
+      tramo. Cada elemento de `legs` trae `leg` (1, 2, …), `from`, `to`,
+      `departure_date`, `departure_time`, `arrival_date`, `arrival_time`,
+      `price` y los pisos/asientos de ese tramo.
+    - `POST /buses/reserve` recibe **un `idreserve` por tramo** en `reserves` y
+      devuelve un `ticket_id` por tramo. De ahí en adelante el flujo no cambia.
+
+    Los viajes directos mantienen exactamente la forma de siempre. Si al token le
+    falta algún dato de un tramo, el servicio se procesa como viaje directo en vez
+    de devolver un mapa incompleto.
+
+    ## Identificadores
+    - `session` — UUID que **genera el integrador** y acompaña todo el flujo
+      (`seat-map`, `reserve`, `update-reserve`).
+    - `order_id` — UUID de la orden en Chilepasajes (devuelto por `/reserve`).
+    - `external_order_id` / `external_cab_id` — id corto de la orden
+      (ej. `0091F6E5`). `GET /buses/success` y las descargas de PDF aceptan
+      cualquiera de los dos.
+    - `ticket_id` — UUID del boleto en `/reserve` y `/update-reserve`; en
+      `/success` y en las descargas de PDF es el id externo (ej. `01D1S9VC`).
+
+    ## Multimoneda (CLP y MXN)
+    Chilepasajes opera en **Chile (CLP)** y **México (MXN)**. Los montos viajan
+    en la **moneda nativa de la empresa de bus**, indicada en el campo
+    `currency` de horarios, tickets y órdenes. **Nunca asumir CLP**: MXN usa 2
+    decimales y CLP ninguno. Los campos `usd_*` / `price_usd` son USD real,
+    no la moneda local.
+
+    Los medios de pago devueltos dependen del mercado del seller autenticado:
+    un seller de México recibe el catálogo MXN.
+
+    ## Límites de tasa
+    El grupo `/buses` está limitado por IP y por `session`:
+    - `flow` — tope general del flujo: 120/min por IP, 180/min por sesión.
+    - `reads` — horarios y catálogos: 60/min por IP, 90/min por sesión.
+    - `reserve` — `seat-map`, `reserve`, `update-reserve`: 20/min por IP,
+      30/min por sesión. Superarlo repetidas veces escala a un bloqueo temporal
+      por IP.
+
+    Al superarlos se responde `429` con
+    `{ "message": "Too Many Requests", "error_key": "RATE_LIMITED" }`.
+    Las descargas de PDF no cuentan contra el límite `flow`.
+
+    ## Formato de respuesta
+    Todas las respuestas JSON usan la envoltura:
+    ```json
+    { "success": true, "response": { ... } }
+    ```
+    En error: `{ "success": false, "response": { "message": "...", "error_code": 400, "details": null, "error_key": null } }`
+
+    `error_key` trae un código estable cuando existe (ej. `RATE_LIMITED`,
+    `TOO_MANY_HOLDS`, `RESERVATION_LIMIT_EXCEEDED`); en el resto es `null`.
+
+    > **Pruebas:** usa el servidor **QA** del selector para no generar reservas ni
+    > pagos reales. Cambia a Producción sólo con datos reales.
+
+servers:
+  - url: https://back-qas.enbus.cl/api/v1
+    description: QA (pruebas) — usar por defecto
+  - url: https://back-prod.enbus.cl/api/v1
+    description: Producción
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Flujo de compra
+    description: Pasos para crear y pagar una orden.
+  - name: Post-pago
+    description: Estado del pago, resultado y descarga de tickets.
+  - name: Post-venta
+    description: Anulación y cambio de boletos para sellers externos.
+  - name: Catálogos
+    description: Datos de referencia (ciudades, empresas, tramos).
+
+paths:
+
+  /buses/schedules:
+    get:
+      tags: [Flujo de compra]
+      summary: Obtener Horarios
+      description: |
+        Busca servicios disponibles para una ruta y fecha. Cada servicio incluye
+        un `token` que identifica ese viaje y se usa en los pasos siguientes
+        (`/seat-map`, `/reserve`). Para ida y vuelta se obtienen dos tokens.
+
+        El precio viene en la moneda de la empresa (`currency`): revisar siempre
+        ese campo antes de formatear el monto.
+
+        `is_transfer: true` marca un viaje con **transbordo** (varios tramos, un
+        bus por tramo). Los tramos no vienen en el response: viajan dentro del
+        `token`, que se envía tal cual a `/seat-map`. Ver la sección *Viajes con
+        transbordo* de la introducción.
+
+        Límite: `reads` (60/min por IP).
+      parameters:
+        - name: city_or
+          in: query
+          required: true
+          description: "`search_name` de la ciudad de origen (campo `search_name` de `GET /buses/get-cities`, no el `id`)."
+          schema: { type: string, example: "santiago" }
+        - name: city_de
+          in: query
+          required: true
+          description: "`search_name` de la ciudad de destino (campo `search_name` de `GET /buses/get-cities`)."
+          schema: { type: string, example: "talca" }
+        - name: date_or
+          in: query
+          required: true
+          description: "Fecha de ida. Se acepta `DD-MM-YYYY` (formato nativo) o `YYYY-MM-DD`, que se normaliza automáticamente. No se permiten fechas pasadas."
+          schema: { type: string, example: "25-09-2025" }
+        - name: date_reg
+          in: query
+          required: false
+          description: "Fecha de regreso, mismo formato que `date_or` y mayor o igual a ella. Omitir para sólo ida."
+          schema: { type: string, example: "28-09-2025" }
+        - name: complement
+          in: query
+          required: true
+          description: Identificador de la página/empresa (ej. `pasajes`).
+          schema: { type: string, example: "pasajes" }
+      responses:
+        "200":
+          description: Servicios encontrados.
+          content:
+            application/json:
+              example:
+                success: true
+                response:
+                  IDA:
+                    nearby_dates:
+                      - { date: "2025-09-25T03:00:00.000000Z", date_text: "Jueves, 25 de septiembre", price: 9000 }
+                      - { date: "2025-09-26T03:00:00.000000Z", date_text: "Viernes, 26 de septiembre", price: 9000 }
+                    services:
+                      - service_id: "2717310"
+                        company_id: 999
+                        company_name: "Empresa De Pruebas"
+                        company_logo: "https://cdn-chilepasajes.azureedge.net/cdn-clp/logos/logo_new.png"
+                        city_departure: "Talca"
+                        city_arrival: "Santiago"
+                        departs_at: "2025-09-25T20:30:00-03:00"
+                        departs_at_hour: "20:30 PM"
+                        departs_at_day: "Thursday"
+                        arrives_at: "2025-09-25T23:30:00-03:00"
+                        arrives_at_hour: "23:30 PM"
+                        arrives_at_day: "Thursday"
+                        duration: "PT3H0M"
+                        price: 9000
+                        price_punto: "$ 9.000"
+                        currency: "CLP"
+                        available_seats: 43
+                        seat_class: "SALON CAMA"
+                        station_departure: "Terminal Talca"
+                        station_arrival: "Terminal Sur"
+                        route_description: "Servicio directo"
+                        direct_trip: true
+                        is_transfer: false
+                        is_cancellable: true
+                        pet_active: false
+                        boarding_ticket: true
+                        rating_stats: { promedio: 4.5, votos: 120 }
+                        amenities: []
+                        ident: "data0"
+                        token: "eyJ...token_ida..."
+        "400":
+          description: Petición inválida (ej. fecha pasada o formato incorrecto).
+          content:
+            application/json:
+              example: { success: false, response: { message: "No se puede seleccionar fechas pasadas", error_code: 400, details: null, error_key: null } }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "429": { $ref: '#/components/responses/RateLimited' }
+
+  /buses/schedules/single:
+    get:
+      tags: [Flujo de compra]
+      summary: Obtener Horarios (un sentido)
+      description: |
+        Igual que `/buses/schedules` pero devuelve un solo sentido por llamada.
+        Útil cuando el integrador arma ida y regreso en pantallas separadas: se
+        pide primero `direction=IDA` y luego `direction=REG` pasando
+        `selected_outbound_arrives_at` con la llegada del servicio de ida
+        elegido, para filtrar regresos imposibles.
+
+        La respuesta tiene la misma forma que `/buses/schedules`, con una sola
+        clave (`IDA` o `REG`), incluido `is_transfer` para los viajes con
+        transbordo.
+
+        Límite: `reads` (60/min por IP).
+      parameters:
+        - name: city_or
+          in: query
+          required: true
+          schema: { type: string, example: "santiago" }
+        - name: city_de
+          in: query
+          required: true
+          schema: { type: string, example: "talca" }
+        - name: date
+          in: query
+          required: true
+          description: "Fecha del sentido pedido. `DD-MM-YYYY` o `YYYY-MM-DD`."
+          schema: { type: string, example: "25-09-2025" }
+        - name: direction
+          in: query
+          required: true
+          description: Sentido del viaje.
+          schema: { type: string, enum: [IDA, REG], example: "IDA" }
+        - name: selected_outbound_arrives_at
+          in: query
+          required: false
+          description: "(Opcional, sólo con `direction=REG`) Fecha/hora de llegada del servicio de ida ya elegido."
+          schema: { type: string, format: date-time, example: "2025-09-25T23:30:00-03:00" }
+        - name: complement
+          in: query
+          required: true
+          schema: { type: string, example: "pasajes" }
+      responses:
+        "200":
+          description: Servicios del sentido pedido.
+          content:
+            application/json:
+              example:
+                success: true
+                response:
+                  IDA:
+                    services:
+                      - service_id: "2717310"
+                        company_id: 999
+                        company_name: "Empresa De Pruebas"
+                        price: 9000
+                        currency: "CLP"
+                        available_seats: 43
+                        is_cancellable: true
+                        token: "eyJ...token_ida..."
+        "400":
+          description: Datos inválidos (fecha pasada, dirección distinta de IDA/REG).
+          content:
+            application/json:
+              example: { success: false, response: { message: "La dirección debe ser IDA o REG", error_code: 400, details: null, error_key: null } }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "429": { $ref: '#/components/responses/RateLimited' }
+
+  /buses/seat-map:
+    post:
+      tags: [Flujo de compra]
+      summary: Obtener Asientos
+      description: |
+        Devuelve el mapa de asientos de uno o dos servicios (ida/regreso). El
+        arreglo `token` recibe los tokens entregados por `/schedules`.
+
+        Por cada viaje (`IDA` / `REG`) la respuesta incluye los asientos en
+        `FLOORS` (cada asiento trae su `idreserve`, que se usa luego en
+        `/reserve`) y los paraderos en `stops` (`subida` y `bajada`). Los
+        nombres de `stops.subida` / `stops.bajada` se usan como `stops` / `downs`
+        del pasajero en `/update-reserve`.
+
+        `limit_reserve` indica el máximo de asientos que la empresa permite
+        reservar en una misma orden.
+
+        **Transbordo.** Si el token corresponde a un viaje con transbordo, la
+        clave `IDA` (o `REG`) no trae el mapa plano sino un mapa por tramo:
+
+        ```json
+        {
+          "is_transfer": true,
+          "legs": [
+            {
+              "leg": 1,
+              "from": "Neuquén",
+              "to": "Mendoza",
+              "departure_date": "2026-07-21",
+              "departure_time": "10:30",
+              "arrival_date": "2026-07-21",
+              "arrival_time": "17:45",
+              "price": 32000,
+              "FLOORS": { "1": [ { "seat": 12, "idreserve": "eyJ..." } ] },
+              "stops": { "subida": [], "bajada": [] }
+            },
+            { "leg": 2, "from": "Mendoza", "to": "Córdoba" }
+          ]
+        }
+        ```
+
+        El pasajero elige un asiento en cada tramo y se envían todos los
+        `idreserve` juntos a `/reserve`. Los viajes directos conservan la forma
+        de siempre.
+
+        Límite: `reserve` (20/min por IP).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, session]
+              properties:
+                token:
+                  type: array
+                  description: Tokens de servicio (ida y, opcional, regreso) desde `/schedules`.
+                  items: { type: string }
+                  example: ["eyJ...token_ida..."]
+                session:
+                  type: string
+                  format: uuid
+                  description: UUID que identifica la sesión de compra (lo genera el integrador).
+                  example: "e715b829-4c25-47ac-9fb6-2635804993f7"
+      responses:
+        "200":
+          description: Mapa de asientos.
+          content:
+            application/json:
+              example:
+                success: true
+                response:
+                  IDA:
+                    depart_message: { available: true, message: "", permite_venta: true, blank_trip: "", message_pet: "<...html...>", message_mov_redu: "..." }
+                    cant_floors: 2
+                    limit_reserve: 6
+                    floor_1_klass:
+                      - { tipoasiento: "SALON CAMA", typeseat: 4, price: 9000, tipoasiento2: "salon-cama" }
+                    FLOORS:
+                      "1":
+                        - { cell: 4, order: 1, typeseat: 4, floor: 1, type: "Salon Cama", seat: 32, seat_klass: "SALON CAMA", price: 9000, available: true, mov_redu: false, pet: false, usd: 9.46, travel_dir: "IDA", idreserve: "eyJ...idreserve..." }
+                    stops:
+                      subida:
+                        - { name: "TALCA", id: 0 }
+                        - { name: "2 NORTE", id: 284 }
+                      bajada:
+                        - { name: "SANTIAGO", id: 0 }
+        "400":
+          description: |
+            Token o combinación de servicios inválida. Mensajes posibles:
+            - `Debe seleccionar al menos un servicio` — `token` vacío.
+            - `Debes seleccionar un servicio de ida primero` — se envió un único token y es de regreso.
+            - `No se pueden procesar dos servicios del mismo tipo (IDA)` — los dos tokens son del mismo sentido.
+            - `Los servicios deben ser uno de IDA y otro de REG` — la pareja de tokens no forma ida + regreso.
+            - `La fecha de salida del regreso debe ser posterior a la fecha de llegada del viaje de ida` — se devuelve con `error_code: "INVALID_RETURN_DATE"`.
+          content:
+            application/json:
+              example: { success: false, response: { message: "Debe seleccionar al menos un servicio", error_code: 400, details: null, error_key: null } }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "429": { $ref: '#/components/responses/RateLimited' }
+        "500":
+          description: Error procesando el mapa.
+          content:
+            application/json:
+              example: { success: false, response: { message: "Error al procesar el mapa de asientos", error_code: 500, details: null, error_key: null } }
+
+  /buses/reserve:
+    post:
+      tags: [Flujo de compra]
+      summary: Reservar Asientos
+      description: |
+        Crea la orden y reserva temporalmente los asientos. Devuelve `order_id`
+        y los `ticket_id` generados, necesarios para los pasos siguientes.
+
+        Si el seller tiene el permiso `available_payment_methods`, la respuesta
+        incluye además `payment_methods` con los medios disponibles para usar en
+        `/update-reserve`.
+
+        En un viaje con **transbordo** se envía un `idreserve` por tramo dentro
+        de `reserves`; la orden queda con un `ticket_id` por tramo.
+
+        `birth_date_required` indica si el viaje exige fecha de nacimiento de
+        cada pasajero (viajes internacionales o empresas que lo piden); en ese
+        caso `birth_date` deja de ser opcional en `/update-reserve`.
+
+        La retención es temporal: si no se completa el pago, un proceso libera
+        los asientos y la orden queda no finalizada.
+
+        Límite: `reserve` (20/min por IP) + protección Turnstile. También se
+        limita la cantidad de reservas activas simultáneas por IP
+        (`error_key: TOO_MANY_HOLDS`) y por sesión
+        (`error_key: RESERVATION_LIMIT_EXCEEDED`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [session, reserves]
+              properties:
+                session: { type: string, format: uuid, example: "e715b829-4c25-47ac-9fb6-2635804993f7" }
+                complement: { type: string, example: "pasajes" }
+                device:
+                  type: string
+                  description: Dispositivo de origen (P=web propio, M=móvil, T=totem/POS). Por defecto `P`.
+                  example: "P"
+                reserves:
+                  type: array
+                  description: "Tokens `idreserve` de los asientos elegidos, obtenidos del mapa de asientos (`FLOORS[].idreserve` en `/seat-map`). Uno por asiento (ida y, si aplica, regreso)."
+                  items: { type: string }
+                  example: ["eyJ...idreserve..."]
+                marketing_params:
+                  type: string
+                  description: (Opcional) Parámetros de marketing/tracking asociados a la reserva.
+      responses:
+        "200":
+          description: Orden reservada.
+          content:
+            application/json:
+              example:
+                success: true
+                response:
+                  order:
+                    order_id: "e1edf3ee-0837-4b5b-9ee0-60ede71683ef"
+                    session: "e715b829-4c25-47ac-9fb6-2635804993f7"
+                    purchase_date: "2025-09-25 11:56:47"
+                    total_purchase: 9000
+                    frequent_client: false
+                    birth_date_required: false
+                    points: 1800
+                    wtsp_fee: { apply: false, fee_amount: 0, fee_currency: "", fee_message: "" }
+                    tickets:
+                      - ticket_id: "ebfdbbab-1fda-44fe-8a11-1d43010475b8"
+                        company_ticket_id: "22292-437"
+                        order_id: "e1edf3ee-0837-4b5b-9ee0-60ede71683ef"
+                        session: "e715b829-4c25-47ac-9fb6-2635804993f7"
+                        price: 9000
+                        extra_fee: 0
+                        price_usd: 9.46
+                        usd_extra_fee: 0
+                        city_origin_name: "talca"
+                        city_destination_name: "santiago"
+                        city_origin_id: 300
+                        city_destination_id: 100
+                        departure_date: "2025-09-25T20:30:00-03:00"
+                        seat: 32
+                        seat_type: "SALON CAMA"
+                        stops: "TALCA"
+                        downs: "SANTIAGO"
+                        travel_dir: "IDA"
+                        pet: false
+                        canilpar: null
+                        ing_kms: false
+                        birthdate_required: false
+                  payment_methods:
+                    - { id: 12, key: "RECIBOPAGOS", name: "Tarjeta de crédito/débito", image: "https://.../rp.png", preferred_method: true, text: "Paga con tarjeta", processor_code: "RP", payment_method_code: "CARD", currency: "CLP" }
+        "400":
+          description: Datos requeridos faltantes o límite de reservas alcanzado.
+          content:
+            application/json:
+              examples:
+                faltan_datos:
+                  value: { success: false, response: { message: "Las reservas son requeridas", error_code: 400, details: null, error_key: null } }
+                demasiadas_reservas:
+                  value: { success: false, response: { message: "Demasiadas reservas activas", error_code: 400, details: null, error_key: "TOO_MANY_HOLDS" } }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "429": { $ref: '#/components/responses/RateLimited' }
+        "500":
+          description: Error al reservar.
+          content:
+            application/json:
+              example: { success: false, response: { message: "Error al reservar asientos", error_code: 500, details: null, error_key: null } }
+
+  /buses/update-reserve:
+    post:
+      tags: [Flujo de compra]
+      summary: Actualizar Reserva
+      description: |
+        Registra los datos del comprador y de cada pasajero, aplica los
+        productos elegidos y devuelve la información para iniciar el pago
+        (URL de pasarela o identificador de pago según el método).
+
+        `client.payment_method` es el `key` de `payment_methods`, devuelto por
+        `/reserve`.
+
+        `products` es obligatorio: enviar `[]` si no hay extras.
+        `frecuent_client_code` es obligatorio: enviar `0` si no aplica.
+        `birth_date` es obligatorio sólo cuando `/reserve` devolvió
+        `birth_date_required: true`.
+
+        Si un cupón o crédito comercial cubre el total, la orden se confirma
+        aquí mismo y la respuesta es la de compra exitosa, sin pasar por
+        pasarela.
+
+        Límite: `reserve` (20/min por IP).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [client, reserves, products, frecuent_client_code]
+              properties:
+                client:
+                  type: object
+                  required: [order_id, session_id, cod_phone, phone, email, payment_method]
+                  properties:
+                    order_id: { type: string, format: uuid, description: "UUID de la orden reservada." }
+                    session_id: { type: string, format: uuid, description: "UUID de la sesión de compra." }
+                    cod_phone: { type: string, example: "+56", description: "Prefijo telefónico del comprador." }
+                    phone: { type: string, example: "999139604" }
+                    email: { type: string, format: email, example: "comprador@correo.com" }
+                    payment_method: { type: string, example: "PAYPAL", description: "`key` del medio de pago elegido." }
+                    lang: { type: string, example: "es" }
+                reserves:
+                  type: array
+                  description: Datos de cada pasajero por ticket.
+                  items:
+                    type: object
+                    required: [ticket_id, document, document_type, first_name, last_name, country]
+                    properties:
+                      ticket_id: { type: string, format: uuid, description: "UUID del boleto a actualizar (de `/reserve`)." }
+                      document: { type: string, description: "Número de documento del pasajero." }
+                      document_type: { type: string, enum: [RUT, PASAPORTE, DNI, INE], description: "Tipo de documento del pasajero.", example: "RUT" }
+                      first_name: { type: string, description: "Nombre del pasajero." }
+                      last_name: { type: string, description: "Apellido del pasajero." }
+                      country: { type: string, description: "Código de país del pasajero (ISO, ej. CL).", example: "CL" }
+                      birth_date: { type: string, format: date, description: "Fecha de nacimiento (YYYY-MM-DD). Obligatoria si `/reserve` devolvió `birth_date_required: true`.", example: "1998-11-18" }
+                      cod_phone: { type: string, description: "(Opcional) Prefijo telefónico del pasajero.", example: "+56" }
+                      phone: { type: string, description: "(Opcional) Teléfono del pasajero." }
+                      stops: { type: string, description: "(Opcional) Paradero de subida (de `stops` en `/seat-map`)." }
+                      downs: { type: string, description: "(Opcional) Paradero de bajada (de `stops` en `/seat-map`)." }
+                products:
+                  type: array
+                  description: "`serial` de los productos adicionales. Obligatorio enviarlo; usar `[]` si no hay extras."
+                  items: { type: string }
+                  example: []
+                frecuent_client_code:
+                  type: integer
+                  description: Código de cliente frecuente. Obligatorio; usar 0 si no aplica.
+                  example: 0
+      responses:
+        "200":
+          description: |
+            Reserva actualizada. Según el método de pago devuelve una URL de
+            pasarela, un identificador de pago directo, o el resultado de la
+            compra si ya quedó pagada sin pasarela.
+          content:
+            application/json:
+              examples:
+                con_pasarela:
+                  summary: Con pasarela de pago
+                  value: { success: true, response: { url: "https://qa.recibopagos.com/orders/payment/18c0e747-27a5-47b1-8dff-238e31f11182", monto: 9000, session: "e715b829-4c25-47ac-9fb6-2635804993f7" } }
+                sin_pasarela:
+                  summary: Sin pasarela (pago directo)
+                  value: { success: true, response: { idpago: "d9bd038f-acc4-41cd-9644-1dfdc98c7166", session: "e715b829-4c25-47ac-9fb6-2635804993f7", monto: 9000, puntos: 1800, payment_method: "PAYPAL", external_cab_id: "0091F6E5" } }
+                pos:
+                  summary: Totem (device = T), cobro en POS físico
+                  value: { success: true, response: { pay_on_pos: true, monto: 9000, session: "e715b829-4c25-47ac-9fb6-2635804993f7", idpago: "d9bd038f-acc4-41cd-9644-1dfdc98c7166", payment_method: "RECIBOPAGOS_POS", external_cab_id: "0091F6E5" } }
+        "400":
+          description: Reserva expirada, orden ya pagada u otro error de negocio.
+          content:
+            application/json:
+              examples:
+                expirada:
+                  value: { success: false, response: { message: "Tiempo de reserva agotado, vuelva a realizar su compra", error_code: 400, details: null, error_key: null } }
+                ya_pagada:
+                  value: { success: false, response: { message: "No se puede actualizar esta orden, ya está pagada o confirmada.", error_code: 400, details: "ORDER_ALREADY_PAID_OR_CONFIRMED", error_key: null } }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "403":
+          description: Sesión no relacionada a la compra.
+          content:
+            application/json:
+              example: { success: false, response: { message: "Sesión no relacionada a la compra", error_code: 403, details: null, error_key: null } }
+        "429": { $ref: '#/components/responses/RateLimited' }
+        "500":
+          description: Error al actualizar.
+          content:
+            application/json:
+              example: { success: false, response: { message: "Error al actualizar las reservas", error_code: 500, details: "El método de pago es requerido", error_key: null } }
+
+  /buses/payment/notification:
+    post:
+      tags: [Flujo de compra]
+      summary: Notificar Pago
+      description: |
+        El integrador notifica a Chilepasajes que la orden fue pagada en su
+        propia pasarela. Con esta notificación se confirma la orden y se emiten
+        los tickets. Debe enviarse una vez completado el pago por el comprador.
+
+        ⚠️ **Atención a los nombres de los campos:**
+        - `merchant_order_id` — identificador de la orden **en Chilepasajes**
+          (el `order_id` UUID de `/reserve`, o el `external_cab_id`).
+        - `order_id` — identificador de la orden **en el sistema del
+          integrador** (referencia del pago en su pasarela).
+
+        Este endpoint queda **fuera** de la autenticación por API-key: no envía
+        `Authorization`. Las notificaciones concurrentes del mismo pago se
+        serializan, así que reenviarla es seguro: la segunda responde `201`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status, merchant_order_id, order_id]
+              properties:
+                status:
+                  type: string
+                  description: "Estado del pago (`created`, `paid`, `fail`). La confirmación de la orden y la emisión de tickets sólo se disparan con `paid`."
+                  example: "paid"
+                merchant_order_id:
+                  type: string
+                  description: "Identificador de la orden **en Chilepasajes**: UUID de `/reserve` o `external_cab_id`."
+                  example: "e1edf3ee-0837-4b5b-9ee0-60ede71683ef"
+                order_id:
+                  type: string
+                  description: Identificador de la orden en el sistema/pasarela del integrador.
+                  example: "5170c155-41a5-4a2b-927f-16de963fbd6d"
+                paid_currency:
+                  type: string
+                  description: (Opcional) Moneda en que se pagó.
+                  example: "CLP"
+                paid_amount:
+                  type: number
+                  description: (Opcional) Monto pagado.
+                  example: 18000
+                currencies:
+                  type: array
+                  description: (Opcional) Detalle de montos por moneda, si aplica.
+                  items: { type: object }
+                payment_method:
+                  type: string
+                  description: (Opcional) Medio de pago utilizado por el comprador.
+                  example: "PAYPAL"
+      responses:
+        "200":
+          description: Notificación procesada.
+          content:
+            application/json:
+              example: { success: true, response: { message: "Notificación procesada correctamente" } }
+        "201":
+          description: La orden ya había sido notificada como pagada (reenvío idempotente).
+          content:
+            application/json:
+              example: { success: false, response: { message: "La orden ya fue notificada como pagada.", error_code: 201, details: null, error_key: null } }
+        "400":
+          description: No se pudo validar el pago (monto o estado inconsistente).
+          content:
+            application/json:
+              example: { success: false, response: { message: "No se pudo validar el pago.", error_code: 400, details: null, error_key: null } }
+        "404":
+          description: No existe una orden con ese `merchant_order_id`.
+          content:
+            application/json:
+              example: { success: false, response: { message: "Orden no encontrada", error_code: 404, details: null, error_key: null } }
+        "422":
+          description: Error de validación.
+          content:
+            application/json:
+              example: { success: false, response: { message: "Error de validación", error_code: 422, details: null, error_key: null } }
+
+  /buses/payment-status:
+    get:
+      tags: [Post-pago]
+      summary: Obtener Status Orden
+      description: |
+        Indica si la orden está pagada y confirmada. Es el endpoint a consultar
+        entre el pago y `/buses/success`.
+
+        `is_paid` responde por el cobro; `is_confirmed` por la emisión de los
+        tickets con la empresa de bus. **Recién con `is_confirmed: true` los
+        PDFs están disponibles.**
+
+        `should_poll` se mantiene por compatibilidad con las apps en producción
+        y siempre viene `true`: el integrador decide cuándo dejar de consultar
+        (recomendado: hasta `is_confirmed: true` o un tope propio de intentos).
+      parameters:
+        - name: order_id
+          in: query
+          required: true
+          description: UUID de la orden (no acepta el id externo).
+          schema: { type: string, format: uuid, example: "d9bd038f-acc4-41cd-9644-1dfdc98c7166" }
+      responses:
+        "200":
+          description: Estado de la orden.
+          content:
+            application/json:
+              example: { success: true, response: { order_id: "d9bd038f-acc4-41cd-9644-1dfdc98c7166", external_order_id: "0091F6E5", is_paid: true, is_confirmed: true, should_poll: true } }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404":
+          description: Orden no encontrada.
+          content:
+            application/json:
+              example: { success: false, response: { message: "Orden no encontrada", error_code: 404, details: null, error_key: null } }
+        "422":
+          description: Falta el ID de la orden o no es un UUID.
+          content:
+            application/json:
+              example: { success: false, response: { message: "Error al obtener el estado de la orden", error_code: 422, details: "El ID de la orden es requerido", error_key: null } }
+
+  /buses/success:
+    get:
+      tags: [Post-pago]
+      summary: Obtener Orden Pagada
+      description: |
+        Devuelve el detalle de la orden pagada, sus tickets y sus productos.
+
+        Cada ticket indica si es anulable (`cancelable`), cambiable
+        (`changeable`) y si admite cambio de paradero (`change_stop`).
+
+        Si el cupón usado superó el total de la compra, se emite un cupón por el
+        excedente y se informa en `surplus_coupon` / `surplus_amount` /
+        `surplus_until_date`.
+
+        Los montos vienen en la moneda de la orden (`currency`); `price_usd` es
+        el equivalente en USD real.
+      parameters:
+        - name: order_id
+          in: query
+          required: true
+          description: ID de la orden (`external_cab_id` o UUID).
+          schema: { type: string, example: "0091F6E5" }
+      responses:
+        "200":
+          description: Detalle de la orden pagada.
+          content:
+            application/json:
+              example:
+                success: true
+                response:
+                  order_id: "0091F6E5"
+                  amount: "$ 9.000"
+                  currency: "CLP"
+                  tax: "$ 0"
+                  points: 1800
+                  email: "comprador@correo.com"
+                  method: "PAYPAL"
+                  complement: "pasajes"
+                  payment_status: "PAGADO"
+                  url: "https://www.chilepasajes.cl/..."
+                  show_booking: false
+                  surplus_coupon: null
+                  surplus_amount: null
+                  surplus_until_date: null
+                  products: []
+                  tickets:
+                    - ticket_id: "01D1S9VC"
+                      order_id: "0091F6E5"
+                      company_name: "Empresa de Pruebas"
+                      company_type: "PASAJES"
+                      payment_method: "PAYPAL"
+                      price: 9000
+                      currency: "CLP"
+                      price_usd: 9.46
+                      departure_city: "Talca"
+                      destination_city: "Santiago"
+                      seat: 32
+                      seat_type: "SALON CAMA"
+                      stops: "TALCA"
+                      downs: "SANTIAGO"
+                      departure_date: "2025-09-25T20:30:00-03:00"
+                      arrives_date: "2025-09-25T23:30:00-03:00"
+                      cancelable: true
+                      changeable: false
+                      change_stop: false
+                      pet: false
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "422":
+          description: Falta el ID de la orden.
+          content:
+            application/json:
+              example: { success: false, response: { message: "Error al obtener la orden", error_code: 422, details: "El ID de la orden es requerido", error_key: null } }
+
+  /buses/get-tickets-by-uuid:
+    post:
+      tags: [Post-pago]
+      summary: Obtener Tickets
+      description: |
+        Devuelve los boletos de una orden a partir de su UUID, con el registro
+        completo del detalle de transporte (más campos que los mostrados en el
+        ejemplo). Útil para conciliación: incluye `external_detail_id` (el id
+        que se usa como `ticket_id` en las descargas de PDF) y `ticket_qr`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [uuid]
+              properties:
+                uuid: { type: string, format: uuid, description: "UUID de la orden.", example: "fe467741-3363-4550-a255-5929a50cf2e0" }
+      responses:
+        "200":
+          description: Tickets de la orden.
+          content:
+            application/json:
+              example:
+                success: true
+                response:
+                  - id: 100002461
+                    uuid: "fe467741-3363-4550-a255-5929a50cf2e0"
+                    external_detail_id: "01D1S9VC"
+                    company_id: 999
+                    ticket_qr: "22292-437"
+                    price: 9000
+                    currency: "CLP"
+                    seat: 32
+                    seat_type: "SALON CAMA"
+                    departure_date: "2025-09-25 20:30:00"
+                    confirmed: 1
+        "400":
+          description: UUID inválido.
+          content:
+            application/json:
+              example: { success: false, response: { message: "Datos de entrada no válidos", error_code: 400, details: null, error_key: null } }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404":
+          description: Orden o ticket no encontrado.
+          content:
+            application/json:
+              example: { success: false, response: { message: "Orden no encontrada", error_code: 404, details: null, error_key: null } }
+
+  /buses/download-ticket:
+    get:
+      tags: [Post-pago]
+      summary: Descargar Ticket PDF
+      description: |
+        Descarga el PDF del boleto electrónico. La orden debe estar **pagada y
+        confirmada** (`is_confirmed: true` en `/buses/payment-status`); si no,
+        responde `404`.
+
+        `ticket_id` es el id externo del boleto (`external_detail_id`, ej.
+        `01D1S9VC`). Se omite sólo en órdenes de traslado al aeropuerto, donde
+        la descarga se resuelve a nivel de orden.
+
+        Esta ruta no cuenta contra el límite `flow`, para permitir bajar varios
+        boletos seguidos.
+      parameters:
+        - name: order_id
+          in: query
+          required: true
+          description: "`external_cab_id` o UUID de la orden."
+          schema: { type: string, example: "0091F6E5" }
+        - name: ticket_id
+          in: query
+          required: true
+          description: "Id externo del boleto. Sólo opcional en órdenes de traslado al aeropuerto."
+          schema: { type: string, example: "01D1S9VC" }
+      responses:
+        "200":
+          description: PDF del ticket.
+          content:
+            application/pdf:
+              schema: { type: string, format: binary }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404":
+          description: La compra aún no ha sido confirmada, o no se pudo generar el PDF.
+          content:
+            application/json:
+              example: { success: false, response: { message: "La compra aún no ha sido confirmada", error_code: 404, details: null, error_key: null } }
+        "422":
+          description: Parámetro faltante.
+          content:
+            application/json:
+              example: { success: false, response: { message: "Error al descargar el ticket", error_code: 422, details: "ticket_id de la orden es requerido", error_key: null } }
+
+  /buses/download-boarding-card:
+    get:
+      tags: [Post-pago]
+      summary: Descargar Tarjeta de Embarque PDF
+      description: |
+        Descarga el PDF de la tarjeta de embarque. Igual que el boleto, exige
+        orden pagada y confirmada. No cuenta contra el límite `flow`.
+      parameters:
+        - name: order_id
+          in: query
+          required: true
+          description: "`external_cab_id` o UUID de la orden."
+          schema: { type: string, example: "0091F6E5" }
+        - name: ticket_id
+          in: query
+          required: true
+          schema: { type: string, example: "01D1S9VC" }
+      responses:
+        "200":
+          description: PDF de la tarjeta de embarque.
+          content:
+            application/pdf:
+              schema: { type: string, format: binary }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "404":
+          description: La compra aún no ha sido confirmada.
+          content:
+            application/json:
+              example: { success: false, response: { message: "La compra aún no ha sido confirmada", error_code: 404, details: null, error_key: null } }
+        "422":
+          description: Parámetro faltante.
+          content:
+            application/json:
+              example: { success: false, response: { message: "Error al descargar la tarjeta de embarque", error_code: 422, details: "ticket_id de la orden es requerido", error_key: null } }
+
+  /buses/get-cities:
+    get:
+      tags: [Catálogos]
+      summary: Obtener Ciudades
+      description: |
+        Lista de ciudades disponibles. Usar el campo `search_name` como
+        `city_or`/`city_de` en `/schedules`.
+
+        Límite: `reads` (60/min por IP).
+      responses:
+        "200":
+          description: Ciudades.
+          content:
+            application/json:
+              example:
+                success: true
+                response:
+                  cities:
+                    - { id: 100, city: "Santiago, Chile", search_name: "santiago", selected: true }
+                    - { id: 200, city: "Achao, Chile", search_name: "achao", selected: false }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "429": { $ref: '#/components/responses/RateLimited' }
+
+  /buses/get-companies:
+    get:
+      tags: [Catálogos]
+      summary: Obtener Empresas
+      description: Lista de empresas de buses.
+      responses:
+        "200":
+          description: Empresas.
+          content:
+            application/json:
+              example:
+                success: true
+                response:
+                  - { company_id: 5, company_name: "Buses Expreso del Sur", company_logo: "https://cdn-chilepasajes.azureedge.net/cdn-clp/logos/logoexpreso.jpg" }
+                  - { company_id: 6, company_name: "Buses Pullman Tur", company_logo: "https://cdn-chilepasajes.azureedge.net/cdn-clp/logos/chilepasajes-buses-pullmantur_header.jpg" }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+
+  /buses/get-roads:
+    get:
+      tags: [Catálogos]
+      summary: Obtener Tramos
+      description: Lista de tramos (origen/destino) por empresa.
+      responses:
+        "200":
+          description: Tramos.
+          content:
+            application/json:
+              example:
+                success: true
+                response:
+                  - { company_id: 999, company_name: "PRUEBAS", origin_city: "Santiago", destination_city: "Curico", terminal_origin: "", terminal_destination: "" }
+                  - { company_id: 999, company_name: "PRUEBAS", origin_city: "Santiago", destination_city: "Talca", terminal_origin: "", terminal_destination: "" }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+
+  /buses/external/cancel-ticket:
+    post:
+      tags: [Post-venta]
+      summary: Anular Boleto (externos)
+      description: |
+        Anula un boleto pagado. La anulación es inmediata y definitiva.
+
+        Este flujo es el de sellers externos: **no** pide código de
+        verificación, **no** genera cupón ni reembolso y **no** envía correos.
+        Sólo anula el boleto en Chilepasajes y en la empresa de bus; el
+        reembolso al pasajero lo maneja el integrador.
+
+        `order_id` y `ticket_id` aceptan el id externo o el UUID del boleto.
+        Tu cuenta debe tener habilitado el permiso `available_cancel`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExternalTicketRequest'
+      responses:
+        "200":
+          description: Boleto anulado.
+          content:
+            application/json:
+              example:
+                success: true
+                response:
+                  success: true
+                  message: "Anulación realizada."
+                  order_id: "a455f892-fa6b-45dc-b590-4691eea47041"
+                  ticket_id: "fe467741-3363-4550-a255-5929a50cf2e0"
+        "400":
+          description: Datos inválidos o boleto no anulable / ya anulado.
+          content:
+            application/json:
+              examples:
+                no_anulable:
+                  value: { success: false, response: { message: "Este ticket no es anulable", error_code: 400, details: null, error_key: null } }
+                ya_anulado:
+                  value: { success: false, response: { message: "El boleto ya fue anulado", error_code: 400, details: null, error_key: null } }
+                empresa:
+                  value: { success: false, response: { message: "No se pudo anular el ticket con la empresa externa", error_code: 400, details: null, error_key: null } }
+        "401": { $ref: '#/components/responses/Unauthorized' }
+        "403":
+          description: El seller no tiene permiso para anular.
+          content:
+            application/json:
+              example: { success: false, response: { message: "No tienes permisos para anular tickets", error_code: 403, details: null, error_key: null } }
+        "404":
+          description: Orden o ticket no encontrado.
+          content:
+            application/json:
+              example: { success: false, response: { message: "No se encontró la orden con los datos proporcionados", error_code: 404, details: null, error_key: null } }
+        "500":
+          description: Error interno.
+          content:
+            application/json:
+              example: { success: false, response: { message: "Error al anular el ticket", error_code: 500, details: null, error_key: null } }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: "API key del seller entregada por Chilepasajes."
+
+  schemas:
+    ExternalTicketRequest:
+      type: object
+      required: [order_id, ticket_id]
+      properties:
+        order_id:
+          type: string
+          description: ID externo o UUID de la orden.
+          example: "a455f892-fa6b-45dc-b590-4691eea47041"
+        ticket_id:
+          type: string
+          description: ID externo o UUID del boleto (detalle de transporte).
+          example: "fe467741-3363-4550-a255-5929a50cf2e0"
+
+  responses:
+    Unauthorized:
+      description: Token no enviado o inválido / vendedor sin permiso.
+      content:
+        application/json:
+          examples:
+            sin_token:
+              value: { success: false, response: { message: "Token de autorización no proporcionado", error_code: 401, details: null, error_key: null } }
+            invalido:
+              value: { success: false, response: { message: "Token de autorización inválido", error_code: 401, details: null, error_key: null } }
+            inactivo:
+              value: { success: false, response: { message: "Vendedor inactivo o suspendido", error_code: 403, details: null, error_key: null } }
+
+    RateLimited:
+      description: Límite de peticiones superado.
+      content:
+        application/json:
+          example: { message: "Too Many Requests", error_key: "RATE_LIMITED" }
