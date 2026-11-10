@@ -603,7 +603,7 @@ export async function confirmReservation(payload: {
       session_id: meta.session,
       cod_phone: "+56",
       phone: cleanPhone || "912345678",
-      email: buyer.email,
+      email: buyer.email || "cliente@chilepasajes.cl",
       payment_method: "WEBPAY",
       lang: "es",
     },
@@ -642,7 +642,7 @@ export async function confirmReservation(payload: {
     external_order_id: externalOrderId,
     status: "ISSUED",
     purchase_date: new Date().toISOString(),
-    buyer_email: buyer.email,
+    buyer_email: buyer.email || undefined,
     reservation_token: meta.order_id,
     passenger: {
       name: meta.passengers.map((p) => p.name).join(", "),

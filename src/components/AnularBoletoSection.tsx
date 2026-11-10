@@ -149,7 +149,6 @@ export const AnularBoletoSection: React.FC<AnularBoletoSectionProps> = ({
     try {
       const result = await cancelTicket({
         ticket_code: ticketData.ticket_code,
-        buyer_email: ticketData.buyer_email || "usuario@ejemplo.cl",
         cancellation_reason: reason.trim() || "Anulación directa por el usuario",
         order_id: ticketData.order_id,
         simulateOnPermissionError: forceSimulate,
@@ -231,7 +230,7 @@ export const AnularBoletoSection: React.FC<AnularBoletoSectionProps> = ({
                 required
               />
               <span className="text-[11px] text-slate-400 mt-1 block">
-                Figuran en tu comprobante o correo electrónico
+                Figuran en tu comprobante de compra o e-ticket
               </span>
             </div>
 

@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   ArrowRight,
   User,
-  Mail,
   Phone,
   FileText,
   ShieldCheck,
@@ -35,7 +34,6 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
 }) => {
   // Buyer state
   const [buyerName, setBuyerName] = useState("");
-  const [buyerEmail, setBuyerEmail] = useState("");
   const [buyerPhone, setBuyerPhone] = useState("+56 9 ");
   const [buyerDocType, setBuyerDocType] = useState<"RUT" | "PASAPORTE" | "DNI">("RUT");
   const [buyerDocNum, setBuyerDocNum] = useState("");
@@ -97,8 +95,6 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
 
     // Validate Buyer
     if (!buyerName.trim()) errors.push("Ingresa el nombre del comprador.");
-    if (!buyerEmail.trim() || !buyerEmail.includes("@"))
-      errors.push("Ingresa un correo electrónico válido para el envío del boleto.");
     if (!buyerPhone.trim() || buyerPhone.length < 8)
       errors.push("Ingresa un teléfono de contacto válido.");
 
@@ -140,7 +136,6 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
     onProceed(
       {
         name: buyerName.trim(),
-        email: buyerEmail.trim(),
         phone: buyerPhone.trim(),
         document_type: buyerDocType,
         document_number: buyerDocNum.trim(),
@@ -205,7 +200,7 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
                 Datos del Comprador (Titular de Compra)
               </h3>
               <p className="text-xs text-slate-500">
-                A este correo y teléfono se enviarán los boletos digitales y comprobante
+                Información del titular para el registro y comprobante de viaje
               </p>
             </div>
           </div>
@@ -222,22 +217,6 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
                 placeholder="Ej. Juan Carlos Pérez González"
                 value={buyerName}
                 onChange={(e) => setBuyerName(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-[#ff6700] outline-none"
-                required
-              />
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center gap-1">
-                <Mail className="w-3.5 h-3.5 text-slate-400" />
-                <span>Correo Electrónico *</span>
-              </label>
-              <input
-                type="email"
-                placeholder="usuario@ejemplo.cl"
-                value={buyerEmail}
-                onChange={(e) => setBuyerEmail(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-[#ff6700] outline-none"
                 required
               />
@@ -277,7 +256,7 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
             </div>
 
             {/* Número Documento */}
-            <div>
+            <div className="sm:col-span-2">
               <label className="block text-xs font-bold text-slate-700 mb-1">
                 {buyerDocType === "RUT" ? "RUT (con dígito verificador) *" : "Nº Documento *"}
               </label>

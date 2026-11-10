@@ -491,8 +491,8 @@ export const Step4HoldAndPay: React.FC<Step4HoldAndPayProps> = ({
                   <span>Comprador:</span>
                 </span>
                 <p className="font-medium text-slate-800">{buyer.name}</p>
-                <p className="text-slate-500">{buyer.email}</p>
-                <p className="text-slate-500">RUT: {buyer.document_number}</p>
+                <p className="text-slate-500">Tel: {buyer.phone}</p>
+                <p className="text-slate-500">{buyer.document_type || "RUT"}: {buyer.document_number}</p>
               </div>
 
               {/* Total */}

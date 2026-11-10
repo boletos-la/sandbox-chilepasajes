@@ -73,7 +73,7 @@ export interface BuyerData {
   name: string;
   first_name?: string;
   last_name?: string;
-  email: string;
+  email?: string;
   phone: string;
   document_type: "RUT" | "PASAPORTE" | "DNI";
   document_number: string;
