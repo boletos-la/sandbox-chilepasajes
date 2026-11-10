@@ -124,6 +124,14 @@ export interface ReservationResponse {
   frequent_client?: boolean;
 }
 
+export interface PaymentStatusResponse {
+  order_id: string;
+  external_order_id?: string;
+  is_paid: boolean;
+  is_confirmed: boolean;
+  should_poll?: boolean;
+}
+
 export interface IssuedTicket {
   ticket_code: string;
   ticket_id?: string;
@@ -133,6 +141,7 @@ export interface IssuedTicket {
   purchase_date: string;
   buyer_email?: string;
   reservation_token?: string;
+  payment_status?: PaymentStatusResponse;
   passenger: {
     name: string;
     seat_number: string;

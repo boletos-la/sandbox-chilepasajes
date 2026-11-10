@@ -185,10 +185,15 @@ export const Step5Confirmation: React.FC<Step5ConfirmationProps> = ({
           {/* Bottom QR & Boarding Info */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="space-y-2 text-center sm:text-left">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="px-2.5 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-200">
                   ESTADO: {ticket.status}
                 </span>
+                {ticket.payment_status?.is_confirmed && (
+                  <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                    GDS: CONFIRMADO
+                  </span>
+                )}
                 <span className="text-xs text-slate-400">
                   Emitido el {new Date(ticket.purchase_date).toLocaleDateString("es-CL")}
                 </span>

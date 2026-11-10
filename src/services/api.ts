@@ -6,6 +6,7 @@ import type {
   BuyerData,
   PassengerData,
   ReservationResponse,
+  PaymentStatusResponse,
   IssuedTicket,
   CancellationResponse,
   ApiLogEntry,
@@ -544,6 +545,45 @@ export async function notifyPayment(payload: {
   return res.data;
 }
 
+// =============================================================
+// GDS FASE 4.2: Obtener Status de Orden (Verificación Post-Pago)
+// Endpoint: GET /buses/payment-status?order_id=UUID
+// =============================================================
+
+export async function getPaymentStatus(orderId: string): Promise<PaymentStatusResponse> {
+  const res = await apiFetch<PaymentStatusResponse>(
+    `/buses/payment-status?order_id=${encodeURIComponent(orderId)}`,
+    {
+      method: "GET",
+    }
+  );
+  return res.data;
+}
+
+export async function pollPaymentStatus(
+  orderId: string,
+  maxAttempts: number = 4,
+  intervalMs: number = 800
+): Promise<PaymentStatusResponse | null> {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const status = await getPaymentStatus(orderId);
+      if (status && (status.is_confirmed || status.is_paid)) {
+        return status;
+      }
+      if (attempt < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
+      }
+    } catch (err) {
+      console.warn(`Verificación payment-status (intento ${attempt}/${maxAttempts}):`, err);
+      if (attempt < maxAttempts) {
+        await new Promise((resolve) => setTimeout(resolve, intervalMs));
+      }
+    }
+  }
+  return null;
+}
+
 export async function getSuccessOrder(orderId: string): Promise<any> {
   const res = await apiFetch<any>(`/buses/success?order_id=${encodeURIComponent(orderId)}`, {
     method: "GET",
@@ -622,6 +662,14 @@ export async function confirmReservation(payload: {
     payment_method: "SIMULACION",
   });
 
+  // 2.1 GET /buses/payment-status: Verificación de confirmación con la empresa de bus
+  let paymentStatus: PaymentStatusResponse | null = null;
+  try {
+    paymentStatus = await pollPaymentStatus(meta.order_id, 4, 800);
+  } catch (err) {
+    console.warn("Verificación de payment-status no concluyó:", err);
+  }
+
   // 3. GET /buses/success para obtener los datos definitivos del ticket del GDS
   let gdsSuccess: any = null;
   try {
@@ -633,7 +681,11 @@ export async function confirmReservation(payload: {
   const gdsTickets: any[] = gdsSuccess?.tickets || [];
   const primaryGdsTicket = gdsTickets[0];
   const ticketId = primaryGdsTicket?.ticket_id || meta.tickets[0]?.ticket_id || meta.order_id;
-  const externalOrderId = gdsSuccess?.order_id || primaryGdsTicket?.order_id || meta.order_id;
+  const externalOrderId =
+    gdsSuccess?.order_id ||
+    paymentStatus?.external_order_id ||
+    primaryGdsTicket?.order_id ||
+    meta.order_id;
 
   const ticket: IssuedTicket = {
     ticket_code: ticketId,
@@ -644,6 +696,7 @@ export async function confirmReservation(payload: {
     purchase_date: new Date().toISOString(),
     buyer_email: buyer.email || undefined,
     reservation_token: meta.order_id,
+    payment_status: paymentStatus || undefined,
     passenger: {
       name: meta.passengers.map((p) => p.name).join(", "),
       seat_number:
