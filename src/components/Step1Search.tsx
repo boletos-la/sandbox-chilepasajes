@@ -20,9 +20,24 @@ import {
   ChevronRight,
   Filter,
   CalendarDays,
+  SlidersHorizontal,
+  Building2,
+  Layers,
 } from "lucide-react";
-import type { LocationCity, BusService } from "../types";
-import { fetchOrigins, fetchDestinations, searchServices } from "../services/api";
+import type {
+  LocationCity,
+  BusService,
+  CityCatalogItem,
+  CompanyCatalogItem,
+} from "../types";
+import {
+  fetchOrigins,
+  fetchDestinations,
+  searchServices,
+  searchSingleSchedule,
+  getCitiesCatalog,
+  getCompaniesCatalog,
+} from "../services/api";
 import { formatCLP } from "../utils/rut";
 
 interface Step1SearchProps {
@@ -67,6 +82,14 @@ export const Step1Search: React.FC<Step1SearchProps> = ({ onSelectService }) => 
   const [filterClass, setFilterClass] = useState<string>("ALL");
   const [sortBy, setSortBy] = useState<"time" | "price_asc" | "price_desc">("time");
 
+  // Endpoint de búsqueda configurable (/buses/schedules vs /buses/schedules/single)
+  const [searchMode, setSearchMode] = useState<"schedules" | "schedules_single">("schedules");
+
+  // Catálogos auxiliares del GDS
+  const [citiesCatalog, setCitiesCatalog] = useState<CityCatalogItem[]>([]);
+  const [companiesCatalog, setCompaniesCatalog] = useState<CompanyCatalogItem[]>([]);
+  const [showCatalogDetails, setShowCatalogDetails] = useState<boolean>(false);
+
   // 1. Cargar orígenes reales desde el GDS al montar
   useEffect(() => {
     async function loadOrigins() {
@@ -88,6 +111,8 @@ export const Step1Search: React.FC<Step1SearchProps> = ({ onSelectService }) => 
       }
     }
     loadOrigins();
+    getCitiesCatalog().then(setCitiesCatalog).catch(() => {});
+    getCompaniesCatalog().then(setCompaniesCatalog).catch(() => {});
   }, []);
 
   // 2. Cargar destinos reales para el origen seleccionado
@@ -139,7 +164,17 @@ export const Step1Search: React.FC<Step1SearchProps> = ({ onSelectService }) => 
     setSearchDone(true);
 
     try {
-      const res = await searchServices(origin, dest, date);
+      let res;
+      if (searchMode === "schedules_single") {
+        res = await searchSingleSchedule({
+          city_or: origin,
+          city_de: dest,
+          date,
+          direction: "IDA",
+        });
+      } else {
+        res = await searchServices(origin, dest, date);
+      }
       setServices(res.services);
       setNearbyDates(res.nearby_dates);
     } catch (err: any) {
@@ -317,6 +352,72 @@ export const Step1Search: React.FC<Step1SearchProps> = ({ onSelectService }) => 
               </select>
             </div>
           </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100 text-xs">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="font-bold text-slate-600 flex items-center gap-1">
+                <SlidersHorizontal className="w-3.5 h-3.5 text-[#ff6700]" />
+                <span>Endpoint de Búsqueda:</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setSearchMode("schedules")}
+                className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold border transition-all ${
+                  searchMode === "schedules"
+                    ? "bg-orange-50 text-[#ff6700] border-orange-300"
+                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                }`}
+              >
+                /buses/schedules (Estándar)
+              </button>
+              <button
+                type="button"
+                onClick={() => setSearchMode("schedules_single")}
+                className={`px-2.5 py-1 rounded-lg font-mono text-[11px] font-bold border transition-all ${
+                  searchMode === "schedules_single"
+                    ? "bg-orange-50 text-[#ff6700] border-orange-300"
+                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
+                }`}
+              >
+                /buses/schedules/single (Sentido Único)
+              </button>
+            </div>
+
+            {citiesCatalog.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowCatalogDetails(!showCatalogDetails)}
+                className="text-[11px] text-slate-600 hover:text-slate-900 font-semibold flex items-center gap-1 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 transition-colors"
+              >
+                <Building2 className="w-3.5 h-3.5 text-blue-600" />
+                <span>Catálogo GDS ({citiesCatalog.length} ciudades /buses/get-cities)</span>
+              </button>
+            )}
+          </div>
+
+          {showCatalogDetails && (
+            <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2 animate-in fade-in duration-150">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <Layers className="w-4 h-4 text-[#ff6700]" />
+                  <span>Catálogo Oficial de Ciudades (/buses/get-cities)</span>
+                </span>
+                <span className="font-mono text-[11px] text-slate-500">
+                  {citiesCatalog.length} ciudades activas en GDS
+                </span>
+              </div>
+              <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto p-2 bg-white rounded-lg border border-slate-200">
+                {citiesCatalog.map((c) => (
+                  <span
+                    key={c.id}
+                    className="px-2 py-0.5 bg-slate-100 text-slate-700 text-[10px] rounded-md font-mono hover:bg-orange-50 cursor-default"
+                  >
+                    {c.city}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
             {/* Rutas activas en el GDS */}

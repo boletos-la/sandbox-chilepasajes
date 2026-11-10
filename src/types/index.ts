@@ -200,3 +200,30 @@ export interface ApiConfig {
   apiKey: string;
   mode: "standard" | "gds_direct";
 }
+
+export interface CityCatalogItem {
+  id: number;
+  city: string;
+  search_name: string;
+  selected?: boolean;
+}
+
+export interface CompanyCatalogItem {
+  company_id: number;
+  company_name: string;
+  company_logo?: string;
+}
+
+export interface TicketByUuidItem {
+  id: number;
+  uuid: string;
+  external_detail_id: string;
+  company_id: number;
+  ticket_qr?: string;
+  price: number;
+  currency: string;
+  seat: number | string;
+  seat_type: string;
+  departure_date: string;
+  confirmed: number;
+}

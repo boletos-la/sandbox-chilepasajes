@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import QRCode from "qrcode";
 import {
   CheckCircle2,
@@ -14,9 +14,17 @@ import {
   User,
   ShieldCheck,
   Bus,
+  FileDown,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 import type { IssuedTicket } from "../types";
 import { formatCLP } from "../utils/rut";
+import {
+  downloadTicketPdf,
+  downloadBoardingCardPdf,
+  triggerFileDownload,
+} from "../services/api";
 
 interface Step5ConfirmationProps {
   ticket: IssuedTicket;
@@ -30,6 +38,9 @@ export const Step5Confirmation: React.FC<Step5ConfirmationProps> = ({
   onCancelTicket,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [downloadingTicket, setDownloadingTicket] = useState(false);
+  const [downloadingBoarding, setDownloadingBoarding] = useState(false);
+  const [downloadError, setDownloadError] = useState<string | null>(null);
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -53,6 +64,38 @@ export const Step5Confirmation: React.FC<Step5ConfirmationProps> = ({
 
   const handlePrint = () => {
     window.print();
+  };
+
+  const handleDownloadTicketPdf = async () => {
+    const orderId = ticket.external_order_id || ticket.order_id;
+    const ticketId = ticket.ticket_id || ticket.ticket_code;
+    setDownloadingTicket(true);
+    setDownloadError(null);
+    try {
+      const blob = await downloadTicketPdf(orderId, ticketId);
+      triggerFileDownload(blob, `Boleto-${ticket.ticket_code}.pdf`);
+    } catch (err: any) {
+      setDownloadError(err.message || "No se pudo descargar el PDF del boleto. Inténtalo más tarde.");
+    } finally {
+      setDownloadingTicket(false);
+    }
+  };
+
+  const handleDownloadBoardingCardPdf = async () => {
+    const orderId = ticket.external_order_id || ticket.order_id;
+    const ticketId = ticket.ticket_id || ticket.ticket_code;
+    setDownloadingBoarding(true);
+    setDownloadError(null);
+    try {
+      const blob = await downloadBoardingCardPdf(orderId, ticketId);
+      triggerFileDownload(blob, `Tarjeta-Embarque-${ticket.ticket_code}.pdf`);
+    } catch (err: any) {
+      setDownloadError(
+        err.message || "No se pudo descargar la tarjeta de embarque. Inténtalo más tarde."
+      );
+    } finally {
+      setDownloadingBoarding(false);
+    }
   };
 
   return (
@@ -226,14 +269,49 @@ export const Step5Confirmation: React.FC<Step5ConfirmationProps> = ({
         </div>
       </div>
 
+      {downloadError && (
+        <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-center gap-2 max-w-xl mx-auto">
+          <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+          <span>{downloadError}</span>
+        </div>
+      )}
+
       {/* Action CTA Buttons */}
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2 print:hidden">
+      <div className="flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2.5 pt-2 print:hidden">
+        {/* PDF Boleto */}
+        <button
+          onClick={handleDownloadTicketPdf}
+          disabled={downloadingTicket}
+          className="w-full sm:w-auto px-4 py-2.5 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+        >
+          {downloadingTicket ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <FileDown className="w-4 h-4" />
+          )}
+          <span>Descargar E-Ticket Oficial (PDF)</span>
+        </button>
+
+        {/* PDF Tarjeta de Embarque */}
+        <button
+          onClick={handleDownloadBoardingCardPdf}
+          disabled={downloadingBoarding}
+          className="w-full sm:w-auto px-4 py-2.5 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-700 text-white shadow-sm flex items-center justify-center gap-2 transition-all disabled:opacity-50"
+        >
+          {downloadingBoarding ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <FileDown className="w-4 h-4" />
+          )}
+          <span>Descargar Tarjeta de Embarque (PDF)</span>
+        </button>
+
         <button
           onClick={handlePrint}
-          className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-xs bg-slate-900 hover:bg-slate-800 text-white shadow-md flex items-center justify-center gap-2 transition-all"
+          className="w-full sm:w-auto px-4 py-2.5 rounded-xl font-bold text-xs bg-slate-900 hover:bg-slate-800 text-white shadow-sm flex items-center justify-center gap-2 transition-all"
         >
           <Printer className="w-4 h-4" />
-          <span>Imprimir / Guardar E-Ticket</span>
+          <span>Imprimir</span>
         </button>
 
         <button
@@ -243,15 +321,15 @@ export const Step5Confirmation: React.FC<Step5ConfirmationProps> = ({
               ticket.passenger.document_number
             )
           }
-          className="w-full sm:w-auto px-5 py-3 rounded-xl font-bold text-xs bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 flex items-center justify-center gap-2 transition-all"
+          className="w-full sm:w-auto px-4 py-2.5 rounded-xl font-bold text-xs bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 flex items-center justify-center gap-2 transition-all"
         >
           <RotateCcw className="w-4 h-4 text-rose-600" />
-          <span>Solicitar Anulación de Boleto</span>
+          <span>Solicitar Anulación</span>
         </button>
 
         <button
           onClick={onNewSearch}
-          className="w-full sm:w-auto px-6 py-3 rounded-xl font-bold text-xs bg-[#ff6700] hover:bg-[#e65c00] text-white shadow-md shadow-orange-500/20 flex items-center justify-center gap-2 transition-all"
+          className="w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold text-xs bg-[#ff6700] hover:bg-[#e65c00] text-white shadow-sm shadow-orange-500/20 flex items-center justify-center gap-2 transition-all"
         >
           <PlusCircle className="w-4 h-4" />
           <span>Comprar Otro Pasaje</span>

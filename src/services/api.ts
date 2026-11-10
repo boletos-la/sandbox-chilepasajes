@@ -11,6 +11,9 @@ import type {
   CancellationResponse,
   ApiLogEntry,
   ApiConfig,
+  CityCatalogItem,
+  CompanyCatalogItem,
+  TicketByUuidItem,
 } from "../types";
 
 const CONFIG_STORAGE_KEY = "chilepasajes_api_config";
@@ -237,6 +240,106 @@ export async function apiFetch<T>(
   }
 }
 
+/**
+ * Cliente HTTP para descarga de binarios (PDFs de boletos y tarjetas de embarque)
+ */
+export async function apiFetchBlob(
+  endpoint: string,
+  options: RequestInit = {}
+): Promise<{ blob: Blob; status: number }> {
+  const config = getApiConfig();
+  const startTime = performance.now();
+
+  const cleanBase = config.baseUrl.replace(/\/+$/, "");
+  const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+  const fullUrl = `${cleanBase}${cleanEndpoint}`;
+
+  const headers: Record<string, string> = {
+    Accept: "application/pdf, application/json, */*",
+    ...((options.headers as Record<string, string>) || {}),
+  };
+
+  if (!headers["Authorization"]) {
+    headers["Authorization"] = `Bearer ${config.apiKey}`;
+  }
+
+  let status = 0;
+  let statusText = "";
+
+  try {
+    const res = await fetch(fullUrl, {
+      ...options,
+      headers,
+    });
+
+    status = res.status;
+    statusText = res.statusText;
+    const durationMs = Math.round(performance.now() - startTime);
+
+    recordLog({
+      id: crypto.randomUUID(),
+      timestamp: new Date().toISOString(),
+      method: options.method || "GET",
+      url: fullUrl,
+      headers,
+      status,
+      statusText,
+      responseBody: { type: res.headers.get("content-type") || "application/pdf" },
+      durationMs,
+      isMockFallback: false,
+    });
+
+    if (!res.ok) {
+      let errMsg = `Error HTTP ${status}: ${statusText}`;
+      try {
+        const text = await res.text();
+        const json = JSON.parse(text);
+        errMsg = json?.response?.message || json?.message || errMsg;
+      } catch {
+        // ignore
+      }
+      const err = new Error(errMsg);
+      (err as any).status = status;
+      throw err;
+    }
+
+    const blob = await res.blob();
+    return { blob, status };
+  } catch (err: any) {
+    const durationMs = Math.round(performance.now() - startTime);
+    if (status === 0) {
+      recordLog({
+        id: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+        method: options.method || "GET",
+        url: fullUrl,
+        headers,
+        status: 0,
+        statusText: `Error de conexión: ${err.message}`,
+        responseBody: { error: err.message },
+        durationMs,
+        isMockFallback: false,
+      });
+    }
+    throw err;
+  }
+}
+
+/**
+ * Dispara la descarga del archivo en el navegador
+ */
+export function triggerFileDownload(blob: Blob, filename: string) {
+  if (typeof window === "undefined") return;
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  window.URL.revokeObjectURL(url);
+  document.body.removeChild(a);
+}
+
 // =============================================================
 // GDS CATÁLOGOS: Orígenes y Destinos Reales
 // Endpoint: GET /buses/get-roads?complement=pasajes
@@ -312,15 +415,89 @@ export async function fetchDestinations(originName: string): Promise<LocationCit
   return destinationsList;
 }
 
+/**
+ * Endpoint: GET /buses/get-cities?complement=pasajes
+ * Catálogo completo de ciudades registradas en el GDS
+ */
+export async function getCitiesCatalog(): Promise<CityCatalogItem[]> {
+  const res = await apiFetch<{ cities: CityCatalogItem[] }>(
+    `/buses/get-cities?complement=${encodeURIComponent(GDS_COMPLEMENT)}`,
+    { method: "GET" }
+  );
+  return res.data?.cities || [];
+}
+
+/**
+ * Endpoint: GET /buses/get-companies
+ * Catálogo de empresas de bus asociadas
+ */
+export async function getCompaniesCatalog(): Promise<CompanyCatalogItem[]> {
+  try {
+    const res = await apiFetch<CompanyCatalogItem[]>("/buses/get-companies", { method: "GET" });
+    if (Array.isArray(res.data)) return res.data;
+    return [];
+  } catch (err: any) {
+    if (err.status === 404) return [];
+    throw err;
+  }
+}
+
 // =============================================================
 // GDS FASE 2: Búsqueda de Horarios y Mapa de Asientos
 // Endpoint: GET /buses/schedules
+// Endpoint: GET /buses/schedules/single
 // Endpoint: POST /buses/seat-map
 // =============================================================
 
 export interface SearchServicesResult {
   services: BusService[];
   nearby_dates: Array<{ date: string; date_text: string; price: number }>;
+}
+
+export function mapGdsServiceToBusService(
+  srv: any,
+  originFallback: string = "",
+  destFallback: string = "",
+  departureDateFallback: string = ""
+): BusService {
+  return {
+    service_id: String(srv.service_id || srv.id),
+    company_id: srv.company_id,
+    operator_name: srv.company_name || srv.empresa || "Empresa de Bus",
+    operator_logo: srv.company_logo,
+    departure_time:
+      srv.departs_at ||
+      `${departureDateFallback || "2026-11-12"}T${srv.departs_at_hour || "08:00"}:00-03:00`,
+    departs_at_hour: srv.departs_at_hour,
+    arrival_time:
+      srv.arrives_at ||
+      `${departureDateFallback || "2026-11-12"}T${srv.arrives_at_hour || "14:00"}:00-03:00`,
+    arrives_at_hour: srv.arrives_at_hour,
+    origin_city: srv.city_departure || originFallback,
+    destination_city: srv.city_arrival || destFallback,
+    origin_terminal: srv.station_departure || (originFallback ? `Terminal ${originFallback}` : "Terminal Origen"),
+    destination_terminal: srv.station_arrival || (destFallback ? `Terminal ${destFallback}` : "Terminal Destino"),
+    duration: srv.duration,
+    seat_classes: [
+      {
+        type: srv.seat_class || "SALON CAMA",
+        price: Number(srv.price || 0),
+        available_seats: Number(srv.available_seats || 0),
+      },
+    ],
+    amenities: Array.isArray(srv.amenities)
+      ? srv.amenities.map((a: any) =>
+          typeof a === "string" ? a : a.name || a.title || "Servicio"
+        )
+      : [],
+    token: srv.token,
+    available_seats: Number(srv.available_seats || 0),
+    price: Number(srv.price || 0),
+    currency: srv.currency || "CLP",
+    route_description: srv.route_description,
+    is_cancellable: srv.is_cancellable,
+    rating_stats: srv.rating_stats,
+  };
 }
 
 export async function searchServices(
@@ -345,38 +522,55 @@ export async function searchServices(
   const rawServices: any[] = idaObj.services || [];
   const nearbyDates: any[] = idaObj.nearby_dates || [];
 
-  const services: BusService[] = rawServices.map((srv: any) => ({
-    service_id: String(srv.service_id || srv.id),
-    company_id: srv.company_id,
-    operator_name: srv.company_name || srv.empresa || "Empresa de Bus",
-    operator_logo: srv.company_logo,
-    departure_time: srv.departs_at || `${departureDate}T${srv.departs_at_hour || "08:00"}:00-03:00`,
-    departs_at_hour: srv.departs_at_hour,
-    arrival_time: srv.arrives_at || `${departureDate}T${srv.arrives_at_hour || "14:00"}:00-03:00`,
-    arrives_at_hour: srv.arrives_at_hour,
-    origin_city: srv.city_departure || originName,
-    destination_city: srv.city_arrival || destName,
-    origin_terminal: srv.station_departure || `Terminal ${originName}`,
-    destination_terminal: srv.station_arrival || `Terminal ${destName}`,
-    duration: srv.duration,
-    seat_classes: [
-      {
-        type: srv.seat_class || "SALON CAMA",
-        price: Number(srv.price || 0),
-        available_seats: Number(srv.available_seats || 0),
-      },
-    ],
-    amenities: Array.isArray(srv.amenities)
-      ? srv.amenities.map((a: any) => (typeof a === "string" ? a : a.name || a.title || "Servicio"))
-      : [],
-    token: srv.token,
-    available_seats: Number(srv.available_seats || 0),
-    price: Number(srv.price || 0),
-    currency: srv.currency || "CLP",
-    route_description: srv.route_description,
-    is_cancellable: srv.is_cancellable,
-    rating_stats: srv.rating_stats,
-  }));
+  const services: BusService[] = rawServices.map((srv: any) =>
+    mapGdsServiceToBusService(srv, originName, destName, departureDate)
+  );
+
+  return {
+    services,
+    nearby_dates: nearbyDates,
+  };
+}
+
+/**
+ * Endpoint: GET /buses/schedules/single
+ * Búsqueda de horarios para un solo sentido (IDA o REG)
+ */
+export async function searchSingleSchedule(params: {
+  city_or: string;
+  city_de: string;
+  date: string;
+  direction?: "IDA" | "REG";
+  selected_outbound_arrives_at?: string;
+}): Promise<SearchServicesResult> {
+  const parts = params.date.split("-");
+  const ddmmyyyy =
+    parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : params.date;
+  const dir = params.direction || "IDA";
+
+  const query = new URLSearchParams({
+    city_or: params.city_or.toLowerCase().trim(),
+    city_de: params.city_de.toLowerCase().trim(),
+    date: ddmmyyyy,
+    direction: dir,
+    complement: GDS_COMPLEMENT,
+  });
+
+  if (params.selected_outbound_arrives_at) {
+    query.append("selected_outbound_arrives_at", params.selected_outbound_arrives_at);
+  }
+
+  const res = await apiFetch<any>(`/buses/schedules/single?${query.toString()}`, {
+    method: "GET",
+  });
+
+  const dirObj = res.data?.[dir] || res.data?.IDA || res.data || {};
+  const rawServices: any[] = dirObj.services || (Array.isArray(dirObj) ? dirObj : []);
+  const nearbyDates: any[] = dirObj.nearby_dates || [];
+
+  const services: BusService[] = rawServices.map((srv: any) =>
+    mapGdsServiceToBusService(srv, params.city_or, params.city_de, params.date)
+  );
 
   return {
     services,
@@ -589,6 +783,42 @@ export async function getSuccessOrder(orderId: string): Promise<any> {
     method: "GET",
   });
   return res.data;
+}
+
+/**
+ * Endpoint: POST /buses/get-tickets-by-uuid
+ * Obtiene el listado oficial de tickets asociados a un UUID de orden
+ */
+export async function getTicketsByUuid(uuid: string): Promise<TicketByUuidItem[]> {
+  const res = await apiFetch<TicketByUuidItem[]>("/buses/get-tickets-by-uuid", {
+    method: "POST",
+    body: JSON.stringify({ uuid: uuid.trim() }),
+  });
+  return Array.isArray(res.data) ? res.data : [];
+}
+
+/**
+ * Endpoint: GET /buses/download-ticket
+ * Descarga el archivo PDF binario oficial del pasaje electrónico
+ */
+export async function downloadTicketPdf(orderId: string, ticketId: string): Promise<Blob> {
+  const { blob } = await apiFetchBlob(
+    `/buses/download-ticket?order_id=${encodeURIComponent(orderId)}&ticket_id=${encodeURIComponent(ticketId)}`,
+    { method: "GET" }
+  );
+  return blob;
+}
+
+/**
+ * Endpoint: GET /buses/download-boarding-card
+ * Descarga el archivo PDF binario oficial de la tarjeta de embarque
+ */
+export async function downloadBoardingCardPdf(orderId: string, ticketId: string): Promise<Blob> {
+  const { blob } = await apiFetchBlob(
+    `/buses/download-boarding-card?order_id=${encodeURIComponent(orderId)}&ticket_id=${encodeURIComponent(ticketId)}`,
+    { method: "GET" }
+  );
+  return blob;
 }
 
 export async function confirmReservation(payload: {
