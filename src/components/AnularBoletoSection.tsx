@@ -181,7 +181,7 @@ export const AnularBoletoSection: React.FC<AnularBoletoSectionProps> = ({
     }
   };
 
-  const isAlreadyCancelled = ticketData?.status === "CANCELLED" || ticketData?.status === "REFUNDED";
+  const isAlreadyCancelled = !submitSuccess && (ticketData?.status === "CANCELLED" || ticketData?.status === "REFUNDED");
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
@@ -292,12 +292,18 @@ export const AnularBoletoSection: React.FC<AnularBoletoSectionProps> = ({
                 </span>
                 <span
                   className={`text-xs font-black px-2.5 py-0.5 rounded-full border ${
-                    isAlreadyCancelled
+                    submitSuccess
+                      ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+                      : isAlreadyCancelled
                       ? "bg-rose-100 text-rose-800 border-rose-300"
                       : "bg-emerald-100 text-emerald-800 border-emerald-300"
                   }`}
                 >
-                  {isAlreadyCancelled ? "ANULADO / REEMBOLSADO" : "VIGENTE (EMITIDO)"}
+                  {submitSuccess
+                    ? "ANULACIÓN EXITOSA"
+                    : isAlreadyCancelled
+                    ? "ANULADO PREVIAMENTE"
+                    : "VIGENTE (EMITIDO)"}
                 </span>
               </div>
               <p className="text-xs text-slate-500 font-mono mt-0.5">
@@ -356,7 +362,19 @@ export const AnularBoletoSection: React.FC<AnularBoletoSectionProps> = ({
             </div>
           </div>
 
-          {isAlreadyCancelled ? (
+          {submitSuccess ? (
+            <div className="bg-emerald-50 border border-emerald-300 p-5 rounded-2xl text-center space-y-2">
+              <div className="w-12 h-12 bg-emerald-600 text-white rounded-full flex items-center justify-center mx-auto shadow-md shadow-emerald-600/20">
+                <CheckCircle2 className="w-7 h-7" />
+              </div>
+              <h4 className="font-extrabold text-base text-emerald-950">
+                ¡Boleto Anulado Exitosamente en el GDS!
+              </h4>
+              <p className="text-xs text-emerald-700 max-w-md mx-auto">
+                La anulación fue confirmada por Chilepasajes / Enbus. A continuación se presenta el comprobante oficial y el cálculo del reembolso.
+              </p>
+            </div>
+          ) : isAlreadyCancelled ? (
             <div className="bg-rose-50 border border-rose-200 p-4 rounded-xl text-center space-y-2">
               <XCircle className="w-8 h-8 text-rose-500 mx-auto" />
               <h4 className="font-bold text-sm text-rose-900">

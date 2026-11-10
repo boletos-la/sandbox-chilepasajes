@@ -94,20 +94,38 @@ export function getSavedTickets(): IssuedTicket[] {
 export function saveTicket(ticket: IssuedTicket): void {
   if (typeof window === "undefined") return;
   const current = getSavedTickets();
-  const filtered = current.filter(
-    (t) => t.ticket_code !== ticket.ticket_code && t.ticket_id !== ticket.ticket_id
-  );
-  localStorage.setItem(TICKETS_STORAGE_KEY, JSON.stringify([ticket, ...filtered]));
+  const cleanCode = (ticket.ticket_code || "").trim().toUpperCase();
+  const cleanId = (ticket.ticket_id || "").trim().toUpperCase();
+  const cleanOrder = (ticket.order_id || "").trim().toUpperCase();
+
+  const filtered = current.filter((t) => {
+    const tCode = (t.ticket_code || "").trim().toUpperCase();
+    const tId = (t.ticket_id || "").trim().toUpperCase();
+    const tOrder = (t.order_id || "").trim().toUpperCase();
+    if (cleanCode && tCode === cleanCode) return false;
+    if (cleanId && tId === cleanId) return false;
+    if (cleanOrder && tOrder === cleanOrder) return false;
+    return true;
+  });
+
+  const freshTicket: IssuedTicket = {
+    ...ticket,
+    status: "ISSUED",
+  };
+  localStorage.setItem(TICKETS_STORAGE_KEY, JSON.stringify([freshTicket, ...filtered]));
 }
 
 export function updateSavedTicket(ticketIdentifier: string, patch: Partial<IssuedTicket>): void {
   if (typeof window === "undefined") return;
   const current = getSavedTickets();
+  const cleanId = ticketIdentifier.trim().toUpperCase();
+  if (!cleanId) return;
+
   const updated = current.map((t) => {
     if (
-      t.ticket_code.toUpperCase() === ticketIdentifier.toUpperCase() ||
-      (t.ticket_id && t.ticket_id.toUpperCase() === ticketIdentifier.toUpperCase()) ||
-      (t.order_id && t.order_id.toUpperCase() === ticketIdentifier.toUpperCase())
+      (t.ticket_code && t.ticket_code.trim().toUpperCase() === cleanId) ||
+      (t.ticket_id && t.ticket_id.trim().toUpperCase() === cleanId) ||
+      (t.order_id && t.order_id.trim().toUpperCase() === cleanId)
     ) {
       return { ...t, ...patch };
     }
@@ -179,10 +197,13 @@ export async function apiFetch<T>(
     });
 
     if (!res.ok) {
+      const detailsMsg = responseBody?.response?.details || responseBody?.details;
+      const mainMsg = responseBody?.response?.message || responseBody?.message;
       const errMsg =
-        responseBody?.response?.message ||
-        responseBody?.message ||
-        `Error HTTP ${status}: ${statusText}`;
+        detailsMsg && mainMsg && typeof detailsMsg === "string" && !detailsMsg.startsWith("{")
+          ? `${mainMsg} (${detailsMsg})`
+          : mainMsg || `Error HTTP ${status}: ${statusText}`;
+
       const err = new Error(errMsg);
       (err as any).status = status;
       (err as any).response = responseBody;
@@ -736,12 +757,14 @@ export async function cancelTicket(payload: {
  * Consulta un boleto por su identificador en el almacenamiento de compras de la sesión
  */
 export async function getTicketDetails(ticketCode: string): Promise<IssuedTicket | null> {
-  const cleanCode = ticketCode.trim().toUpperCase();
+  const cleanCode = (ticketCode || "").trim().toUpperCase();
+  if (!cleanCode) return null;
+
   const local = getSavedTickets().find(
     (t) =>
-      t.ticket_code.toUpperCase() === cleanCode ||
-      (t.ticket_id && t.ticket_id.toUpperCase() === cleanCode) ||
-      (t.order_id && t.order_id.toUpperCase() === cleanCode)
+      (t.ticket_code && t.ticket_code.trim().toUpperCase() === cleanCode) ||
+      (t.ticket_id && t.ticket_id.trim().toUpperCase() === cleanCode) ||
+      (t.order_id && t.order_id.trim().toUpperCase() === cleanCode)
   );
   return local || null;
 }
