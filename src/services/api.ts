@@ -148,10 +148,12 @@ export async function apiFetch<T>(
 ): Promise<{ data: T; status: number }> {
   const config = getApiConfig();
   const startTime = performance.now();
+  const isBrowser = typeof window !== "undefined";
 
   const cleanBase = config.baseUrl.replace(/\/+$/, "");
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
-  const fullUrl = `${cleanBase}${cleanEndpoint}`;
+  // En navegador se utiliza el backend proxy interno de Next.js para proteger la API Key
+  const fullUrl = isBrowser ? `/api/chilepasajes${cleanEndpoint}` : `${cleanBase}${cleanEndpoint}`;
 
   const headers: Record<string, string> = {
     Accept: "application/json",
@@ -159,8 +161,8 @@ export async function apiFetch<T>(
     ...((options.headers as Record<string, string>) || {}),
   };
 
-  // Solo incluir Authorization si no fue omitido explícitamente (ej. payment notification)
-  if (!headers["Authorization"] && !endpoint.includes("/payment/notification")) {
+  // Solo incluir Authorization en peticiones server-side o directas (el proxy backend la inyecta de forma segura)
+  if (!isBrowser && !headers["Authorization"] && !endpoint.includes("/payment/notification")) {
     headers["Authorization"] = `Bearer ${config.apiKey}`;
   }
 
@@ -249,17 +251,18 @@ export async function apiFetchBlob(
 ): Promise<{ blob: Blob; status: number }> {
   const config = getApiConfig();
   const startTime = performance.now();
+  const isBrowser = typeof window !== "undefined";
 
   const cleanBase = config.baseUrl.replace(/\/+$/, "");
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
-  const fullUrl = `${cleanBase}${cleanEndpoint}`;
+  const fullUrl = isBrowser ? `/api/chilepasajes${cleanEndpoint}` : `${cleanBase}${cleanEndpoint}`;
 
   const headers: Record<string, string> = {
     Accept: "application/pdf, application/json, */*",
     ...((options.headers as Record<string, string>) || {}),
   };
 
-  if (!headers["Authorization"]) {
+  if (!isBrowser && !headers["Authorization"]) {
     headers["Authorization"] = `Bearer ${config.apiKey}`;
   }
 

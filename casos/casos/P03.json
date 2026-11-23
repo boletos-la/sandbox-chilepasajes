@@ -1,0 +1,21 @@
+{
+  "test_id": "P03",
+  "title": "Anular el mismo boleto otra vez (reintento)",
+  "executed_at": "2026-11-23T20:34:41.968Z",
+  "request": {
+    "order_id": "01ZVZP4Q",
+    "ticket_id": "01746DBE"
+  },
+  "response": {
+    "status": 400,
+    "body": {
+      "success": false,
+      "response": {
+        "message": "El boleto ya fue anulado",
+        "error_code": 400,
+        "details": "El boleto ya tiene una cancelación registrada.",
+        "error_key": null
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "test_id": "E03",
+  "title": "Asiento ya tomado en reserve",
+  "executed_at": "2026-11-23T20:34:38.891Z",
+  "request": {
+    "session": "4f718ed4-14a8-4fe8-8fe7-d50bd42eecff",
+    "complement": "pasajes",
+    "device": "P",
+    "reserves": [
+      "eyJpdiI6IkUrQlhyQTlDK3NyMExWN0tmam5mSlE9PSIsInZhbHVlIjoiK2d4TzV5d3JoV3lMUkM0M0xIdGtCYXoyZ2d0YUpKR0pIcytSRDJSM3dLcjhqUzJHM0dVV3Y3TlRIZUtXcHgrTWdQR3pPYk1Mb3UvRjljOFpWS2lPbSt3MmVDLzhPRndNTWVFcVBVUmxYbHhON0U1QnNiZ2pvVlA3cW9iVEVsUXFmSUJKcG9YMXpHVU5LNnVVZnkzZ1FZTVJTNHJTV0tDdHBuRzNsRHNmVmNEcWdHeUNrOGIrNUo5Z0ZoenE2K3l2SkkwTGZHVkV3SEtJaWxtZzFobFhyRTNsSGpaZU92S2dEQkZUY0d6OFh0VUtQa0RWbEpUeDVpYnQxVzFxS0pSeFRjVDUvTkdxRDRsY3hUTWo3eVBNTWl2TzMxTEkxTDdjQjhnUTZtYy9CVDhtbk5rQXJvRDJCb1JXbEtpTjh6R3g5K2RwTkl1YXM5SVRGZUZsNXlxaEhtNUl4SFZoTzU1aHFpYk1hdmdoMXNFK1pRU0NPSUdIMThxanBWWmFZTmV2U1lXa3RrSGpvL1JsOXFjVE9tWWZ1T0VidXVYa0wwSWNDbWNXUThvY1M2cFlSRjNUdHVzRk5Od0VVM3JqVHcwVTdvMnJTcGlYajlEWGV6V2pFNDU4RnRreEVYVHF2dDNqUE9hbU9iRlNyZzIyTEtSSnVsM2s0WFNObm9wOWc3RTZRbUw1NVhEYzZNd2NmZUhxMnBHaVpnYWFORTBGZ1J4TnFmcU15bmRxVVBMVlArM1VsNU54Mmhhekh2T1RETlhqcEJmRXJkUGxweENjTGVwZTB4YkZDSWJDM1EyYk8xNllQWEdFR2lSMWgvT2hMN0hwMEZ2TjF0a29qQTRtSkx6ZmdUWjRvaTlhbE4va3Q1OWxlS0pKRE1tb1BuM2Uvb1RRNVAxa3ZRWmhvWjFldy9ieXFqdWdMcUVBeGo5cHRIWW1oVk9jaDJONHpzaWh4ZERtRVZua3hFNFZrVExiZlF5SjIwdHErNDVqcnRiQTkzNXVFZXllU0RhRHlTT2xRQktDVTRUYVkxQVJ3ci9sYTdiTVJxQkZRZz09IiwibWFjIjoiZmZhYTAxOTAxYmNjMTdkNzBmY2M1OGI0MDcwMGQ3NDU0N2U0ZGUxZDliMTc1ZTgyYzAwYzk4NGNhZGIyZTM2ZiIsInRhZyI6IiJ9"
+    ]
+  },
+  "response": {
+    "status": 400,
+    "body": {
+      "success": false,
+      "response": {
+        "message": "El asiento 32 ya se encuentra reservado, pruebe con otros asientos",
+        "error_code": 400,
+        "details": null,
+        "error_key": "SEAT_TAKEN"
+      }
+    }
+  }
+}

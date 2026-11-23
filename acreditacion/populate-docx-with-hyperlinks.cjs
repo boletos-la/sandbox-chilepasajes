@@ -6,15 +6,15 @@ const crypto = require('crypto');
 const generalInfo = {
   "Razón social": "Boletos SpA",
   "RUT / RFC": "77.654.321-0",
-  "Nombre comercial / sitio o app": "Chilepasajes Next App (Web / Mobile Responsive)",
+  "Nombre comercial / sitio o app": "Chilepasajes Next App (Web / Mobile Responsive) - URL: https://main.d12cxvhqk6e0dg.amplifyapp.com/",
   "Contacto comercial (nombre, correo, teléfono)": "Equipo Comercial, comercial@boletos.la, +56 9 8765 4321",
   "Contacto técnico (nombre, correo, teléfono)": "Equipo Técnico / Lead Dev, soporte@boletos.la, +56 9 1234 5678",
   "Contacto de soporte en producción (horario)": "Soporte Operacional 24/7 (soporte@boletos.la / guardia telefónica)",
   "Seller / usuario QA asignado por Chilepasajes": "vps_integracion (API Key: sk_test_FtC48QXZHlbvE)",
   "Mercado (Chile CLP / México MXN)": "Chile (CLP)",
   "Pasarela de pago que usan": "Webpay Plus / MercadoPago (con webhook de confirmación segura)",
-  "Canales de venta (web, app, otro)": "Web App (Next.js 16 + React 19 SSR/CSR, PWA mobile-first)",
-  "IP(s) de salida de sus servidores": "IPs estáticas Vercel / Servidor backend seguro de producción",
+  "Canales de venta (web, app, otro)": "Web App & Mobile PWA (Next.js 16 + React 19 SSR/BFF en AWS Amplify: https://main.d12cxvhqk6e0dg.amplifyapp.com/)",
+  "IP(s) de salida de sus servidores": "Arquitectura Serverless en AWS Amplify (SSR Compute / CloudFront). Salida dinámica desde pool de IPs AWS (us-east-1 / sa-east-1). Indicar si la pasarela de producción requiere IP estática fija (EIP/NAT Gateway) para lista blanca, o si autorizan por Bearer Token y dominio.",
   "Fecha de las pruebas": "23-11-2026"
 };
 
@@ -23,7 +23,7 @@ const checklistAnswers = [
   {
     prefix: "La API key se guarda solo en el backend",
     siNo: "Sí",
-    comentario: "Validado. Variable de entorno CHILEPASAJES_API_KEY en Next.js Server Components / API Routes. Nunca expuesta en cliente."
+    comentario: "Validado e implementado mediante Backend-For-Frontend (BFF) en Next.js (/api/chilepasajes/[...path]). La variable CHILEPASAJES_API_KEY reside de forma 100% privada en el servidor en AWS Amplify; el navegador nunca recibe ni expone la API Key."
   },
   {
     prefix: "Se genera un session UUID nuevo por cada compra",
@@ -33,7 +33,7 @@ const checklistAnswers = [
   {
     prefix: "La notificación de pago sale del backend del integrador",
     siNo: "Sí",
-    comentario: "Validado. El backend procesa el webhook de la pasarela y solo tras validación exitosa emite el POST a Chilepasajes."
+    comentario: "Validado. El webhook de la pasarela es procesado por el backend en Next.js/AWS Amplify, y solo tras confirmación de cobro emite de servidor a servidor el POST /payment/notification."
   },
   {
     prefix: "El monto cobrado al comprador es el total de la orden",

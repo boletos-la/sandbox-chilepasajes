@@ -1,0 +1,7 @@
+{
+  "test_id": "C07",
+  "title": "Compra ida y regreso en una sola orden",
+  "executed_at": "2026-11-23T20:34:35.853Z",
+  "status": "No aplica / Soportado por esquema",
+  "details": "En el ambiente QA para la ruta evaluada no hay frecuencias de regreso cargadas por el operador de pruebas. Funcionalidad soportada vía array de tokens en /reserve según especificación OpenAPI."
+}
