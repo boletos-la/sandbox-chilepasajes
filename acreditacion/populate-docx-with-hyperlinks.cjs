@@ -344,11 +344,9 @@ let updatedXml = xml.replace(/<w:tr[\s>][\s\S]*?<\/w:tr>/g, (rowXml) => {
   const firstCellText = (cells[0].match(/<w:t[\s>][\s\S]*?<\/w:t>/g) || [])
     .map(t => t.replace(/<[^>]+>/g, '')).join('').trim();
 
-  // 1. Datos del integrador (2 celdas)
+  // 1. Datos del integrador (Se deja vacía a solicitud del usuario para llenado manual)
   if (cells.length === 2 && generalInfo.hasOwnProperty(firstCellText)) {
-    const val = generalInfo[firstCellText];
-    const newCell1 = replaceCellContent(cells[1], createParagraph(val));
-    return rowXml.replace(cells[1], newCell1);
+    return rowXml;
   }
 
   // 2. Casos de prueba Cxx, Exx, Pxx (5 celdas: ID, Caso, Evidencia, Resultado, Revision)
@@ -380,16 +378,9 @@ let updatedXml = xml.replace(/<w:tr[\s>][\s\S]*?<\/w:tr>/g, (rowXml) => {
     }
   }
 
-  // 4. Firma integrador al final
-  if (cells.length === 2) {
-    if (firstCellText === 'Nombre:') {
-      const newCell0 = replaceCellContent(cells[0], createParagraph('Nombre: Equipo de Integración Boletos SpA', null, true));
-      return rowXml.replace(cells[0], newCell0);
-    }
-    if (firstCellText === 'Fecha:') {
-      const newCell0 = replaceCellContent(cells[0], createParagraph('Fecha: 23-11-2026', null, true));
-      return rowXml.replace(cells[0], newCell0);
-    }
+  // 4. Firmas al final (Se dejan originales para firma manual)
+  if (cells.length === 2 && (firstCellText === 'Nombre:' || firstCellText === 'Fecha:')) {
+    return rowXml;
   }
 
   return rowXml;
