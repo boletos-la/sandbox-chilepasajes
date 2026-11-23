@@ -135,13 +135,7 @@ let updatedXml = xml.replace(/<w:tr[\s>][\s\S]*?<\/w:tr>/g, (rowXml) => {
   // 2. Casos de prueba Cxx, Exx, Pxx (5 celdas: ID, Caso, Evidencia, Resultado, Revision)
   if (cells.length === 5 && resultMap.hasOwnProperty(firstCellText)) {
     const r = resultMap[firstCellText];
-    let evidencia = r.evidenceText || r.evidencia || '';
-    if (r.timestamp) {
-      evidencia += ` [Fecha/Hora: ${r.timestamp}]`;
-    }
-    if (r.id === 'C05') {
-      evidencia += '\n(Ver archivo adjunto: C05.json con el JSON completo de cada uno de los 5 pasos del flujo)';
-    }
+    let evidencia = `${r.evidenceText || ''}\n[Archivo adjunto: casos/${r.id}.json | Fecha: ${r.timestamp}]`;
 
     const res = r.result || r.resultado || 'OK';
     const color = res === 'OK' ? '1e7e34' : (res.includes('No aplica') ? '6c757d' : 'd9534f');
@@ -183,4 +177,4 @@ let updatedXml = xml.replace(/<w:tr[\s>][\s\S]*?<\/w:tr>/g, (rowXml) => {
 });
 
 fs.writeFileSync('acreditacion/document_modified.xml', updatedXml, 'utf8');
-console.log('Modified XML written successfully. Size:', updatedXml.length);
+console.log('Modified XML written successfully with individual JSON references. Size:', updatedXml.length);

@@ -1,32 +1,32 @@
 {
   "test_id": "C05",
-  "date": "2026-11-23T19:50:34.741Z",
-  "session": "55ba9064-dcb7-4e20-b54a-d6b4b13a057f",
+  "date": "2026-11-23T20:34:21.646Z",
+  "session": "20e51c5f-b960-42c5-8a39-160e17232ca9",
   "steps": {
     "step1_reserve": {
       "endpoint": "POST /buses/reserve",
       "request": {
-        "session": "55ba9064-dcb7-4e20-b54a-d6b4b13a057f",
+        "session": "20e51c5f-b960-42c5-8a39-160e17232ca9",
         "complement": "pasajes",
         "device": "P",
         "reserves": [
-          "eyJpdiI6ImJ1bUxHMnF6d1Fjb1RpcExxZk1Sdmc9PSIsInZhbHVlIjoiRTJ1NHVCdVRraHYvQ1V6WHYydHFubmNSbVRjSTJRKzNpMFdqbm92TVh0dzZvcDhrdDYzeHlSQlBFd284a0FUMlV5ZEh5UjZiMlg0THNVaUFsZHlvV3VxbndZcUdRTmNQUjZIWVNSZFQvQm9qbmY4UE1SSnJRWkZPMm9lb1pYR2NrTk9jdnVqbmN5aEVnQWdKbUhIWEVyOHdlVm5ITXdOb05mSTJLYVNEWldwdHIzR00rWElHdWVNS2tFKzhURUZ3Y2dEWHpyOHlVR3RIZzl2VGMyNFFtSXpNUDBiQVJwOE9pWnNGZytTZkcxOU0relQ1enhtRXN4Q0VncGgxYm5SemJHTVNXdHpRNXg1bTROenpFcUR6a2FkMmZBOXhhWTdEUGtXZEpUNmFkYnczSUlBL2ZMSkt4Vm14d24vR2w1WFM3bXhGWWtzbkh3aG01Q0xjSzFvY0huMi95KzlFVE1ZSzZaUkViQlVzR1BtSjc4dGswUyt0ejlYUHlZS1NYdlBvanRSYlA5ejhKWEE3bzh1YkI0SitPWFEvc1hmVlA4bkl6Qy93U1FoS3Y2Zlg0anRzRVRkWnJlT1ZiaXJTUjBVdFFkUHVHTXFQVlNOT05PM2N6UlNsNWxyRmkxV3p6WXRuVDZNYzk5UXo3YitIQlowUDJrdWpHZ3hOUElBMGlIVVFaM3VUZ1RDWDByRzBlSUNudHhkeXpNalJFRE92MXkvTU84Wk1qd3VneGRrZDdXYkpJcDdRS0QxNTJxanZpOHZ6aStoREorZEkvZnlNQTBsbnFiN2EwMytHMmlXaGRESHFPZndsazM4eldNb2p3QUoxRG5FNzhsenRFUHQwaDBTQlAyNEl2NjFtQURiaUc5Ti8xQTd4Qjk1UFVPMXc1VXlnQjhoamNvNjlkQTFhZ2ZLKzlzcTd5ZDZTRkFJMG91SlRPVlowK2RueFYzeXh4M3UweEZ1L1Q1dFY3LytXQ1BHTHlGRmNNblAwUnZvblNYQ0JOSFY0cVN4RlVlYWVMVjMxR0dGVm9JTHJGTlNQc1AzaXZyR0FQdz09IiwibWFjIjoiNGYyOWEzYjg3MmFiOWIwMGEwMjQyYTY5YTMwMmU5MDZiOWIyZWVkYjdiNmNkZjZmOTI0ZDUwNmI2OWM2NzY4OSIsInRhZyI6IiJ9"
+          "eyJpdiI6IkUrQlhyQTlDK3NyMExWN0tmam5mSlE9PSIsInZhbHVlIjoiK2d4TzV5d3JoV3lMUkM0M0xIdGtCYXoyZ2d0YUpKR0pIcytSRDJSM3dLcjhqUzJHM0dVV3Y3TlRIZUtXcHgrTWdQR3pPYk1Mb3UvRjljOFpWS2lPbSt3MmVDLzhPRndNTWVFcVBVUmxYbHhON0U1QnNiZ2pvVlA3cW9iVEVsUXFmSUJKcG9YMXpHVU5LNnVVZnkzZ1FZTVJTNHJTV0tDdHBuRzNsRHNmVmNEcWdHeUNrOGIrNUo5Z0ZoenE2K3l2SkkwTGZHVkV3SEtJaWxtZzFobFhyRTNsSGpaZU92S2dEQkZUY0d6OFh0VUtQa0RWbEpUeDVpYnQxVzFxS0pSeFRjVDUvTkdxRDRsY3hUTWo3eVBNTWl2TzMxTEkxTDdjQjhnUTZtYy9CVDhtbk5rQXJvRDJCb1JXbEtpTjh6R3g5K2RwTkl1YXM5SVRGZUZsNXlxaEhtNUl4SFZoTzU1aHFpYk1hdmdoMXNFK1pRU0NPSUdIMThxanBWWmFZTmV2U1lXa3RrSGpvL1JsOXFjVE9tWWZ1T0VidXVYa0wwSWNDbWNXUThvY1M2cFlSRjNUdHVzRk5Od0VVM3JqVHcwVTdvMnJTcGlYajlEWGV6V2pFNDU4RnRreEVYVHF2dDNqUE9hbU9iRlNyZzIyTEtSSnVsM2s0WFNObm9wOWc3RTZRbUw1NVhEYzZNd2NmZUhxMnBHaVpnYWFORTBGZ1J4TnFmcU15bmRxVVBMVlArM1VsNU54Mmhhekh2T1RETlhqcEJmRXJkUGxweENjTGVwZTB4YkZDSWJDM1EyYk8xNllQWEdFR2lSMWgvT2hMN0hwMEZ2TjF0a29qQTRtSkx6ZmdUWjRvaTlhbE4va3Q1OWxlS0pKRE1tb1BuM2Uvb1RRNVAxa3ZRWmhvWjFldy9ieXFqdWdMcUVBeGo5cHRIWW1oVk9jaDJONHpzaWh4ZERtRVZua3hFNFZrVExiZlF5SjIwdHErNDVqcnRiQTkzNXVFZXllU0RhRHlTT2xRQktDVTRUYVkxQVJ3ci9sYTdiTVJxQkZRZz09IiwibWFjIjoiZmZhYTAxOTAxYmNjMTdkNzBmY2M1OGI0MDcwMGQ3NDU0N2U0ZGUxZDliMTc1ZTgyYzAwYzk4NGNhZGIyZTM2ZiIsInRhZyI6IiJ9"
         ]
       },
       "response": {
         "success": true,
         "response": {
           "order": {
-            "order_id": "7979d501-8fed-4e69-b95c-c4ea9dcce2f2",
-            "session": "55ba9064-dcb7-4e20-b54a-d6b4b13a057f",
-            "purchase_date": "2026-11-23 16:50:35",
+            "order_id": "c8819535-33f8-41bd-8896-c4996e1f3e54",
+            "session": "20e51c5f-b960-42c5-8a39-160e17232ca9",
+            "purchase_date": "2026-11-23 17:34:22",
             "total_purchase": 3000,
             "tickets": [
               {
-                "ticket_id": "ddbbad54-a997-4a16-aed5-c1843bd42575",
-                "company_ticket_id": "32821",
-                "order_id": "7979d501-8fed-4e69-b95c-c4ea9dcce2f2",
-                "session": "55ba9064-dcb7-4e20-b54a-d6b4b13a057f",
+                "ticket_id": "27a200db-be51-4d2c-9cd1-12a7b9836755",
+                "company_ticket_id": "32825",
+                "order_id": "c8819535-33f8-41bd-8896-c4996e1f3e54",
+                "session": "20e51c5f-b960-42c5-8a39-160e17232ca9",
                 "price": 3000,
                 "extra_fee": 0,
                 "price_usd": 3.28,
@@ -64,8 +64,8 @@
       "endpoint": "POST /buses/update-reserve",
       "request": {
         "client": {
-          "order_id": "7979d501-8fed-4e69-b95c-c4ea9dcce2f2",
-          "session_id": "55ba9064-dcb7-4e20-b54a-d6b4b13a057f",
+          "order_id": "c8819535-33f8-41bd-8896-c4996e1f3e54",
+          "session_id": "20e51c5f-b960-42c5-8a39-160e17232ca9",
           "cod_phone": "+56",
           "phone": "987654321",
           "email": "acreditacion@chilepasajes.cl",
@@ -74,7 +74,7 @@
         },
         "reserves": [
           {
-            "ticket_id": "ddbbad54-a997-4a16-aed5-c1843bd42575",
+            "ticket_id": "27a200db-be51-4d2c-9cd1-12a7b9836755",
             "document": "164829103",
             "document_type": "RUT",
             "first_name": "Carlos",
@@ -104,8 +104,8 @@
       "endpoint": "POST /buses/payment/notification",
       "request": {
         "status": "paid",
-        "merchant_order_id": "7979d501-8fed-4e69-b95c-c4ea9dcce2f2",
-        "order_id": "PAY-SIM-1795463435921",
+        "merchant_order_id": "c8819535-33f8-41bd-8896-c4996e1f3e54",
+        "order_id": "PAY-SIM-1795466062925",
         "paid_amount": 3000,
         "paid_currency": "CLP",
         "payment_method": "SIMULACION"
@@ -118,12 +118,12 @@
       }
     },
     "step4_payment_status": {
-      "endpoint": "GET /buses/payment-status?order_id=7979d501-8fed-4e69-b95c-c4ea9dcce2f2",
+      "endpoint": "GET /buses/payment-status?order_id=c8819535-33f8-41bd-8896-c4996e1f3e54",
       "response": {
         "success": true,
         "response": {
-          "order_id": "7979d501-8fed-4e69-b95c-c4ea9dcce2f2",
-          "external_order_id": "00RPQ9SA",
+          "order_id": "c8819535-33f8-41bd-8896-c4996e1f3e54",
+          "external_order_id": "01ZVZP4Q",
           "is_paid": true,
           "is_confirmed": true,
           "should_poll": true
@@ -131,17 +131,17 @@
       }
     },
     "step5_success": {
-      "endpoint": "GET /buses/success?order_id=7979d501-8fed-4e69-b95c-c4ea9dcce2f2",
+      "endpoint": "GET /buses/success?order_id=c8819535-33f8-41bd-8896-c4996e1f3e54",
       "response": {
         "success": true,
         "response": {
-          "order_id": "00RPQ9SA",
+          "order_id": "01ZVZP4Q",
           "tickets": [
             {
-              "ticket_id": "033U1P4Z",
+              "ticket_id": "01746DBE",
               "company_name": "Empresa de Pruebas",
               "payment_method": null,
-              "order_id": "00RPQ9SA",
+              "order_id": "01ZVZP4Q",
               "price": 3000,
               "currency": "CLP",
               "price_usd": 3.28,

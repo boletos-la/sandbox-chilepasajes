@@ -1,0 +1,9 @@
+{
+  "test_id": "E08",
+  "title": "Límite de tasa (429 RATE_LIMITED / TOO_MANY_HOLDS)",
+  "executed_at": "2026-11-23T20:34:40.620Z",
+  "handling": {
+    "http_429": "Exponential backoff and queue delay in outgoing worker requests",
+    "too_many_holds": "User prompt to release existing active holds or await timeout window"
+  }
+}

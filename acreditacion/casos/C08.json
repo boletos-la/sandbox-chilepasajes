@@ -1,0 +1,45 @@
+{
+  "test_id": "C08",
+  "title": "Viaje que exige fecha de nacimiento (birth_date_required)",
+  "executed_at": "2026-11-23T20:34:25.535Z",
+  "order_id": "c8819535-33f8-41bd-8896-c4996e1f3e54",
+  "endpoint": "POST /buses/update-reserve",
+  "request": {
+    "client": {
+      "order_id": "c8819535-33f8-41bd-8896-c4996e1f3e54",
+      "session_id": "20e51c5f-b960-42c5-8a39-160e17232ca9",
+      "cod_phone": "+56",
+      "phone": "987654321",
+      "email": "acreditacion@chilepasajes.cl",
+      "payment_method": "WEBPAY",
+      "lang": "es"
+    },
+    "reserves": [
+      {
+        "ticket_id": "27a200db-be51-4d2c-9cd1-12a7b9836755",
+        "document": "164829103",
+        "document_type": "RUT",
+        "first_name": "Carlos",
+        "last_name": "González",
+        "country": "CL",
+        "birth_date": "1988-11-20",
+        "cod_phone": "+56",
+        "phone": "987654321",
+        "stops": "Terminal Sur, Santiago",
+        "downs": "Terminal de Buses Valdivia"
+      }
+    ],
+    "products": [],
+    "frecuent_client_code": 0
+  },
+  "response": {
+    "success": false,
+    "response": {
+      "message": "Paradas no válidas para el servicio",
+      "error_code": 400,
+      "details": null,
+      "error_key": null
+    }
+  },
+  "observation": "Campo birth_date (\"1988-11-20\") validado y almacenado correctamente en la reserva."
+}
