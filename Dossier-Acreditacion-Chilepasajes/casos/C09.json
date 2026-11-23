@@ -1,0 +1,62 @@
+{
+  "test_id": "C09",
+  "title": "Resultado de la compra (GET /buses/success)",
+  "executed_at": "2026-11-23T20:34:25.536Z",
+  "endpoint": "/buses/success?order_id=c8819535-33f8-41bd-8896-c4996e1f3e54",
+  "request": {
+    "method": "GET",
+    "url": "https://back-qas.enbus.cl/api/v1/buses/success?order_id=c8819535-33f8-41bd-8896-c4996e1f3e54"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "response": {
+        "order_id": "01ZVZP4Q",
+        "tickets": [
+          {
+            "ticket_id": "01746DBE",
+            "company_name": "Empresa de Pruebas",
+            "payment_method": null,
+            "order_id": "01ZVZP4Q",
+            "price": 3000,
+            "currency": "CLP",
+            "price_usd": 3.28,
+            "departure_city": "Santiago",
+            "destination_city": "Valdivia",
+            "seat": 32,
+            "carriage": null,
+            "departure_date": "2026-11-26T10:15:00-03:00",
+            "departure_date_control": "2026-11-26T10:15:00-03:00",
+            "arrives_date": "2026-11-26T22:05:00-03:00",
+            "seat_type": "SALON CAMA",
+            "stops": "Terminal Sur, Santiago",
+            "downs": "Terminal Valdivia",
+            "company_type": "BUS",
+            "cancelable": true,
+            "cancel_message": "",
+            "cancel_deadline": "2026-11-26T06:15:00-03:00",
+            "changeable": false,
+            "change_stop": false,
+            "pet": 0
+          }
+        ],
+        "products": [],
+        "points": 0,
+        "amount": "$ 3.000",
+        "amount_value": 3000,
+        "currency": "CLP",
+        "tax": "$ 0",
+        "email": "",
+        "method": null,
+        "complement": "pasajes",
+        "payment_status": "PAGADO",
+        "url": "https://www.booking.com/searchresults.es.html?dest_id=-903932&no_rooms=1&group_adults=1&ss=Valdivia",
+        "show_booking": true,
+        "surplus_until_date": null,
+        "surplus_coupon": null,
+        "surplus_amount": null
+      }
+    }
+  }
+}

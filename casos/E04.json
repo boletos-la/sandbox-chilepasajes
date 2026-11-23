@@ -1,0 +1,7 @@
+{
+  "test_id": "E04",
+  "title": "Pago rechazado en la pasarela",
+  "executed_at": "2026-11-23T20:34:38.892Z",
+  "behavior": "Cuando la pasarela rechaza la transacción, el backend del integrador NO envía notificación con status \"paid\". La orden queda en HOLD y expira automáticamente tras los 15 min sin emitir boleto.",
+  "flow_validation": "Consistencia transaccional garantizada y no emisión de pasajes huérfanos."
+}

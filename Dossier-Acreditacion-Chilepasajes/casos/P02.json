@@ -1,0 +1,21 @@
+{
+  "test_id": "P02",
+  "title": "Anular un boleto pagado (POST /external/cancel-ticket)",
+  "executed_at": "2026-11-23T20:34:41.710Z",
+  "request": {
+    "order_id": "01ZVZP4Q",
+    "ticket_id": "01746DBE"
+  },
+  "response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "response": {
+        "success": true,
+        "message": "Anulación realizada.",
+        "order_id": "c8819535-33f8-41bd-8896-c4996e1f3e54",
+        "ticket_id": "27a200db-be51-4d2c-9cd1-12a7b9836755"
+      }
+    }
+  }
+}

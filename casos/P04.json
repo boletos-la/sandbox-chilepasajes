@@ -1,0 +1,21 @@
+{
+  "test_id": "P04",
+  "title": "Anular fuera de plazo (servicio expirado)",
+  "executed_at": "2026-11-23T20:34:42.298Z",
+  "request": {
+    "order_id": "03A7NRWY",
+    "ticket_id": "01QDB2GC"
+  },
+  "response": {
+    "status": 400,
+    "body": {
+      "success": false,
+      "response": {
+        "message": "El boleto ya fue anulado",
+        "error_code": 400,
+        "details": "El boleto ya tiene una cancelación registrada.",
+        "error_key": null
+      }
+    }
+  }
+}

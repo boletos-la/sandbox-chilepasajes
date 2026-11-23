@@ -1,0 +1,25 @@
+{
+  "test_id": "E05",
+  "title": "Notificación de pago repetida (idempotencia)",
+  "executed_at": "2026-11-23T20:34:39.659Z",
+  "request": {
+    "status": "paid",
+    "merchant_order_id": "c8819535-33f8-41bd-8896-c4996e1f3e54",
+    "order_id": "PAY-SIM-1795466062925",
+    "paid_amount": 3000,
+    "paid_currency": "CLP",
+    "payment_method": "SIMULACION"
+  },
+  "response": {
+    "status": 201,
+    "body": {
+      "success": false,
+      "response": {
+        "message": "La orden ya fue notificada como pagada.",
+        "error_code": 201,
+        "details": "order_renotified_id: 01ZVZP4Q",
+        "error_key": null
+      }
+    }
+  }
+}

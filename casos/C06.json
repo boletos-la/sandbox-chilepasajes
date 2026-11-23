@@ -1,0 +1,391 @@
+{
+  "test_id": "C06",
+  "title": "Compra de 3 pasajeros en el mismo servicio",
+  "executed_at": "2026-11-23T20:34:35.852Z",
+  "order_id": "14563b15-1ea4-4259-ae33-ba24c063f7ea",
+  "external_order_id": "00W1HN7Y",
+  "tickets": [
+    {
+      "ticket_id": "0133YD1U",
+      "company_name": "Empresa de Pruebas",
+      "payment_method": null,
+      "order_id": "00W1HN7Y",
+      "price": 3000,
+      "currency": "CLP",
+      "price_usd": 3.28,
+      "departure_city": "Santiago",
+      "destination_city": "Valdivia",
+      "seat": 37,
+      "carriage": null,
+      "departure_date": "2026-11-26T10:15:00-03:00",
+      "departure_date_control": "2026-11-26T10:15:00-03:00",
+      "arrives_date": "2026-11-26T22:05:00-03:00",
+      "seat_type": "SALON CAMA",
+      "stops": "Terminal Sur, Santiago",
+      "downs": "Terminal Valdivia",
+      "company_type": "BUS",
+      "cancelable": true,
+      "cancel_message": "",
+      "cancel_deadline": "2026-11-26T06:15:00-03:00",
+      "changeable": false,
+      "change_stop": false,
+      "pet": 0
+    },
+    {
+      "ticket_id": "01T71ZT9",
+      "company_name": "Empresa de Pruebas",
+      "payment_method": null,
+      "order_id": "00W1HN7Y",
+      "price": 3000,
+      "currency": "CLP",
+      "price_usd": 3.28,
+      "departure_city": "Santiago",
+      "destination_city": "Valdivia",
+      "seat": 38,
+      "carriage": null,
+      "departure_date": "2026-11-26T10:15:00-03:00",
+      "departure_date_control": "2026-11-26T10:15:00-03:00",
+      "arrives_date": "2026-11-26T22:05:00-03:00",
+      "seat_type": "SALON CAMA",
+      "stops": "Terminal Sur, Santiago",
+      "downs": "Terminal Valdivia",
+      "company_type": "BUS",
+      "cancelable": true,
+      "cancel_message": "",
+      "cancel_deadline": "2026-11-26T06:15:00-03:00",
+      "changeable": false,
+      "change_stop": false,
+      "pet": 0
+    },
+    {
+      "ticket_id": "02MBB81J",
+      "company_name": "Empresa de Pruebas",
+      "payment_method": null,
+      "order_id": "00W1HN7Y",
+      "price": 3000,
+      "currency": "CLP",
+      "price_usd": 3.28,
+      "departure_city": "Santiago",
+      "destination_city": "Valdivia",
+      "seat": 39,
+      "carriage": null,
+      "departure_date": "2026-11-26T10:15:00-03:00",
+      "departure_date_control": "2026-11-26T10:15:00-03:00",
+      "arrives_date": "2026-11-26T22:05:00-03:00",
+      "seat_type": "SALON CAMA",
+      "stops": "Terminal Sur, Santiago",
+      "downs": "Terminal Valdivia",
+      "company_type": "BUS",
+      "cancelable": true,
+      "cancel_message": "",
+      "cancel_deadline": "2026-11-26T06:15:00-03:00",
+      "changeable": false,
+      "change_stop": false,
+      "pet": 0
+    }
+  ],
+  "steps": {
+    "reserve": {
+      "request": {
+        "session": "516c982c-62a6-45cb-b35e-c45b1b8b7d14",
+        "complement": "pasajes",
+        "device": "P",
+        "reserves": [
+          "eyJpdiI6IlFRZTNkYXVCWVljdnRDUzEwbEgxOHc9PSIsInZhbHVlIjoiYW5maDZxLzMrNTdxbEdhd2tkU0V1Sm1tRDh0RlQyVFpJNmt0S2thNUV6U1llZlhHNkNsY0p4MWhlVlFXVlF0L04vRzFTMCtmUlc4bWVMNU5xb0duY2Z4cFFhNGl3bnZCNk1UZkhSYWd5Lzd0dlZ1OUxtek9WZDFDTmc1V1dXQTgwcklRbE4wdXcvdUFOYi9JS25nSGVqaWdpYWNJckRnaXBjWnJ6cnRBZWdwSlhKU1BGUzkzbnlxNWlKR1pBalNKb0k5WFo5Q3kza0dzL29xZjVDWEJ2WS8wNmpCRHZwOGNRUE5FSVNHemJqUTRpUjBiWTlKRFVmTXJkOW15aS96WTcyYnpvRUZ2UjJNcnBwMTdzZitNQTdrMWZ0M2pRc2U1VWZhOVJVNVNjejZlUmcrQkUrR3JlQU45M2hiQnVGSGtZRFNCbVhvTEwrd25xYlM4OHZGT0o2VnFyNi9nVHBSM1lmcEVxenh4YUVYaGVtWkcxQlVaWkJ6eWVSZmlWRmhxU0V6dHhVNmN2NGRFTldRZUZDUmFuZDZqcDk4OGhjUVhyelBQT0FRSXNwbVFDOTdwcjBXY2FDQ3AwR1UvZFQvb0tKWVVta2VKcW45UDBVbWZ0Unh1Mlo2R1FjUkFGRThhWi9hSFI5aTlPTXVLc2JXMllPRUpOc3BNa0xkbUpzNXRmUjZTZXlzT3NweGhHd0dTV250RHhuK2hUdVhvdi9wdVE4eUFlblFhNFIzMytQWWMyZDdsTmIvcllSaUFta3JvYU0xT21EU0ZTdkpSR2lnT0tGQzFtcTJQczBMZUNRUmsvSWNrWnRPZ0F0VnJpL3U1ejYzbzB1WHpCQVJCSk9OSy9Qd3RpYkc5dzBwOCtURGZ2TFpvNGhta0htekp3WXpnd2JJcE05Z0Vrd3pwaDZWd3VwSGtSZUZ0cVBiVDZPSVZyTUpNczZnNUhvNFRyZ0c3eXVRdWI3anBhL2N1bkpuaTdDUmdhL0dvTXRuZExTSndNQ05UZkhnMUsvQWhUdE05RjdIQWVjNExXakNSMUJYaWlWTHhEdz09IiwibWFjIjoiNzU5NmZkMjcxNmQwMzFmZDUxZWNlNDE2OTg1NzAyZjljMDk1MDZjZmM1NDdjN2M3YTcxODJjYjRkOWY4NmEwNCIsInRhZyI6IiJ9",
+          "eyJpdiI6Ims1N1o2RGc1Yk45ZEV3b3Z5WDlLdHc9PSIsInZhbHVlIjoiUk41SS9vM3d0NE5TZkx5ZS9hSHcwVGlESi9CUFJPeXlTeHdSVGdIdWNpVFNTR3JaNTAyb3V3V3pJWXBoT0VROHk1ZUhYUVl6bnZhNTgzTDcrdGlKWUxuSnowM2FBaWExekRJWDdZdElnSVI4MEpzL0tZb0VQZC9USkxNUHNvc3RPRFJ3WU1ZcjNnbzZxWE44Sm5XZVl4SlViTDR1ZTdHaXVUV2NnamVMRUFEaHJpVEFCYzlxdmhlei9Ya0VQTkE1MkdNRzYzaXVFS1VUWVUrQUIrVGhYMVJWbHZXTTBJS2RsTWlwa2hFaHFROVZDc2JSSHFVdXgwU01LZnQ4N0JHRVBUVGpNODZ0SzFGcjlzSTlvMHpMc3Y2akRYcHdkc3F6ek9vNEI3ejZ1UFo1UWJCQkU2eUw0eXdDM3Rwa0xYbEdLWHMrNzRFd0paWjlTOGcrMGNQd0pKajQ0MnRuZXRKMVB1L0l5SmVIck5QeFVBTkV5RmVvOWNOSUkxejBWdmN4OU1KVXV0RXcwOW9LS254SFI0UkhKK3NGL1JabzNPV00zWTVRVlEwQ0JKRncxb2VPQ3oza2NxRHBuMWwyZ2t0NFdXVzFhaUNhS2drM0dwT3hIQnZ1OEtlTVI4SGQ1MkhHZlB3SjRGaE1PUjA0eG1DYTN4cTBGVkV5SjJTVDBmVjQvU2hZSTNqMEJsbHpPcFQ2WVpMNmRhTC8venY0U2NrcVhZVDd6dzUzZ01BTDhyYXBaQ1FNL0R4d243OTAwcFFzSDZhS3BtSGtrSmJZWkRTcll6QytjbnhWdjVsdjN4eWZYcDZwamE5dlVSbmkyRE9RU1ZscGQ2NlpyREFUTTZsdVpQNFV3SlZ4M2UvckNSQmh0ZUhiT0lTVVNkNjdCcDB5M2UyWktRdXFJSXBtWHdRZmoyTFBtSUpTVWIvZWlxTnl3WDdmQS82cDFGVDl1SVA5NjR0Y3dKUzV6SXZxckZVZEc5dGduZTlmVTlWa3haSXJGMkt3K3NpeU1pcFFVcXhPK0l4OUxSTU10cVcvWWNWUjJJVGRCZz09IiwibWFjIjoiZWEzNGExOGFhOWI3ZGUxNGNmYWZhOGZhODQyZGU3ZTA5NTgwYmY0MTY3OTU4NjZiMjk2ZGExYjkwN2IxOWI3MiIsInRhZyI6IiJ9",
+          "eyJpdiI6IitSeDNyMm5FemsyTVN0Y2c0Zk5Lc2c9PSIsInZhbHVlIjoia3Z3T1NFRDY4dHF6bVNrVjhtcU5pQVdIY1NBdVZFZ0FHUWdPbHhCTFVuOEp5OTJ1d1psNmxOZXliaTZBblJHN1hoZzg2SHNJWkI0QWJrZU0yMGREM0pGYlFVejFReVlwd3BtdXlyVGhVOE1ISVU5R3ByQ3MxRmF6S09GR2dnd1FzYWdzZitEclZ0SEJDU2g2UWFJUFZjeXIwYXJZZmM0QXFNNnVvbytJVmFkWHlKSjFjUEtLSndjUS9idTh2Q3hvRUJKU2VtYytmUHovaXlEVlBrSFYreTVZdnBFVUJLTDJCcFdOZEpoZUNzL1VwN2ZNbzZ6RzVjV3Uydk5tcUY1b3VXc3d5YWdEaklCVEZZTzRhdHpZaFUyNEgweFhqVXE5bG1MdzVMSkdySGpHYWY4eUM0RjRBaFZOSVNUQlAreFhQRGdra0ViZ2E2WDRjVkg1REdRb1A1dG9COFhSZ2VZUUpMbjhBWGwyUjd4RWJ3dDlrOVFOQ1V5QkhWU0t2VGplSjFsTjhhZVljVWUvWTA3QTEvR2NVcnF2TlZNbzk4b09ERHNYRHdhZitRSFdMZ1NHRTJ2UlQrR0lTV2JtblhERzByb3JNZFUxQjZXdXF5dGlESFlIeG5FUVVQWHRGdTNoYndDTFZZQmdvdWlCRG9YQ0l4Ym5xeG8vVW1FeDhLVmg2YUVFNkhMVEJUcndWdjNUQnA3d0J2d1hwWDZpa0dxWkc0RTBYWjNoM2NQN1JkallxMDVsSmlWa3pUcWh6TzZ6S3ZvWDRLUFdVQWxRL2FuNnM1RGZMdzFLNkxaV09nVE1CazMxSTlmaXU4N1lyTk5GTnZ3L2pDK21RWXNlTnRuRGxTRDZ4ckY3R1oyZVNSbGFoSDBsaCtobE1hREJjbnYwMTJCaFZnK0R4MkJLeWxFMzUwRkU5TVU2VXFtWFlwcVZMSm1sWUlvUjgvRStXQUgzR2JxcGNHbWh1ek8yN1Z3Vjg4VmN6UVVvTmU0OGd2aENpQ2t6bnNwQkpwU0daZWpPUUpuR3lnc1RYTlFZNmVyYVVqNDRZdz09IiwibWFjIjoiYTQ4YjBmYmVhZmIyMWQzMTBkOTVkOWQ0YTZjMzkyNWI4MDlmMGRjMzM4OWU1MjQ3OTA5N2FjYTY1OWEwZTVmYiIsInRhZyI6IiJ9"
+        ]
+      },
+      "response": {
+        "success": true,
+        "response": {
+          "order": {
+            "order_id": "14563b15-1ea4-4259-ae33-ba24c063f7ea",
+            "session": "516c982c-62a6-45cb-b35e-c45b1b8b7d14",
+            "purchase_date": "2026-11-23 17:34:29",
+            "total_purchase": 9000,
+            "tickets": [
+              {
+                "ticket_id": "99f4d1df-a4d7-4a97-9558-2ba769d39a87",
+                "company_ticket_id": "32826",
+                "order_id": "14563b15-1ea4-4259-ae33-ba24c063f7ea",
+                "session": "516c982c-62a6-45cb-b35e-c45b1b8b7d14",
+                "price": 3000,
+                "extra_fee": 0,
+                "price_usd": 3.28,
+                "usd_extra_fee": 0,
+                "city_origin_name": "santiago",
+                "city_destination_name": "valdivia",
+                "city_origin_id": 100,
+                "city_destination_id": 29400,
+                "departure_date": "2026-11-26T10:15:00-03:00",
+                "seat": 37,
+                "seat_type": "SALON CAMA",
+                "stops": "Terminal Sur, Santiago",
+                "downs": "Terminal Valdivia",
+                "travel_dir": "IDA",
+                "pet": false,
+                "canilpar": 0,
+                "ing_kms": false,
+                "birthdate_required": true
+              },
+              {
+                "ticket_id": "25e8e847-b314-4f65-8711-7f4979264141",
+                "company_ticket_id": "32827",
+                "order_id": "14563b15-1ea4-4259-ae33-ba24c063f7ea",
+                "session": "516c982c-62a6-45cb-b35e-c45b1b8b7d14",
+                "price": 3000,
+                "extra_fee": 0,
+                "price_usd": 3.28,
+                "usd_extra_fee": 0,
+                "city_origin_name": "santiago",
+                "city_destination_name": "valdivia",
+                "city_origin_id": 100,
+                "city_destination_id": 29400,
+                "departure_date": "2026-11-26T10:15:00-03:00",
+                "seat": 38,
+                "seat_type": "SALON CAMA",
+                "stops": "Terminal Sur, Santiago",
+                "downs": "Terminal Valdivia",
+                "travel_dir": "IDA",
+                "pet": false,
+                "canilpar": 0,
+                "ing_kms": false,
+                "birthdate_required": true
+              },
+              {
+                "ticket_id": "3918056a-4396-4c75-a5e4-91d252f1f035",
+                "company_ticket_id": "32828",
+                "order_id": "14563b15-1ea4-4259-ae33-ba24c063f7ea",
+                "session": "516c982c-62a6-45cb-b35e-c45b1b8b7d14",
+                "price": 3000,
+                "extra_fee": 0,
+                "price_usd": 3.28,
+                "usd_extra_fee": 0,
+                "city_origin_name": "santiago",
+                "city_destination_name": "valdivia",
+                "city_origin_id": 100,
+                "city_destination_id": 29400,
+                "departure_date": "2026-11-26T10:15:00-03:00",
+                "seat": 39,
+                "seat_type": "SALON CAMA",
+                "stops": "Terminal Sur, Santiago",
+                "downs": "Terminal Valdivia",
+                "travel_dir": "IDA",
+                "pet": false,
+                "canilpar": 0,
+                "ing_kms": false,
+                "birthdate_required": true
+              }
+            ],
+            "frequent_client": false,
+            "birth_date_required": false,
+            "points": 1800,
+            "wtsp_fee": {
+              "apply": false,
+              "fee_amount": 0,
+              "fee_currency": "",
+              "fee_message": ""
+            }
+          }
+        }
+      }
+    },
+    "update_reserve": {
+      "request": {
+        "client": {
+          "order_id": "14563b15-1ea4-4259-ae33-ba24c063f7ea",
+          "session_id": "516c982c-62a6-45cb-b35e-c45b1b8b7d14",
+          "cod_phone": "+56",
+          "phone": "912345678",
+          "email": "comprador.multiple@chilepasajes.cl",
+          "payment_method": "WEBPAY",
+          "lang": "es"
+        },
+        "reserves": [
+          {
+            "ticket_id": "99f4d1df-a4d7-4a97-9558-2ba769d39a87",
+            "document": "15678910K",
+            "document_type": "RUT",
+            "first_name": "Pasajero1",
+            "last_name": "Prueba",
+            "country": "CL",
+            "birth_date": "1992-03-10",
+            "cod_phone": "+56",
+            "phone": "912345678",
+            "stops": "Terminal Sur, Santiago",
+            "downs": "Terminal de Buses Valdivia"
+          },
+          {
+            "ticket_id": "25e8e847-b314-4f65-8711-7f4979264141",
+            "document": "15678911K",
+            "document_type": "RUT",
+            "first_name": "Pasajero2",
+            "last_name": "Prueba",
+            "country": "CL",
+            "birth_date": "1992-03-10",
+            "cod_phone": "+56",
+            "phone": "912345678",
+            "stops": "Terminal Sur, Santiago",
+            "downs": "Terminal de Buses Valdivia"
+          },
+          {
+            "ticket_id": "3918056a-4396-4c75-a5e4-91d252f1f035",
+            "document": "15678912K",
+            "document_type": "RUT",
+            "first_name": "Pasajero3",
+            "last_name": "Prueba",
+            "country": "CL",
+            "birth_date": "1992-03-10",
+            "cod_phone": "+56",
+            "phone": "912345678",
+            "stops": "Terminal Sur, Santiago",
+            "downs": "Terminal de Buses Valdivia"
+          }
+        ],
+        "products": [],
+        "frecuent_client_code": 0
+      },
+      "response": {
+        "success": false,
+        "response": {
+          "message": "Paradas no válidas para el servicio",
+          "error_code": 400,
+          "details": null,
+          "error_key": null
+        }
+      }
+    },
+    "payment_notification": {
+      "request": {
+        "status": "paid",
+        "merchant_order_id": "14563b15-1ea4-4259-ae33-ba24c063f7ea",
+        "order_id": "PAY-3PAX-1795466070449",
+        "paid_amount": 9000,
+        "paid_currency": "CLP",
+        "payment_method": "SIMULACION"
+      },
+      "response": {
+        "success": true,
+        "response": {
+          "message": "Notificación procesada correctamente"
+        }
+      }
+    },
+    "payment_status": {
+      "response": {
+        "success": true,
+        "response": {
+          "order_id": "14563b15-1ea4-4259-ae33-ba24c063f7ea",
+          "external_order_id": "00W1HN7Y",
+          "is_paid": true,
+          "is_confirmed": true,
+          "should_poll": true
+        }
+      }
+    },
+    "success": {
+      "response": {
+        "success": true,
+        "response": {
+          "order_id": "00W1HN7Y",
+          "tickets": [
+            {
+              "ticket_id": "0133YD1U",
+              "company_name": "Empresa de Pruebas",
+              "payment_method": null,
+              "order_id": "00W1HN7Y",
+              "price": 3000,
+              "currency": "CLP",
+              "price_usd": 3.28,
+              "departure_city": "Santiago",
+              "destination_city": "Valdivia",
+              "seat": 37,
+              "carriage": null,
+              "departure_date": "2026-11-26T10:15:00-03:00",
+              "departure_date_control": "2026-11-26T10:15:00-03:00",
+              "arrives_date": "2026-11-26T22:05:00-03:00",
+              "seat_type": "SALON CAMA",
+              "stops": "Terminal Sur, Santiago",
+              "downs": "Terminal Valdivia",
+              "company_type": "BUS",
+              "cancelable": true,
+              "cancel_message": "",
+              "cancel_deadline": "2026-11-26T06:15:00-03:00",
+              "changeable": false,
+              "change_stop": false,
+              "pet": 0
+            },
+            {
+              "ticket_id": "01T71ZT9",
+              "company_name": "Empresa de Pruebas",
+              "payment_method": null,
+              "order_id": "00W1HN7Y",
+              "price": 3000,
+              "currency": "CLP",
+              "price_usd": 3.28,
+              "departure_city": "Santiago",
+              "destination_city": "Valdivia",
+              "seat": 38,
+              "carriage": null,
+              "departure_date": "2026-11-26T10:15:00-03:00",
+              "departure_date_control": "2026-11-26T10:15:00-03:00",
+              "arrives_date": "2026-11-26T22:05:00-03:00",
+              "seat_type": "SALON CAMA",
+              "stops": "Terminal Sur, Santiago",
+              "downs": "Terminal Valdivia",
+              "company_type": "BUS",
+              "cancelable": true,
+              "cancel_message": "",
+              "cancel_deadline": "2026-11-26T06:15:00-03:00",
+              "changeable": false,
+              "change_stop": false,
+              "pet": 0
+            },
+            {
+              "ticket_id": "02MBB81J",
+              "company_name": "Empresa de Pruebas",
+              "payment_method": null,
+              "order_id": "00W1HN7Y",
+              "price": 3000,
+              "currency": "CLP",
+              "price_usd": 3.28,
+              "departure_city": "Santiago",
+              "destination_city": "Valdivia",
+              "seat": 39,
+              "carriage": null,
+              "departure_date": "2026-11-26T10:15:00-03:00",
+              "departure_date_control": "2026-11-26T10:15:00-03:00",
+              "arrives_date": "2026-11-26T22:05:00-03:00",
+              "seat_type": "SALON CAMA",
+              "stops": "Terminal Sur, Santiago",
+              "downs": "Terminal Valdivia",
+              "company_type": "BUS",
+              "cancelable": true,
+              "cancel_message": "",
+              "cancel_deadline": "2026-11-26T06:15:00-03:00",
+              "changeable": false,
+              "change_stop": false,
+              "pet": 0
+            }
+          ],
+          "products": [],
+          "points": 0,
+          "amount": "$ 9.000",
+          "amount_value": 9000,
+          "currency": "CLP",
+          "tax": "$ 0",
+          "email": "",
+          "method": null,
+          "complement": "pasajes",
+          "payment_status": "PAGADO",
+          "url": "https://www.booking.com/searchresults.es.html?dest_id=-903932&no_rooms=1&group_adults=1&ss=Valdivia",
+          "show_booking": true,
+          "surplus_until_date": null,
+          "surplus_coupon": null,
+          "surplus_amount": null
+        }
+      }
+    }
+  }
+}

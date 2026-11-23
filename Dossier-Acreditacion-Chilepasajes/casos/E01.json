@@ -1,0 +1,40 @@
+{
+  "test_id": "E01",
+  "title": "Reserva expirada en update-reserve",
+  "executed_at": "2026-11-23T20:34:36.621Z",
+  "request": {
+    "client": {
+      "order_id": "0b4b71eb-99f5-4dce-ab6c-cbb13387968d",
+      "session_id": "1d1551a8-65ed-4d8f-b3ee-d95f601cb04d",
+      "cod_phone": "+56",
+      "phone": "987654321",
+      "email": "test@chilepasajes.cl",
+      "payment_method": "WEBPAY",
+      "lang": "es"
+    },
+    "reserves": [
+      {
+        "ticket_id": "59e612a5-1f35-4b56-81bb-28894c5c8204",
+        "document": "164829103",
+        "document_type": "RUT",
+        "first_name": "A",
+        "last_name": "B",
+        "country": "CL"
+      }
+    ],
+    "products": [],
+    "frecuent_client_code": 0
+  },
+  "response": {
+    "status": 404,
+    "body": {
+      "success": false,
+      "response": {
+        "message": "No se encontró la orden con los datos proporcionados.",
+        "error_code": 404,
+        "details": null,
+        "error_key": null
+      }
+    }
+  }
+}

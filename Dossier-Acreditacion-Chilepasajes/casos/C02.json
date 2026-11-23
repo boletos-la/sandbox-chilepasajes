@@ -1,0 +1,421 @@
+{
+  "test_id": "C02",
+  "title": "Búsqueda solo ida (GET /schedules/single)",
+  "executed_at": "2026-11-23T20:34:20.099Z",
+  "endpoint": "/buses/schedules/single?city_or=santiago&city_de=valdivia&date=26-11-2026&direction=IDA&complement=pasajes",
+  "request": {
+    "method": "GET",
+    "url": "https://back-qas.enbus.cl/api/v1/buses/schedules/single?city_or=santiago&city_de=valdivia&date=26-11-2026&direction=IDA&complement=pasajes",
+    "headers": {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      "Authorization": "Bearer sk_test_FtC48QXZHlbvE"
+    }
+  },
+  "response": {
+    "status": 200,
+    "durationMs": 438,
+    "body": {
+      "success": true,
+      "response": {
+        "IDA": {
+          "services": [
+            {
+              "service_id": "2750442",
+              "company_id": 999,
+              "company_name": "Empresa De Pruebas",
+              "company_logo": "https://sqlvaktyvm2fqu2xny.blob.core.windows.net/cdn-clp/logos/logo_new.png",
+              "transport_type": "BUS",
+              "city_departure": "santiago",
+              "city_arrival": "valdivia",
+              "departs_at": "2026-11-26T10:15:00-03:00",
+              "departs_at_hour": "10:15 AM",
+              "arrives_at": "2026-11-26T22:05:00-03:00",
+              "arrives_at_hour": "22:05 PM",
+              "departs_at_day": "Thursday",
+              "arrives_at_day": "Thursday",
+              "duration": "PT11H50M",
+              "price": 3000,
+              "price_punto": "$ 3.000",
+              "currency": "CLP",
+              "available_seats": 42,
+              "seat_class": "SALON CAMA",
+              "station_departure": "Terminal Sur, Santiago",
+              "station_arrival": "Terminal Valdivia",
+              "token": "eyJpdiI6IkEzUXdFZUdubFcwZlROU3N4MGt5UEE9PSIsInZhbHVlIjoiK3IvNE52Zzdmc1FvMUcvTXJnZ3dNTnR4NXdtT2VZWTQwMWJWYllRc0xIY3V2UENvYUVTVFJXQlZlU2xaeHB0a2t0dVdoTGNiaXRIMzlHK216WjdOalJQQnZhaEw2Z0YwcVRuR2JxRjh0YU16Ni9EV3g2N2FMVjBmaXo0Qm9QN0hneUJkaitpbHg2a2RZOXgyS0pta1dpcWRKWmthRm5QV041cFpNc2tDSk1rL2JCMXdUUUw5UjRCTHArTlVKTU1uSXBFUFBhaEVqdG92Vmw2TVhyU2RmdjZsdmZobGMxUjlSMXNWVG5sb2xpYjJFN0l6ZUdEenVSb09oUVE2K0txZyIsIm1hYyI6IjZmZDc5Y2M1NTBkZjY3MzM1MDc1NzZkOGZiODk2MDA3OTQ3YThkOTkyYzlhMTM0Y2VkY2E2Nzk1OGYyMTE1ZjYiLCJ0YWciOiIifQ==",
+              "ident": "data0",
+              "route_description": "Mensaje de prueba",
+              "direct_trip": false,
+              "is_transfer": false,
+              "is_cancellable": true,
+              "pet_active": false,
+              "boarding_ticket": true,
+              "rating_stats": {
+                "average_rating": 3.63,
+                "total_reviews": 7
+              },
+              "amenities": [
+                {
+                  "label": "Embarque electrónico",
+                  "logo": "https://sqlvaktyvm2fqu2xny.blob.core.windows.net/cdn-clp/website/clp/iconos/ticket",
+                  "key": "boarding_ticket"
+                }
+              ],
+              "price_usd": 3.28
+            },
+            {
+              "service_id": "2750612",
+              "company_id": 999,
+              "company_name": "Empresa De Pruebas",
+              "company_logo": "https://sqlvaktyvm2fqu2xny.blob.core.windows.net/cdn-clp/logos/logo_new.png",
+              "transport_type": "BUS",
+              "city_departure": "santiago",
+              "city_arrival": "valdivia",
+              "departs_at": "2026-11-26T11:02:00-03:00",
+              "departs_at_hour": "11:02 AM",
+              "arrives_at": "2026-11-26T22:52:00-03:00",
+              "arrives_at_hour": "22:52 PM",
+              "departs_at_day": "Thursday",
+              "arrives_at_day": "Thursday",
+              "duration": "PT11H50M",
+              "price": 3000,
+              "price_punto": "$ 3.000",
+              "currency": "CLP",
+              "available_seats": 43,
+              "seat_class": "SALON CAMA",
+              "station_departure": "Terminal Sur, Santiago",
+              "station_arrival": "Terminal Valdivia",
+              "token": "eyJpdiI6IjB3QVVnZ2JHUHNBZVRZNXlIck5LaWc9PSIsInZhbHVlIjoiSmp2TFZqQStxS1M3Wjh6QWFiK3VlTm15aEVPYWYxVlRQSmJxdXVFSXJFb2czVzVOV3VEM0NqU2hreWZkZmVDdnBYRFNWcFFiYVhIL0FrZFdNdlZ1Ykh2aXJFS3o2d3lHN2p4Ymw3NnNRM1RBb2FkZkFSNU05ZmtPK2duNzNCTU9PNHJoOFIxVjRWSkd4T2RicWhEQnltWnVHR20rNkJKLzhrRDZPS0daUEdFQjdVcUVwTkpRY1UxOHJsUlJmZzFFNWtMemRudVJvNU5WVVlJcjB1OE11cjNVL1NiMzMrU3ZzQjVhMWg3NktyYXdNMVZiWlZBd1JrQm9BajlUUjVBcSIsIm1hYyI6IjIwNzk3YTgxM2U3OGQ1NjZmZjMxN2IwM2E2MzdiM2FhYWMyMGExNzU5YTQ1NzFkMGEyNzY2ODRkMWViNDg0OGQiLCJ0YWciOiIifQ==",
+              "ident": "data1",
+              "route_description": "Mensaje de prueba",
+              "direct_trip": false,
+              "is_transfer": false,
+              "is_cancellable": true,
+              "pet_active": false,
+              "boarding_ticket": true,
+              "rating_stats": {
+                "average_rating": 3.63,
+                "total_reviews": 7
+              },
+              "amenities": [
+                {
+                  "label": "Embarque electrónico",
+                  "logo": "https://sqlvaktyvm2fqu2xny.blob.core.windows.net/cdn-clp/website/clp/iconos/ticket",
+                  "key": "boarding_ticket"
+                }
+              ],
+              "price_usd": 3.28
+            },
+            {
+              "service_id": "2750782",
+              "company_id": 999,
+              "company_name": "Empresa De Pruebas",
+              "company_logo": "https://sqlvaktyvm2fqu2xny.blob.core.windows.net/cdn-clp/logos/logo_new.png",
+              "transport_type": "BUS",
+              "city_departure": "santiago",
+              "city_arrival": "valdivia",
+              "departs_at": "2026-11-26T13:00:00-03:00",
+              "departs_at_hour": "13:00 PM",
+              "arrives_at": "2026-11-27T00:50:00-03:00",
+              "arrives_at_hour": "00:50 AM",
+              "departs_at_day": "Thursday",
+              "arrives_at_day": "Friday",
+              "duration": "PT11H50M",
+              "price": 3000,
+              "price_punto": "$ 3.000",
+              "currency": "CLP",
+              "available_seats": 43,
+              "seat_class": "SALON CAMA",
+              "station_departure": "Terminal Sur, Santiago",
+              "station_arrival": "Terminal Valdivia",
+              "token": "eyJpdiI6Ilg5U0NRT3lKNm1scGdFeFNoL2JnL1E9PSIsInZhbHVlIjoiWFdKaHVwVElIOEJkYSswdy9nTTB5bEFnMjdkK3h1WDVWZDhyTE00UGtvZjhrdUFTSzhtYUppUmhDUkVqRlBUeUFBWVBsQ0t6WUFRWTdoMm1qMTNuM1J5MGcwTk1nVi9pVnkvNEpKUVhIKzdWaVB0NE1iekJnYTZmemw2WCt0MWJLZUNDWis2TE5qN2RjMnpScnowajNuRHFLYWt1QTZrTCtHRDFBNWM3b1Jrdnd1QXM2NHpHR1Q2ZzVzby96MFY3N25SNTZDbFkyaFlKeEZwSkJBciszNkl2ZytPV2ZrY2hvT0tIa0t3M2J0SXhqUGJ4TDRJMlAyVVJTRlEwb3NIRyIsIm1hYyI6IjA5NDQ2YmVlYWFiM2YwOTU0MGJjMmY0ZTZlNjMwZTRkYjZkMmVmZGY5N2MwMmI4MzYwNDNlZjEzZWY0MjRhOTEiLCJ0YWciOiIifQ==",
+              "ident": "data2",
+              "route_description": "Mensaje de prueba",
+              "direct_trip": false,
+              "is_transfer": false,
+              "is_cancellable": true,
+              "pet_active": false,
+              "boarding_ticket": true,
+              "rating_stats": {
+                "average_rating": 3.63,
+                "total_reviews": 7
+              },
+              "amenities": [
+                {
+                  "label": "Embarque electrónico",
+                  "logo": "https://sqlvaktyvm2fqu2xny.blob.core.windows.net/cdn-clp/website/clp/iconos/ticket",
+                  "key": "boarding_ticket"
+                }
+              ],
+              "price_usd": 3.28
+            },
+            {
+              "service_id": "2750952",
+              "company_id": 999,
+              "company_name": "Empresa De Pruebas",
+              "company_logo": "https://sqlvaktyvm2fqu2xny.blob.core.windows.net/cdn-clp/logos/logo_new.png",
+              "transport_type": "BUS",
+              "city_departure": "santiago",
+              "city_arrival": "valdivia",
+              "departs_at": "2026-11-26T15:00:00-03:00",
+              "departs_at_hour": "15:00 PM",
+              "arrives_at": "2026-11-27T02:50:00-03:00",
+              "arrives_at_hour": "02:50 AM",
+              "departs_at_day": "Thursday",
+              "arrives_at_day": "Friday",
+              "duration": "PT11H50M",
+              "price": 3000,
+              "price_punto": "$ 3.000",
+              "currency": "CLP",
+              "available_seats": 43,
+              "seat_class": "SALON CAMA",
+              "station_departure": "Terminal Sur, Santiago",
+              "station_arrival": "Terminal Valdivia",
+              "token": "eyJpdiI6IjBucG1CbE5kOHB3UEFPaVIrYXlYZEE9PSIsInZhbHVlIjoiNnU5T2RNajhCaTFRQWdHL3F1OGNPeXpzaVBYbnNJMVAwdU5vMVdOSmc3dkN4Z3J1aHE5Kys0TWh4R0RvY2N0OCtkamQyaUIvNnc0T2ZWTWJqZk1IKzdkSm9JV0wwQkh1MlhUbjF5bDZWYW5SUy9UMStmazZmdGxIY0hRTWFzTEJmcHBuN2w4S0Zzb0F3dW90Mk5XZzJWZUtrSVNFM3lhRDQyYlZtdENvODdweE5pV1RQNXlZOEdzNHBGSVIzaldRcjJ1OHdCTDN5RmQ3WllRalJITCs4RWtUcm1UbXZ2NnZXTjR4NTR2Mi9VWldpbFJLUDdjWEFZYURScG5tV294TyIsIm1hYyI6IjcyMTNjMzBhZmJkMGQ2OGRmMzQ0YTExMGMxZDVhNGJkODVhZDhkNTBmOWZjZWY4YzliMzZlYTAxMzUzODQzMDUiLCJ0YWciOiIifQ==",
+              "ident": "data3",
+              "route_description": "Mensaje de prueba",
+              "direct_trip": false,
+              "is_transfer": false,
+              "is_cancellable": true,
+              "pet_active": false,
+              "boarding_ticket": true,
+              "rating_stats": {
+                "average_rating": 3.63,
+                "total_reviews": 7
+              },
+              "amenities": [
+                {
+                  "label": "Embarque electrónico",
+                  "logo": "https://sqlvaktyvm2fqu2xny.blob.core.windows.net/cdn-clp/website/clp/iconos/ticket",
+                  "key": "boarding_ticket"
+                }
+              ],
+              "price_usd": 3.28
+            },
+            {
+              "service_id": "2751122",
+              "company_id": 999,
+              "company_name": "Empresa De Pruebas",
+              "company_logo": "https://sqlvaktyvm2fqu2xny.blob.core.windows.net/cdn-clp/logos/logo_new.png",
+              "transport_type": "BUS",
+              "city_departure": "santiago",
+              "city_arrival": "valdivia",
+              "departs_at": "2026-11-26T19:01:00-03:00",
+              "departs_at_hour": "19:01 PM",
+              "arrives_at": "2026-11-27T06:51:00-03:00",
+              "arrives_at_hour": "06:51 AM",
+              "departs_at_day": "Thursday",
+              "arrives_at_day": "Friday",
+              "duration": "PT11H50M",
+              "price": 3000,
+              "price_punto": "$ 3.000",
+              "currency": "CLP",
+              "available_seats": 43,
+              "seat_class": "SALON CAMA",
+              "station_departure": "Terminal Sur, Santiago",
+              "station_arrival": "Terminal Valdivia",
+              "token": "eyJpdiI6IngyN0tnMmh5bnJhVjEvMlNJc05zWHc9PSIsInZhbHVlIjoiUzVqWExCNVFzZ1gwRlpWdVZoOU4vNlRxYXVtbTNqeXY5TERzSzVMZUlzQ0k1WVhKQ1MyT2hXWFp1TGs5ZzFLaXExWkVwRVp6NXhvV2tUKzFhblJ0ZmwvcFRNY1RKait3VVExaVAvN0VOYmlFZWhGODFkUDVHRDEwMGRRR0xDNU5PR01kLzJGNXQzVzNJSXhTQ0drQTUrS0J4SVFoaWhWdm9Xc05JdXdSUDNZakVMaXBUTDlmODFyRjIyTVVPbW55T0UyQTNLREt3Q1g0M0QwNDdXNXVoYUV5dVR3Ylh3WHgxazF2L0g3am42Zis1RldCOWtPZkdQc3NqeGJSTUpzbyIsIm1hYyI6ImM0YWFkODQ1ZmY3MDg2MTg2YzIzMzk5NGZkZDE4Yzc2YjhkOGU3MmVlM2EyNzc5Y2I5OWUyOTk1MTM5YzAzMzQiLCJ0YWciOiIifQ==",
+              "ident": "data4",
+              "route_description": "Mensaje de prueba",
+              "direct_trip": false,
+              "is_transfer": false,
+              "is_cancellable": true,
+              "pet_active": false,
+              "boarding_ticket": true,
+              "rating_stats": {
+                "average_rating": 3.63,
+                "total_reviews": 7
+              },
+              "amenities": [
+                {
+                  "label": "Embarque electrónico",
+                  "logo": "https://sqlvaktyvm2fqu2xny.blob.core.windows.net/cdn-clp/website/clp/iconos/ticket",
+                  "key": "boarding_ticket"
+                }
+              ],
+              "price_usd": 3.28
+            },
+            {
+              "service_id": "2751292",
+              "company_id": 999,
+              "company_name": "Empresa De Pruebas",
+              "company_logo": "https://sqlvaktyvm2fqu2xny.blob.core.windows.net/cdn-clp/logos/logo_new.png",
+              "transport_type": "BUS",
+              "city_departure": "santiago",
+              "city_arrival": "valdivia",
+              "departs_at": "2026-11-26T21:25:00-03:00",
+              "departs_at_hour": "21:25 PM",
+              "arrives_at": "2026-11-27T09:15:00-03:00",
+              "arrives_at_hour": "09:15 AM",
+              "departs_at_day": "Thursday",
+              "arrives_at_day": "Friday",
+              "duration": "PT11H50M",
+              "price": 3000,
+              "price_punto": "$ 3.000",
+              "currency": "CLP",
+              "available_seats": 43,
+              "seat_class": "SALON CAMA",
+              "station_departure": "Terminal Sur, Santiago",
+              "station_arrival": "Terminal Valdivia",
+              "token": "eyJpdiI6IkhTUjAxcGI5ZkpxUFYxNmJ3S0lGWnc9PSIsInZhbHVlIjoiQ2U4Mk00R2ZDSzNDdklLajFlNEthZTh5VU9GYkNBbU1ZdVg3NVNlNENTVWVaMUw1eHZSV2JiTGVHeUxKWmUzZ25kRTQ1WWIxR1FNZkhMTFJJMmF4T2Exa1Q2cXdld2oveC9aM2E3WVhJdDQ4YXRraS92Y1NDS1p1WDlzcERqeHl0ODBYOHlna1NRTWVVdTFzOFJ1c2V4b1J3SE12Rnk3eE1hM2FMQzVRVHB4bnpUSjdqS3hFTktiOEV3OGF6MTRZNnJOWW50K2JkS2ZUT3B6YXNLUGFmZFRSa292K0ZrSnl3bGVSMWtXTVFybmp5WGFPeEZpRjIxRTh5YytRL1g1eSIsIm1hYyI6ImJmZmNlNDczZWYyM2NiN2E3ZjEzY2ZjNzEwNzZkZjZkMjc0YjE0YTA4ZGQ1ZWQ5MjgxYzQ5NDBlNzMwZDQ1MzciLCJ0YWciOiIifQ==",
+              "ident": "data5",
+              "route_description": "Mensaje de prueba",
+              "direct_trip": false,
+              "is_transfer": false,
+              "is_cancellable": true,
+              "pet_active": false,
+              "boarding_ticket": true,
+              "rating_stats": {
+                "average_rating": 3.63,
+                "total_reviews": 7
+              },
+              "amenities": [
+                {
+                  "label": "Embarque electrónico",
+                  "logo": "https://sqlvaktyvm2fqu2xny.blob.core.windows.net/cdn-clp/website/clp/iconos/ticket",
+                  "key": "boarding_ticket"
+                }
+              ],
+              "price_usd": 3.28
+            },
+            {
+              "service_id": "2751462",
+              "company_id": 999,
+              "company_name": "Empresa De Pruebas",
+              "company_logo": "https://sqlvaktyvm2fqu2xny.blob.core.windows.net/cdn-clp/logos/logo_new.png",
+              "transport_type": "BUS",
+              "city_departure": "santiago",
+              "city_arrival": "valdivia",
+              "departs_at": "2026-11-26T22:15:00-03:00",
+              "departs_at_hour": "22:15 PM",
+              "arrives_at": "2026-11-27T10:05:00-03:00",
+              "arrives_at_hour": "10:05 AM",
+              "departs_at_day": "Thursday",
+              "arrives_at_day": "Friday",
+              "duration": "PT11H50M",
+              "price": 3000,
+              "price_punto": "$ 3.000",
+              "currency": "CLP",
+              "available_seats": 43,
+              "seat_class": "SALON CAMA",
+              "station_departure": "Terminal Sur, Santiago",
+              "station_arrival": "Terminal Valdivia",
+              "token": "eyJpdiI6ImhJSk9QdGVzSmJ1Qk9TOFl1NFg4ekE9PSIsInZhbHVlIjoiOEJuNHBuWUZ0L3JVbXRMUXFCeE5XZUxnYm4vRzQxSjV0NStLS3ZJU1Q5RXNRUHBHaWVkRU5pcDlORlJ0eURYNDBGYUhDOXRaK3VlVTNTSENtVUFGTk5BTlNyZnZBSzlaNHVBaWRqTE93T1JRTisrclQra0xIWmU0eVRXdzZkU3RuREp1WE54T1ByeEhza0JQR0ZzdFpDNnJyeEN5VUFnS1hoWXNoMnVRUmljSC9PR2tkaGNRaDlNRGY1ZzNJYUpjRGNkQlQ2cmxSS2FnU0xEWmZCV2xIaS91K21kVkpzbnA1K2NhYUQ1cDl0SmdVeFhHblg2U2ZLU0tpWnEvTFpaSCIsIm1hYyI6ImI1MjNhZmI4Nzg0ZDcwNTEzZWNjYmY0NWM1NjczYmMwNzNiNzMxZGNjOWVhZGE4NmE1MjA4NzIyZGY2NzUyZWYiLCJ0YWciOiIifQ==",
+              "ident": "data6",
+              "route_description": "Mensaje de prueba",
+              "direct_trip": false,
+              "is_transfer": false,
+              "is_cancellable": true,
+              "pet_active": false,
+              "boarding_ticket": true,
+              "rating_stats": {
+                "average_rating": 3.63,
+                "total_reviews": 7
+              },
+              "amenities": [
+                {
+                  "label": "Embarque electrónico",
+                  "logo": "https://sqlvaktyvm2fqu2xny.blob.core.windows.net/cdn-clp/website/clp/iconos/ticket",
+                  "key": "boarding_ticket"
+                }
+              ],
+              "price_usd": 3.28
+            }
+          ],
+          "nearby_dates": [
+            {
+              "date": "2026-11-24T03:00:00.000000Z",
+              "date_text": "Martes, 24 de noviembre",
+              "price": 3000
+            },
+            {
+              "date": "2026-11-25T03:00:00.000000Z",
+              "date_text": "Miércoles, 25 de noviembre",
+              "price": 3000
+            },
+            {
+              "date": "2026-11-26T03:00:00.000000Z",
+              "date_text": "Jueves, 26 de noviembre",
+              "price": 3000
+            },
+            {
+              "date": "2026-11-27T03:00:00.000000Z",
+              "date_text": "Viernes, 27 de noviembre",
+              "price": 3000
+            },
+            {
+              "date": "2026-11-28T03:00:00.000000Z",
+              "date_text": "Sábado, 28 de noviembre",
+              "price": 3000
+            },
+            {
+              "date": "2026-11-29T03:00:00.000000Z",
+              "date_text": "Domingo, 29 de noviembre",
+              "price": 3000
+            },
+            {
+              "date": "2026-11-30T03:00:00.000000Z",
+              "date_text": "Lunes, 30 de noviembre",
+              "price": 3000
+            },
+            {
+              "date": "2026-12-01T03:00:00.000000Z",
+              "date_text": "Martes, 1 de diciembre",
+              "price": 17100
+            },
+            {
+              "date": "2026-12-02T03:00:00.000000Z",
+              "date_text": "Miércoles, 2 de diciembre",
+              "price": 0
+            },
+            {
+              "date": "2026-12-03T03:00:00.000000Z",
+              "date_text": "Jueves, 3 de diciembre",
+              "price": 0
+            },
+            {
+              "date": "2026-12-04T03:00:00.000000Z",
+              "date_text": "Viernes, 4 de diciembre",
+              "price": 0
+            },
+            {
+              "date": "2026-12-05T03:00:00.000000Z",
+              "date_text": "Sábado, 5 de diciembre",
+              "price": 0
+            },
+            {
+              "date": "2026-12-06T03:00:00.000000Z",
+              "date_text": "Domingo, 6 de diciembre",
+              "price": 0
+            },
+            {
+              "date": "2026-12-07T03:00:00.000000Z",
+              "date_text": "Lunes, 7 de diciembre",
+              "price": 0
+            },
+            {
+              "date": "2026-12-08T03:00:00.000000Z",
+              "date_text": "Martes, 8 de diciembre",
+              "price": 0
+            },
+            {
+              "date": "2026-12-09T03:00:00.000000Z",
+              "date_text": "Miércoles, 9 de diciembre",
+              "price": 0
+            },
+            {
+              "date": "2026-12-10T03:00:00.000000Z",
+              "date_text": "Jueves, 10 de diciembre",
+              "price": 0
+            },
+            {
+              "date": "2026-12-11T03:00:00.000000Z",
+              "date_text": "Viernes, 11 de diciembre",
+              "price": 0
+            }
+          ]
+        }
+      }
+    }
+  }
+}

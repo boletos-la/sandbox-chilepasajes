@@ -1,0 +1,422 @@
+{
+  "test_id": "C01",
+  "title": "Catálogo de ciudades (GET /get-cities)",
+  "executed_at": "2026-11-23T20:34:19.657Z",
+  "endpoint": "/buses/get-cities?complement=pasajes",
+  "request": {
+    "method": "GET",
+    "url": "https://back-qas.enbus.cl/api/v1/buses/get-cities?complement=pasajes",
+    "headers": {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      "Authorization": "Bearer sk_test_FtC48QXZHlbvE"
+    }
+  },
+  "response": {
+    "status": 200,
+    "durationMs": 603,
+    "body": {
+      "success": true,
+      "response": {
+        "cities": [
+          {
+            "id": 60032,
+            "city": "28 de Noviembre, Argentina",
+            "search_name": "28 de noviembre",
+            "selected": false
+          },
+          {
+            "id": 60001,
+            "city": "Allen, Argentina",
+            "search_name": "allen",
+            "selected": false
+          },
+          {
+            "id": 60041,
+            "city": "Buenos Aires, Argentina",
+            "search_name": "buenos aires",
+            "selected": false
+          },
+          {
+            "id": 60015,
+            "city": "Caleta Olivia, Argentina",
+            "search_name": "caleta olivia",
+            "selected": false
+          },
+          {
+            "id": 60021,
+            "city": "Cancha Carrera, Argentina",
+            "search_name": "cancha carrera",
+            "selected": false
+          },
+          {
+            "id": 60062,
+            "city": "Catriel, Argentina",
+            "search_name": "catriel",
+            "selected": false
+          },
+          {
+            "id": 60053,
+            "city": "Chepes, Argentina",
+            "search_name": "chepes",
+            "selected": false
+          },
+          {
+            "id": 60061,
+            "city": "Cinco Saltos, Argentina",
+            "search_name": "cinco saltos",
+            "selected": false
+          },
+          {
+            "id": 60002,
+            "city": "Cipolletti, Argentina",
+            "search_name": "cipolletti",
+            "selected": false
+          },
+          {
+            "id": 60056,
+            "city": "Cordoba, Argentina",
+            "search_name": "cordoba",
+            "selected": false
+          },
+          {
+            "id": 60054,
+            "city": "Cosquin, Argentina",
+            "search_name": "cosquin",
+            "selected": false
+          },
+          {
+            "id": 60003,
+            "city": "Cutral Co, Argentina",
+            "search_name": "cutral co",
+            "selected": false
+          },
+          {
+            "id": 60016,
+            "city": "El Bolson, Argentina",
+            "search_name": "el bolson",
+            "selected": false
+          },
+          {
+            "id": 60010,
+            "city": "El calafate, Argentina",
+            "search_name": "el calafate",
+            "selected": false
+          },
+          {
+            "id": 60022,
+            "city": "El Cerrito, Argentina",
+            "search_name": "el cerrito",
+            "selected": false
+          },
+          {
+            "id": 60039,
+            "city": "El Chalten, Argentina",
+            "search_name": "el chalten",
+            "selected": false
+          },
+          {
+            "id": 60020,
+            "city": "El Hoyo, Argentina",
+            "search_name": "el hoyo",
+            "selected": false
+          },
+          {
+            "id": 60017,
+            "city": "Esquel, Argentina",
+            "search_name": "esquel",
+            "selected": false
+          },
+          {
+            "id": 60018,
+            "city": "Fitz Roy, Argentina",
+            "search_name": "fitz roy",
+            "selected": false
+          },
+          {
+            "id": 60057,
+            "city": "General Alvear, Argentina",
+            "search_name": "general alvear",
+            "selected": false
+          },
+          {
+            "id": 60004,
+            "city": "General Roca, Argentina",
+            "search_name": "general roca",
+            "selected": false
+          },
+          {
+            "id": 60011,
+            "city": "Glaciar Perito Moreno, Argentina",
+            "search_name": "glaciar perito moreno",
+            "selected": false
+          },
+          {
+            "id": 60025,
+            "city": "Gobernador Costa, Argentina",
+            "search_name": "gobernador costa",
+            "selected": false
+          },
+          {
+            "id": 60049,
+            "city": "Jocoli, Argentina",
+            "search_name": "jocoli",
+            "selected": false
+          },
+          {
+            "id": 60063,
+            "city": "Jujuy, Argentina",
+            "search_name": "jujuy",
+            "selected": false
+          },
+          {
+            "id": 60065,
+            "city": "Junin, Argentina",
+            "search_name": "junin",
+            "selected": false
+          },
+          {
+            "id": 60005,
+            "city": "Junin De Los Andes, Argentina",
+            "search_name": "junin de los andes",
+            "selected": false
+          },
+          {
+            "id": 60027,
+            "city": "Koluel Kayke, Argentina",
+            "search_name": "koluel kayke",
+            "selected": false
+          },
+          {
+            "id": 60023,
+            "city": "La Esperanza Argentina, Argentina",
+            "search_name": "la esperanza argentina",
+            "selected": false
+          },
+          {
+            "id": 60043,
+            "city": "La Paz Argentina, Argentina",
+            "search_name": "la paz argentina",
+            "selected": false
+          },
+          {
+            "id": 60052,
+            "city": "Laboulaye, Argentina",
+            "search_name": "laboulaye",
+            "selected": false
+          },
+          {
+            "id": 60029,
+            "city": "Las Heras, Argentina",
+            "search_name": "las heras",
+            "selected": false
+          },
+          {
+            "id": 60026,
+            "city": "Las Horquetas, Argentina",
+            "search_name": "las horquetas",
+            "selected": false
+          },
+          {
+            "id": 60064,
+            "city": "Las Lajas, Argentina",
+            "search_name": "las lajas",
+            "selected": false
+          },
+          {
+            "id": 60058,
+            "city": "Las Leñas, Argentina",
+            "search_name": "las lenas",
+            "selected": false
+          },
+          {
+            "id": 60028,
+            "city": "Los Antiguos, Argentina",
+            "search_name": "los antiguos",
+            "selected": false
+          },
+          {
+            "id": 60042,
+            "city": "Malargue, Argentina",
+            "search_name": "malargue",
+            "selected": false
+          },
+          {
+            "id": 60040,
+            "city": "Mendoza, Argentina",
+            "search_name": "mendoza",
+            "selected": false
+          },
+          {
+            "id": 60030,
+            "city": "Monte Aymond, Argentina",
+            "search_name": "monte aymond",
+            "selected": false
+          },
+          {
+            "id": 60006,
+            "city": "Neuquen, Argentina",
+            "search_name": "neuquen",
+            "selected": false
+          },
+          {
+            "id": 60034,
+            "city": "Pico Truncado, Argentina",
+            "search_name": "pico truncado",
+            "selected": false
+          },
+          {
+            "id": 60060,
+            "city": "Piedra Del Aguila, Argentina",
+            "search_name": "piedra del aguila",
+            "selected": false
+          },
+          {
+            "id": 60007,
+            "city": "Plottier, Argentina",
+            "search_name": "plottier",
+            "selected": false
+          },
+          {
+            "id": 60019,
+            "city": "Puerto San Julian, Argentina",
+            "search_name": "puerto san julian",
+            "selected": false
+          },
+          {
+            "id": 60024,
+            "city": "Rio Coig, Argentina",
+            "search_name": "rio coig",
+            "selected": false
+          },
+          {
+            "id": 60046,
+            "city": "Rio Cuarto, Argentina",
+            "search_name": "rio cuarto",
+            "selected": false
+          },
+          {
+            "id": 60012,
+            "city": "Rio Gallegos, Argentina",
+            "search_name": "rio gallegos",
+            "selected": false
+          },
+          {
+            "id": 60033,
+            "city": "Rio Grande, Argentina",
+            "search_name": "rio grande",
+            "selected": false
+          },
+          {
+            "id": 60031,
+            "city": "Rio Turbio, Argentina",
+            "search_name": "rio turbio",
+            "selected": false
+          },
+          {
+            "id": 60047,
+            "city": "Rosario Argentina, Argentina",
+            "search_name": "rosario argentina",
+            "selected": false
+          },
+          {
+            "id": 60066,
+            "city": "Salta, Argentina",
+            "search_name": "salta",
+            "selected": false
+          },
+          {
+            "id": 60013,
+            "city": "San Carlos de Bariloche, Argentina",
+            "search_name": "san carlos de bariloche",
+            "selected": false
+          },
+          {
+            "id": 60050,
+            "city": "San Juan, Argentina",
+            "search_name": "san juan",
+            "selected": false
+          },
+          {
+            "id": 60044,
+            "city": "San Luis, Argentina",
+            "search_name": "san luis",
+            "selected": false
+          },
+          {
+            "id": 60008,
+            "city": "San Martin De Los Andes, Argentina",
+            "search_name": "san martin de los andes",
+            "selected": false
+          },
+          {
+            "id": 60048,
+            "city": "San Nicolas de los Arroyos Argentina, Argentina",
+            "search_name": "san nicolas de los arroyos argentina",
+            "selected": false
+          },
+          {
+            "id": 60038,
+            "city": "Tapi Aike, Argentina",
+            "search_name": "tapi aike",
+            "selected": false
+          },
+          {
+            "id": 60036,
+            "city": "Tecka, Argentina",
+            "search_name": "tecka",
+            "selected": false
+          },
+          {
+            "id": 60037,
+            "city": "Tolhuin, Argentina",
+            "search_name": "tolhuin",
+            "selected": false
+          },
+          {
+            "id": 60035,
+            "city": "Tres Cerros, Argentina",
+            "search_name": "tres cerros",
+            "selected": false
+          },
+          {
+            "id": 60014,
+            "city": "Ushuaia, Argentina",
+            "search_name": "ushuaia",
+            "selected": false
+          },
+          {
+            "id": 60051,
+            "city": "Vicuña Mackenna, Argentina",
+            "search_name": "vicuna mackenna",
+            "selected": false
+          },
+          {
+            "id": 60055,
+            "city": "Villa Carlos Paz, Argentina",
+            "search_name": "villa carlos paz",
+            "selected": false
+          },
+          {
+            "id": 60059,
+            "city": "Villa Maria, Argentina",
+            "search_name": "villa maria",
+            "selected": false
+          },
+          {
+            "id": 60045,
+            "city": "Villa Mercedes Argentina, Argentina",
+            "search_name": "villa mercedes argentina",
+            "selected": false
+          },
+          {
+            "id": 60009,
+            "city": "Zapala, Argentina",
+            "search_name": "zapala",
+            "selected": false
+          }
+        ]
+      }
+    }
+  }
+}

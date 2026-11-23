@@ -1,0 +1,11 @@
+{
+  "test_id": "E06",
+  "title": "Notificación con timeout o error 5xx de Chilepasajes",
+  "executed_at": "2026-11-23T20:34:39.660Z",
+  "policy": {
+    "max_retries": 3,
+    "backoff": "exponential (2s, 4s, 8s)",
+    "logging": "Structured audit log with merchant_order_id, response code and timestamp",
+    "alerting": "Slack / Sentry notification on permanent exhaustion"
+  }
+}

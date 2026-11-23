@@ -1,0 +1,15 @@
+{
+  "test_id": "C10",
+  "title": "Descarga de PDFs (download-ticket y download-boarding-card)",
+  "executed_at": "2026-11-23T20:34:28.193Z",
+  "download_ticket": {
+    "endpoint": "/buses/download-ticket?order_id=01ZVZP4Q&ticket_id=01746DBE",
+    "status": 200,
+    "response_size_bytes": 85491
+  },
+  "download_boarding_card": {
+    "endpoint": "/buses/download-boarding-card?order_id=01ZVZP4Q&ticket_id=01746DBE",
+    "status": 200,
+    "response_size_bytes": 70821
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "test_id": "E02",
+  "title": "Datos inválidos en update-reserve",
+  "executed_at": "2026-11-23T20:34:37.821Z",
+  "request": {
+    "client": {
+      "order_id": "c8819535-33f8-41bd-8896-c4996e1f3e54",
+      "session_id": "20e51c5f-b960-42c5-8a39-160e17232ca9",
+      "cod_phone": "+56",
+      "phone": "",
+      "email": "invalido",
+      "payment_method": "WEBPAY",
+      "lang": "es"
+    },
+    "reserves": [
+      {
+        "ticket_id": "27a200db-be51-4d2c-9cd1-12a7b9836755",
+        "document": "",
+        "document_type": "RUT",
+        "first_name": "",
+        "last_name": "",
+        "country": "CL"
+      }
+    ],
+    "products": [],
+    "frecuent_client_code": 0
+  },
+  "response": {
+    "status": 500,
+    "body": {
+      "success": false,
+      "response": {
+        "message": "Error al actualizar las reservas",
+        "error_code": 500,
+        "details": "El teléfono es requerido (and 4 more errors)",
+        "error_key": null
+      }
+    }
+  }
+}
