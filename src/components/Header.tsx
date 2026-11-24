@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Bus, RotateCcw, Ticket, Terminal, Activity, CheckCircle2 } from "lucide-react";
-import { getApiConfig, getSavedTickets, subscribeApiLogs } from "../services/api";
+import { Bus, RotateCcw, Ticket, Activity } from "lucide-react";
+import { getSavedTickets, subscribeApiLogs } from "../services/api";
 
 interface HeaderProps {
   activeTab: "booking" | "cancel" | "my-tickets";
@@ -15,13 +15,11 @@ export const Header: React.FC<HeaderProps> = ({
   onTabChange,
   onOpenInspector,
 }) => {
-  const [config, setConfig] = useState(getApiConfig());
   const [ticketCount, setTicketCount] = useState(0);
   const [logCount, setLogCount] = useState(0);
 
   useEffect(() => {
     const updateStats = () => {
-      setConfig(getApiConfig());
       setTicketCount(getSavedTickets().length);
     };
     updateStats();
@@ -37,27 +35,6 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
-      {/* Top Banner QA Environment */}
-      <div className="bg-[#023caf] text-white text-xs px-4 py-1.5 flex items-center justify-between">
-        <div className="flex items-center gap-2 max-w-7xl mx-auto w-full">
-          <span className="flex h-2 w-2 relative">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <span className="font-semibold tracking-wide">ENTORNO QA CHILEPASAJES / ENBUS</span>
-          <span className="text-blue-200 hidden md:inline">|</span>
-          <span className="text-blue-100 hidden md:inline font-mono truncate">
-            Host: {config.baseUrl}
-          </span>
-          <span className="ml-auto flex items-center gap-2 text-xs bg-white/10 px-2 py-0.5 rounded">
-            <span className="text-emerald-300 font-medium">Bearer:</span>
-            <span className="font-mono text-[11px] text-white/90">
-              {config.apiKey.slice(0, 7)}...{config.apiKey.slice(-4)}
-            </span>
-          </span>
-        </div>
-      </div>
-
       {/* Main Navbar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
         {/* Brand / Logo */}
