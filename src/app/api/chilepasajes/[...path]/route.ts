@@ -5,19 +5,29 @@ export const dynamic = "force-dynamic";
 const BASE_URL = (
   process.env.CHILEPASAJES_BASE_URL ||
   process.env.NEXT_PUBLIC_CHILEPASAJES_BASE_URL ||
-  "https://back-qas.enbus.cl/api/v1"
+  ""
 ).replace(/\/+$/, "");
 
 const API_KEY = (
   process.env.CHILEPASAJES_API_KEY ||
   process.env.NEXT_PUBLIC_CHILEPASAJES_API_KEY ||
-  "sk_test_FtC48QXZHlbvE"
+  ""
 ).trim();
 
 async function handleProxy(
   req: NextRequest,
   context: { params: Promise<{ path: string[] }> }
 ) {
+  if (!BASE_URL || !API_KEY) {
+    return NextResponse.json(
+      {
+        error: "Configuración incompleta",
+        message: "Las variables de entorno CHILEPASAJES_BASE_URL y CHILEPASAJES_API_KEY son obligatorias y no están definidas.",
+      },
+      { status: 500 }
+    );
+  }
+
   const { path } = await context.params;
   const pathStr = Array.isArray(path) ? path.join("/") : "";
   const urlObj = new URL(req.url);

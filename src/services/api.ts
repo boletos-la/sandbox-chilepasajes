@@ -19,25 +19,19 @@ import type {
 const CONFIG_STORAGE_KEY = "chilepasajes_api_config";
 const TICKETS_STORAGE_KEY = "chilepasajes_local_tickets";
 
-// Configuración GDS Oficial (Leída desde variables de entorno Next.js con fallback)
+// Configuración GDS Oficial (Leída exclusivamente desde variables de entorno Next.js)
 export const DEFAULT_CONFIG: ApiConfig = {
-  baseUrl: (
-    process.env.NEXT_PUBLIC_CHILEPASAJES_BASE_URL ||
-    "https://back-qas.enbus.cl/api/v1"
-  ).trim(),
-  apiKey: (
-    process.env.NEXT_PUBLIC_CHILEPASAJES_API_KEY ||
-    "sk_test_FtC48QXZHlbvE"
-  ).trim(),
+  baseUrl: (process.env.NEXT_PUBLIC_CHILEPASAJES_BASE_URL || "").trim(),
+  apiKey: (process.env.NEXT_PUBLIC_CHILEPASAJES_API_KEY || "").trim(),
   mode: "gds_direct",
 };
 
 export const GDS_COMPLEMENT =
-  process.env.NEXT_PUBLIC_CHILEPASAJES_COMPLEMENT || "pasajes";
+  (process.env.NEXT_PUBLIC_CHILEPASAJES_COMPLEMENT || "").trim();
 export const GDS_DEVICE =
-  process.env.NEXT_PUBLIC_CHILEPASAJES_DEVICE || "P";
+  (process.env.NEXT_PUBLIC_CHILEPASAJES_DEVICE || "").trim();
 export const HOLD_MINUTES =
-  Number(process.env.NEXT_PUBLIC_HOLD_DURATION_MINUTES) || 15;
+  Number(process.env.NEXT_PUBLIC_HOLD_DURATION_MINUTES || 0);
 
 export function getApiConfig(): ApiConfig {
   try {
