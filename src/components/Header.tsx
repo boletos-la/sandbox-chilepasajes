@@ -48,7 +48,7 @@ export const Header: React.FC<HeaderProps> = ({
           <div>
             <div className="flex items-center gap-1.5">
               <span className="font-black text-xl tracking-tight text-slate-900">
-                Chile<span className="text-[#ff6700]">pasajes</span>
+                Boletos<span className="text-[#ff6700]">.la</span>
               </span>
               <span className="text-xs bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-bold uppercase border border-slate-200">
                 Front
