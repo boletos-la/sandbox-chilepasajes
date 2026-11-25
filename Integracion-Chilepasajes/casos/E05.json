@@ -1,25 +1,77 @@
 {
   "test_id": "E05",
-  "title": "Notificación de pago repetida (idempotencia)",
-  "executed_at": "2026-11-23T20:34:39.659Z",
-  "request": {
+  "title": "Notificación de pago repetida (misma orden, dos veces)",
+  "executed_at": "2026-11-25T19:37:19.206Z",
+  "order_id": "bc6a32b8-03b1-49aa-8f02-18df0a4b50e5",
+  "external_order_id": "0062C6XJ",
+  "second_notification_request": {
     "status": "paid",
-    "merchant_order_id": "c8819535-33f8-41bd-8896-c4996e1f3e54",
-    "order_id": "PAY-SIM-1795466062925",
-    "paid_amount": 3000,
+    "merchant_order_id": "bc6a32b8-03b1-49aa-8f02-18df0a4b50e5",
+    "order_id": "PAY-C05-1795635411531",
+    "paid_amount": 17100,
     "paid_currency": "CLP",
     "payment_method": "SIMULACION"
   },
-  "response": {
+  "second_notification_response": {
     "status": 201,
     "body": {
       "success": false,
       "response": {
         "message": "La orden ya fue notificada como pagada.",
         "error_code": 201,
-        "details": "order_renotified_id: 01ZVZP4Q",
+        "details": "order_renotified_id: 0062C6XJ",
         "error_key": null
       }
+    }
+  },
+  "tickets_count_after_second_notification": 1,
+  "verify_success_response": {
+    "success": true,
+    "response": {
+      "order_id": "0062C6XJ",
+      "tickets": [
+        {
+          "ticket_id": "00XVGEUZ",
+          "company_name": "Empresa de Pruebas",
+          "payment_method": "WEBPAY",
+          "order_id": "0062C6XJ",
+          "price": 17100,
+          "currency": "CLP",
+          "price_usd": 18.71,
+          "departure_city": "Santiago",
+          "destination_city": "Valdivia",
+          "seat": 32,
+          "carriage": null,
+          "departure_date": "2026-12-10T10:15:00-03:00",
+          "departure_date_control": "2026-12-10T10:15:00-03:00",
+          "arrives_date": "2026-12-10T22:05:00-03:00",
+          "seat_type": "SALON CAMA",
+          "stops": "TERMINAL SUR, SANTIAGO",
+          "downs": "TERMINAL VALDIVIA",
+          "company_type": "BUS",
+          "cancelable": true,
+          "cancel_message": "",
+          "cancel_deadline": "2026-12-10T06:15:00-03:00",
+          "changeable": false,
+          "change_stop": false,
+          "pet": 0
+        }
+      ],
+      "products": [],
+      "points": 3420,
+      "amount": "$ 17.100",
+      "amount_value": 17100,
+      "currency": "CLP",
+      "tax": "$ 0",
+      "email": "carlos.gonzalez@boletos.la",
+      "method": "WEBPAY",
+      "complement": "pasajes",
+      "payment_status": "PAGADO",
+      "url": "https://www.booking.com/searchresults.es.html?dest_id=-903932&no_rooms=1&group_adults=1&ss=Valdivia",
+      "show_booking": true,
+      "surplus_until_date": null,
+      "surplus_coupon": null,
+      "surplus_amount": null
     }
   }
 }
