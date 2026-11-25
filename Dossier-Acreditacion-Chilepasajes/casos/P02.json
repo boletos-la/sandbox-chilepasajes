@@ -1,10 +1,13 @@
 {
   "test_id": "P02",
-  "title": "Anular un boleto pagado (POST /external/cancel-ticket)",
-  "executed_at": "2026-11-23T20:34:41.710Z",
+  "title": "Anular un boleto pagado (POST /buses/external/cancel-ticket)",
+  "executed_at": "2026-11-25T19:37:30.889Z",
+  "order_uuid": "d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee",
+  "external_order_id": "000A2JCN",
+  "ticket_id": "007PGQ8T",
   "request": {
-    "order_id": "01ZVZP4Q",
-    "ticket_id": "01746DBE"
+    "order_id": "000A2JCN",
+    "ticket_id": "007PGQ8T"
   },
   "response": {
     "status": 200,
@@ -13,8 +16,8 @@
       "response": {
         "success": true,
         "message": "Anulación realizada.",
-        "order_id": "c8819535-33f8-41bd-8896-c4996e1f3e54",
-        "ticket_id": "27a200db-be51-4d2c-9cd1-12a7b9836755"
+        "order_id": "d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee",
+        "ticket_id": "b4e86646-aac6-4370-8699-61be9f87a306"
       }
     }
   }

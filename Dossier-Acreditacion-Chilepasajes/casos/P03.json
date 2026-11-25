@@ -1,10 +1,13 @@
 {
   "test_id": "P03",
-  "title": "Anular el mismo boleto otra vez (reintento)",
-  "executed_at": "2026-11-23T20:34:41.968Z",
+  "title": "Anular el mismo boleto otra vez",
+  "executed_at": "2026-11-25T19:37:31.134Z",
+  "order_uuid": "d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee",
+  "external_order_id": "000A2JCN",
+  "ticket_id": "007PGQ8T",
   "request": {
-    "order_id": "01ZVZP4Q",
-    "ticket_id": "01746DBE"
+    "order_id": "000A2JCN",
+    "ticket_id": "007PGQ8T"
   },
   "response": {
     "status": 400,

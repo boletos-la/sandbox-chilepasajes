@@ -1,7 +1,309 @@
 {
   "test_id": "C07",
   "title": "Compra ida y regreso en una sola orden",
-  "executed_at": "2026-11-23T20:34:35.853Z",
-  "status": "No aplica / Soportado por esquema",
-  "details": "En el ambiente QA para la ruta evaluada no hay frecuencias de regreso cargadas por el operador de pruebas. Funcionalidad soportada vía array de tokens en /reserve según especificación OpenAPI."
+  "executed_at": "2026-11-25T19:37:10.860Z",
+  "order_id": "ea059040-7624-4cfe-90cc-87993cb048f9",
+  "external_order_id": "00Z0T8EJ",
+  "company": "Buses Sandbox",
+  "dates": {
+    "date_or": "10-12-2026",
+    "date_reg": "15-12-2026"
+  },
+  "seat_map_stops_used": {
+    "IDA": {
+      "stops": "SANTIAGO",
+      "downs": "VALDIVIA"
+    },
+    "REG": {
+      "stops": "VALDIVIA",
+      "downs": "SANTIAGO"
+    }
+  },
+  "steps": {
+    "step1_seat_map": {
+      "status": 200,
+      "request": {
+        "token": [
+          "c1.uxiLefs2TMmhsUxNXpyqBTtR78BpLOxVE9HmtYCaaHjnCklClkRAzeRC4t0oFD81f__yzOOeeLMmHEI1n7AN_1eCPTAcXy3zRZvNAeu0LJZ9d1Jv95CyqmNtc.ycISkKhODcA0i7UujMth_Tod0vFq2ekn4tU3Sp4fzVHQTpsPLlNVju0.i6yeCeurvTVnwo6_bDrGiSkcbJmLjuL2MgLj5MRnoJnE7N.qLacxCRNxKrQ9wc",
+          "c1.JoVdWz2COF1nMxYFIlNNZk751j_.fhVxO.n9Ez8FDkgaG3Cxtw0_76TRLFgQ73iIuJWvDRqRkcrlhZTzc_rnx0w4m2Fys3YDDcvpKWgzD0UjZAFrP7IZ3UKk0pzzL2c2QDiw2LH34Ee0eomjjSzRkQqGkRdPoNnK.gmRMvi1ntkbEEaxSOtGYK35c0TD.RueaOZERvBKGEYcFuC3HiCCb9W3zu_Ryw7vcJZTJrT48bSuofBORkBpyQ"
+        ],
+        "session": "bd3296b6-cef8-447a-8340-b3735086e271"
+      },
+      "stops_IDA": {
+        "subida": [
+          {
+            "id": 0,
+            "name": "SANTIAGO"
+          }
+        ],
+        "bajada": [
+          {
+            "id": 0,
+            "name": "VALDIVIA"
+          }
+        ]
+      },
+      "stops_REG": {
+        "subida": [
+          {
+            "id": 0,
+            "name": "VALDIVIA"
+          }
+        ],
+        "bajada": [
+          {
+            "id": 0,
+            "name": "SANTIAGO"
+          }
+        ]
+      }
+    },
+    "step2_reserve": {
+      "status": 200,
+      "request": {
+        "session": "bd3296b6-cef8-447a-8340-b3735086e271",
+        "complement": "pasajes",
+        "device": "P",
+        "reserves": [
+          "eyJpdiI6ImNBSjBqRUhmOTRBb3VqWktld015b1E9PSIsInZhbHVlIjoiRko0UTFjWDZSbFA3QzNCQlo1ejk4MnFkaUtxSEJOeUFKRXRYWEV2NzNWN2ltd3NJcG9YWGxWK0V0YXlzOTlwMmd2OXhQVWJRUHltbVNDZ3J1QXJMWlJBV2FuM25JTnhYWDJDRGpaU1M0K1I1ZTZXcCsyM1M1aW1ma1BMZVp4R3k0Q3VyeVRkQmxmSUJGTHRsL0wzakNhRmliTmVhcElacC82QlBaNmNVOE0vWUp6eUNFRDZJOWdKSDdFL0Iwek9tUTFNa0JKNkYyNjRFeWFjTU1yOHZDTFhIeG9iS3lzZWwybmo5dHFPL1hJUzhrNU1HakpPQnVpNmFRVUo2UXNVdlJnM1lqQW9HdFY4TFE2aFNyM01pSWFvaVE2WVE0QTZkdnkzZytsaUQxKzRNSkt6WnNRMXpYdjFoaUtCUUlOZmJsSldNc2ZxTDVURXYyem1LS3lVZEszc3R0TWt1ZUY2SEVUQUE5aFhOQ0haSnNqcmVzT0I4bUR1MlprYUhSOExnSXVOK29Na1MwZGtZYVZtc3BoRnFyY0FRbFIwNWpoVVlncGVQNjcreXdQcz0iLCJtYWMiOiIxNjhlOTQ0MDBkMmVjOGMyMzBkYzdkMWNiYmViMzQ1NWU2NmJhMGJkYmE4NmQ1OWNkNmU5MWNhZGVlZDUyYjQ1IiwidGFnIjoiIn0=",
+          "eyJpdiI6InZMSVYyZ2JIKytqeHlkTUszRGk3Wnc9PSIsInZhbHVlIjoiZnk3VkRNRzRmRThrcHdDMWliS0FIY2tVQ2xueUtlakxxMEFyeTVBaDJ1ZjNKa3l1Nm50QTBOQk9LU3ZHZmRuWVVud3krdWJiQzEvQzQ1UHlWMThTWHNoMlQzUEIvKzkwdFBNWTE4Z2JkVkJ1WDJwelh3Ulh1UE9uYzNMWlllTFBrMHFDeGlSN3dVdHEvK25HMjNicUxxYVRjd05FM2x3eTc1bjBDMWZ5RTJHUHI0cVFIWmpPN0VJdE9JODdFUE1jVnhZVzVhY0V4VGVFZzdmUXc5VUk4RC9oOGdsdW9LVmlWeWhxSVJpalZ1V085bTJ0SnF2MEJPYW1xbkM4cGpZV3JyM3QvdC9JN1NFemp4ZWdpVFFLbFRXVGtaYmQwaEl0T2hvczJaU29hU2VXekdTM2JhUE8wZmZSQWYxN2I1VFpXU0N5bG5YdTUvWFdwZEF6SHhpM3gvYlVCV3hMdk5IZS9vOHBnS3lQeVFaZTZjWnN0YVozeHQ0UUxHUWJhcFo0MFE4Z1BJWWpUUEJXOW84Ynoram1NNzArNS9zb1ZRaVBXOGRUd0dlTVJoKzJSNVZFMUltQ00rWjZ4QVd0ZnA0ZCIsIm1hYyI6IjE0ZDZjMjcyNThjNjEzYWI3M2M1NDkwMjdmMWMxNmFmY2MyZjdlYmYyNTg3ZGZkMzQ0Y2ViMDE2YmU3Yjg1MmUiLCJ0YWciOiIifQ=="
+        ]
+      },
+      "response": {
+        "success": true,
+        "response": {
+          "order": {
+            "order_id": "ea059040-7624-4cfe-90cc-87993cb048f9",
+            "session": "bd3296b6-cef8-447a-8340-b3735086e271",
+            "purchase_date": "2026-11-25 16:37:05",
+            "total_purchase": 48000,
+            "tickets": [
+              {
+                "ticket_id": "9f944794-ee92-4b7c-bb22-0bce36297b96",
+                "company_ticket_id": "241ac05a-c0be-4bff-af16-a907c8066b89",
+                "order_id": "ea059040-7624-4cfe-90cc-87993cb048f9",
+                "session": "bd3296b6-cef8-447a-8340-b3735086e271",
+                "price": 24000,
+                "extra_fee": 0,
+                "price_usd": 26.26,
+                "usd_extra_fee": 0,
+                "city_origin_name": "santiago",
+                "city_destination_name": "valdivia",
+                "city_origin_id": 100,
+                "city_destination_id": 29400,
+                "departure_date": "2026-12-10T10:30:00-03:00",
+                "seat": 1,
+                "seat_type": "SALON CAMA",
+                "stops": "santiago",
+                "downs": "valdivia",
+                "travel_dir": "IDA",
+                "pet": false,
+                "canilpar": 0,
+                "ing_kms": false,
+                "birthdate_required": false
+              },
+              {
+                "ticket_id": "baf8216c-0db7-4543-83e8-670b4d7d4eb3",
+                "company_ticket_id": "badff6b9-d106-4533-9f99-4491de29e4aa",
+                "order_id": "ea059040-7624-4cfe-90cc-87993cb048f9",
+                "session": "bd3296b6-cef8-447a-8340-b3735086e271",
+                "price": 24000,
+                "extra_fee": 0,
+                "price_usd": 26.26,
+                "usd_extra_fee": 0,
+                "city_origin_name": "valdivia",
+                "city_destination_name": "santiago",
+                "city_origin_id": 29400,
+                "city_destination_id": 100,
+                "departure_date": "2026-12-15T10:30:00-03:00",
+                "seat": 1,
+                "seat_type": "SALON CAMA",
+                "stops": "valdivia",
+                "downs": "santiago",
+                "travel_dir": "REG",
+                "pet": false,
+                "canilpar": 0,
+                "ing_kms": false,
+                "birthdate_required": false
+              }
+            ],
+            "frequent_client": true,
+            "birth_date_required": false,
+            "points": 9600,
+            "wtsp_fee": {
+              "apply": false,
+              "fee_amount": 0,
+              "fee_currency": "",
+              "fee_message": ""
+            }
+          }
+        }
+      }
+    },
+    "step3_update_reserve": {
+      "status": 200,
+      "request": {
+        "client": {
+          "order_id": "ea059040-7624-4cfe-90cc-87993cb048f9",
+          "session_id": "bd3296b6-cef8-447a-8340-b3735086e271",
+          "cod_phone": "+56",
+          "phone": "976543210",
+          "email": "maria.fernandez@boletos.la",
+          "payment_method": "WEBPAY",
+          "lang": "es"
+        },
+        "reserves": [
+          {
+            "ticket_id": "9f944794-ee92-4b7c-bb22-0bce36297b96",
+            "document": "148293012",
+            "document_type": "RUT",
+            "first_name": "Maria",
+            "last_name": "Fernandez",
+            "country": "CL",
+            "birth_date": "1991-07-14",
+            "cod_phone": "+56",
+            "phone": "976543210",
+            "stops": "SANTIAGO",
+            "downs": "VALDIVIA"
+          },
+          {
+            "ticket_id": "baf8216c-0db7-4543-83e8-670b4d7d4eb3",
+            "document": "148293012",
+            "document_type": "RUT",
+            "first_name": "Maria",
+            "last_name": "Fernandez",
+            "country": "CL",
+            "birth_date": "1991-07-14",
+            "cod_phone": "+56",
+            "phone": "976543210",
+            "stops": "VALDIVIA",
+            "downs": "SANTIAGO"
+          }
+        ],
+        "products": [],
+        "frecuent_client_code": 0
+      },
+      "response": {
+        "success": true,
+        "response": {
+          "idpago": "ea059040-7624-4cfe-90cc-87993cb048f9",
+          "session": "bd3296b6-cef8-447a-8340-b3735086e271",
+          "monto": 48000,
+          "puntos": 9600,
+          "payment_method": "WEBPAY",
+          "is_paid_by_coupon": false,
+          "is_paid_by_commercial_credit": false,
+          "external_cab_id": "00Z0T8EJ"
+        }
+      }
+    },
+    "step4_payment_notification": {
+      "status": 200,
+      "request": {
+        "status": "paid",
+        "merchant_order_id": "ea059040-7624-4cfe-90cc-87993cb048f9",
+        "order_id": "PAY-C07-1795635428279",
+        "paid_amount": 48000,
+        "paid_currency": "CLP",
+        "payment_method": "SIMULACION"
+      },
+      "response": {
+        "success": true,
+        "response": {
+          "message": "Notificación procesada correctamente"
+        }
+      }
+    },
+    "step5_payment_status": {
+      "status": 200,
+      "response": {
+        "success": true,
+        "response": {
+          "order_id": "ea059040-7624-4cfe-90cc-87993cb048f9",
+          "external_order_id": "00Z0T8EJ",
+          "is_paid": true,
+          "is_confirmed": true,
+          "should_poll": true
+        }
+      }
+    },
+    "step6_success": {
+      "status": 200,
+      "response": {
+        "success": true,
+        "response": {
+          "order_id": "00Z0T8EJ",
+          "tickets": [
+            {
+              "ticket_id": "00U4TRF3",
+              "company_name": "Buses Sandbox",
+              "payment_method": "WEBPAY",
+              "order_id": "00Z0T8EJ",
+              "price": 24000,
+              "currency": "CLP",
+              "price_usd": 26.26,
+              "departure_city": "Santiago",
+              "destination_city": "Valdivia",
+              "seat": 1,
+              "carriage": null,
+              "departure_date": "2026-12-10T10:30:00-03:00",
+              "departure_date_control": "2026-12-10T10:30:00-03:00",
+              "arrives_date": "2026-12-10T21:30:00-03:00",
+              "seat_type": "SALON CAMA",
+              "stops": "SANTIAGO",
+              "downs": "VALDIVIA",
+              "company_type": "BUS",
+              "cancelable": true,
+              "cancel_message": "",
+              "cancel_deadline": "2026-12-10T06:30:00-03:00",
+              "changeable": false,
+              "change_stop": false,
+              "pet": 0
+            },
+            {
+              "ticket_id": "01S8HQ30",
+              "company_name": "Buses Sandbox",
+              "payment_method": "WEBPAY",
+              "order_id": "00Z0T8EJ",
+              "price": 24000,
+              "currency": "CLP",
+              "price_usd": 26.26,
+              "departure_city": "Valdivia",
+              "destination_city": "Santiago",
+              "seat": 1,
+              "carriage": null,
+              "departure_date": "2026-12-15T10:30:00-03:00",
+              "departure_date_control": "2026-12-15T10:30:00-03:00",
+              "arrives_date": "2026-12-15T21:30:00-03:00",
+              "seat_type": "SALON CAMA",
+              "stops": "VALDIVIA",
+              "downs": "SANTIAGO",
+              "company_type": "BUS",
+              "cancelable": true,
+              "cancel_message": "",
+              "cancel_deadline": "2026-12-15T06:30:00-03:00",
+              "changeable": false,
+              "change_stop": false,
+              "pet": 0
+            }
+          ],
+          "products": [],
+          "points": 9600,
+          "amount": "$ 48.000",
+          "amount_value": 48000,
+          "currency": "CLP",
+          "tax": "$ 0",
+          "email": "maria.fernandez@boletos.la",
+          "method": "WEBPAY",
+          "complement": "pasajes",
+          "payment_status": "PAGADO",
+          "url": "https://www.booking.com/searchresults.es.html?dest_id=-903932&no_rooms=1&group_adults=1&ss=Valdivia",
+          "show_booking": true,
+          "surplus_until_date": null,
+          "surplus_coupon": null,
+          "surplus_amount": null
+        }
+      }
+    }
+  }
 }

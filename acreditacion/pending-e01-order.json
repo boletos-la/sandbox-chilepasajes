@@ -1,0 +1,93 @@
+{
+  "created_at": "2026-11-25T19:18:20.261Z",
+  "session": "c8c3fc0d-da97-4057-a1b1-b4c789b31e2b",
+  "seat": {
+    "cell": 3,
+    "order": 10,
+    "typeseat": 4,
+    "floor": 1,
+    "type": "seat",
+    "seat": 20,
+    "seat_klass": "SALON CAMA",
+    "price": 24000,
+    "available": true,
+    "mov_redu": null,
+    "canilpar": 0,
+    "pet": false,
+    "subtype": null,
+    "seat_personal_id": 0,
+    "usd": 26.26,
+    "idreserve": "eyJpdiI6IjA4WmcrK1R3MkVpVmMwNE1EY0VBSUE9PSIsInZhbHVlIjoiTXAvdnBOaFdIdDd2OWxUYmVCdEUzbEpuZWxoa2xCT0R4MExUMVdYOStBMVlBcFhBcGg3VXJCNHpmZmNMSXN6R1VTd1RyanN5K2cxODlLNWJiZlY3ZGlYTVl6VHhpT1c2MWdzZWZHRUV1bmlnTkIrK0FUanJSUk9UTXBEZnM5WWZjUFJvQUw1M01PT0lQcm1YODJBMUNmakNRMVI0ZGhHTXZXNnhWalNuOXRzTks2R2VPaHVtY0E2K2NGVXpwZEVENlRoZmRNaHdmbTZuT25LOU1Xc004S0RhMWh4TlF3VEtRRHJLdUR0L0lnNWFPdWxjNGVMeWNjZzNjSGp4SFlobXkrOGxodWpyd3FRMi9rTzQ1d0wzWkZEQWw3V2t4Z2dLNlFkR3VFVmo4RFJGMHY0dGZMcjVwRDdsbndqbENyNmdxY1ZZK0VxMURLaE5HYWxRQ3hBOTNZbWY5T0ozRi9VUFR3L00rZEFDelJscEVDa2xlcE51bkxuNVY1YlFnWWNqWXNiNUZIMG5xem9TL3lCMnVwZ2t1K0hJc0ZkeXJrL09NcjZHWlNRSkpFdz0iLCJtYWMiOiI5ZmI1YjJiZmQ1YmFkYWYzMzg4NjQyMTMxMTMxYTJiZTcxYTE1ODY1YjFmNDQ5OGY3NGU0NmNlYTAzNjMyZjM2IiwidGFnIjoiIn0=",
+    "selected": false,
+    "travel_dir": "IDA",
+    "class_available": "salon-cama",
+    "class_selected": "salon-cama-selected",
+    "class_disabled": "salon-cama-disabled",
+    "klass": {
+      "tipoasiento": "SALON CAMA",
+      "typeseat": 4,
+      "price": 24000,
+      "tipoasiento2": "salon-cama"
+    }
+  },
+  "stops": {
+    "subida": [
+      {
+        "id": 0,
+        "name": "SANTIAGO"
+      }
+    ],
+    "bajada": [
+      {
+        "id": 0,
+        "name": "VALDIVIA"
+      }
+    ]
+  },
+  "reserve_response": {
+    "success": true,
+    "response": {
+      "order": {
+        "order_id": "a18b9ebc-8140-4872-aa7d-4c9cb391f909",
+        "session": "c8c3fc0d-da97-4057-a1b1-b4c789b31e2b",
+        "purchase_date": "2026-11-25 16:18:20",
+        "total_purchase": 24000,
+        "tickets": [
+          {
+            "ticket_id": "eeb578ee-aa58-4a6c-ac9f-2d5e3cd0f347",
+            "company_ticket_id": "46cca6fc-6af0-4eb6-a1e8-bf227f397d58",
+            "order_id": "a18b9ebc-8140-4872-aa7d-4c9cb391f909",
+            "session": "c8c3fc0d-da97-4057-a1b1-b4c789b31e2b",
+            "price": 24000,
+            "extra_fee": 0,
+            "price_usd": 26.26,
+            "usd_extra_fee": 0,
+            "city_origin_name": "santiago",
+            "city_destination_name": "valdivia",
+            "city_origin_id": 100,
+            "city_destination_id": 29400,
+            "departure_date": "2026-12-10T10:30:00-03:00",
+            "seat": 20,
+            "seat_type": "SALON CAMA",
+            "stops": "santiago",
+            "downs": "valdivia",
+            "travel_dir": "IDA",
+            "pet": false,
+            "canilpar": 0,
+            "ing_kms": false,
+            "birthdate_required": false
+          }
+        ],
+        "frequent_client": true,
+        "birth_date_required": false,
+        "points": 4800,
+        "wtsp_fee": {
+          "apply": false,
+          "fee_amount": 0,
+          "fee_currency": "",
+          "fee_message": ""
+        }
+      }
+    }
+  }
+}

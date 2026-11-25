@@ -3,216 +3,243 @@
     "id": "C01",
     "name": "Catálogo de ciudades (GET /get-cities)",
     "result": "OK",
-    "evidenceText": "GET /buses/get-cities retornó 200 OK con 66 ciudades. Atributo search_name verificado.",
-    "file": "C01.json",
-    "observation": "Catálogo cargado y consumido dinámicamente.",
-    "timestamp": "2026-11-23T20:34:19.660Z"
+    "order_id": "N/A (Consulta de catálogo previa a creación de orden)",
+    "evidenceText": "GET /buses/get-cities retornó 200 OK con 455 ciudades. Atributos search_name (\"santiago\", \"valdivia\") verificados y utilizados en las búsquedas.",
+    "file": "casos/C01.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:36:44.408Z"
   },
   {
     "id": "C02",
     "name": "Búsqueda solo ida (GET /schedules/single)",
     "result": "OK",
-    "evidenceText": "GET /schedules/single retornó 7 servicios para 26-11-2026. Token, currency (CLP) y precio ($3000) verificados.",
-    "file": "C02.json",
-    "observation": "Servicio ID=2750442, Empresa=Empresa De Pruebas.",
-    "timestamp": "2026-11-23T20:34:20.100Z"
+    "order_id": "N/A (Búsqueda de itinerarios de ida)",
+    "evidenceText": "GET /buses/schedules/single retornó 200 OK con 10 servicios para 10-12-2026 (Empresa De Pruebas y Buses Sandbox). Token, currency (CLP) y precio ($17100) verificados.",
+    "file": "casos/C02.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:36:44.622Z"
   },
   {
     "id": "C03",
     "name": "Búsqueda ida y regreso (GET /schedules)",
     "result": "OK",
-    "evidenceText": "GET /buses/schedules retornó 200 OK. Servicios IDA=7, REG=0. Tokens individuales entregados.",
-    "file": "C03.json",
-    "observation": "Búsqueda multi-itinerario validada.",
-    "timestamp": "2026-11-23T20:34:20.505Z"
+    "order_id": "N/A (Búsqueda de itinerarios ida y regreso)",
+    "evidenceText": "GET /buses/schedules (10-12-2026 / 15-12-2026) retornó 200 OK con 10 servicios de IDA y 3 servicios de REG (Buses Sandbox), cada uno con su token independiente.",
+    "file": "casos/C03.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:36:44.970Z"
   },
   {
     "id": "C04",
     "name": "Mapa de asientos (POST /seat-map)",
     "result": "OK",
-    "evidenceText": "POST /buses/seat-map retornó 200 OK con session=c1a4305a-c63e-47e2-b8d8-cfb8e196dffc. Pisos=1,2, Paraderos subida=1, bajada=1.",
-    "file": "C04.json",
-    "observation": "idreserve disponible en cada asiento libre.",
-    "timestamp": "2026-11-23T20:34:21.646Z"
+    "order_id": "N/A (Consulta seat-map; session: 9f06a67f-e79d-44e4-83a3-473a05139713)",
+    "evidenceText": "POST /buses/seat-map retornó 200 OK. Pisos=1,2, asientos libres=42. Paradas exactas extraídas del mapa: subida=\"TERMINAL SUR, SANTIAGO\", bajada=\"TERMINAL VALDIVIA\".",
+    "file": "casos/C04.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:36:46.014Z"
   },
   {
     "id": "C05",
     "name": "Compra completa 1 pasajero, solo ida",
     "result": "OK",
-    "evidenceText": "order_id=c8819535-33f8-41bd-8896-c4996e1f3e54 (ext: 01ZVZP4Q), ticket_id=01746DBE. Asiento 32.",
-    "file": "C05.json",
-    "observation": "Flujo completo de 5 pasos verificado y confirmado.",
-    "timestamp": "2026-11-23T20:34:25.535Z"
-  },
-  {
-    "id": "C08",
-    "name": "Fecha de nacimiento (birth_date_required)",
-    "result": "OK",
-    "evidenceText": "En C05 (order_id=c8819535-33f8-41bd-8896-c4996e1f3e54) se envió birth_date: \"1988-11-20\" en /buses/update-reserve y fue aceptado.",
-    "file": "C08.json",
-    "observation": "Validación de fecha de nacimiento de pasajeros cumplida.",
-    "timestamp": "2026-11-23T20:34:25.536Z"
-  },
-  {
-    "id": "C09",
-    "name": "Resultado de la compra (GET /buses/success)",
-    "result": "OK",
-    "evidenceText": "GET /buses/success?order_id=c8819535-33f8-41bd-8896-c4996e1f3e54 retornó boleto emitido 01746DBE, cancelable=true.",
-    "file": "C09.json",
-    "observation": "Boleto listo para entrega al comprador.",
-    "timestamp": "2026-11-23T20:34:25.543Z"
-  },
-  {
-    "id": "C10",
-    "name": "Descarga de PDFs (download-ticket y download-boarding-card)",
-    "result": "OK",
-    "evidenceText": "order_id=01ZVZP4Q, ticket_id=01746DBE. Boleto PDF=85491 bytes, Tarjeta Embarque PDF=70821 bytes.",
-    "file": "C10.json",
-    "observation": "Ambos archivos retornaron application/pdf binario válido.",
-    "timestamp": "2026-11-23T20:34:28.194Z"
+    "order_id": "bc6a32b8-03b1-49aa-8f02-18df0a4b50e5 (ext: 0062C6XJ, ticket: 00XVGEUZ)",
+    "evidenceText": "Flujo de 5 pasos completado con éxito. POST /buses/update-reserve respondió HTTP 200 OK (\"idpago\": \"bc6a32b8-03b1-49aa-8f02-18df0a4b50e5\", \"external_cab_id\": \"0062C6XJ\") enviando stops=\"TERMINAL SUR, SANTIAGO\" y downs=\"TERMINAL VALDIVIA\" extraídos del seat-map. Pasajero nominativo: Carlos Gonzalez (RUT 164829103, birth_date: 1988-11-20), email comprador: carlos.gonzalez@boletos.la, asiento 32. Confirmado en payment-status (is_paid=true, is_confirmed=true) y success.",
+    "file": "casos/C05.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:36:53.964Z"
   },
   {
     "id": "C06",
     "name": "Compra de 3 pasajeros en el mismo servicio",
     "result": "OK",
-    "evidenceText": "order_id=14563b15-1ea4-4259-ae33-ba24c063f7ea (ext: 00W1HN7Y), boletos emitidos: 0133YD1U, 01T71ZT9, 02MBB81J. Asientos: 37, 38, 39.",
-    "file": "C06.json",
-    "observation": "3 boletos emitidos bajo la misma orden con ticket_id individual.",
-    "timestamp": "2026-11-23T20:34:35.853Z"
+    "order_id": "9f0883b8-8032-41cd-ae53-be427730ec02 (ext: 023QZW2F, tickets: 013KHXMG, 027217TM, 018JRMGA)",
+    "evidenceText": "Compra múltiple de 3 pasajeros en el mismo servicio completada. POST /buses/update-reserve respondió HTTP 200 OK (\"external_cab_id\": \"023QZW2F\") con stops=\"TERMINAL SUR, SANTIAGO\" y downs=\"TERMINAL VALDIVIA\" extraídos del seat-map. 3 boletos nominativos emitidos: 013KHXMG (Ana Martinez, RUT 15678910K, asiento 33), 027217TM (Pedro Soto, RUT 173849201, asiento 34) y 018JRMGA (Lucia Rojas, RUT 184920312, asiento 35).",
+    "file": "casos/C06.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:00.647Z"
   },
   {
     "id": "C07",
     "name": "Compra ida y regreso en una sola orden",
-    "result": "No aplica",
-    "evidenceText": "En el ambiente QA para la ruta evaluada no hay frecuencias de regreso cargadas por el operador de pruebas. Funcionalidad soportada vía array de tokens en /reserve.",
-    "file": "C07.json",
-    "observation": "Flujo soportado por contrato OpenAPI.",
-    "timestamp": "2026-11-23T20:34:35.854Z"
+    "result": "OK",
+    "order_id": "ea059040-7624-4cfe-90cc-87993cb048f9 (ext: 00Z0T8EJ, tickets: 00U4TRF3, 01S8HQ30)",
+    "evidenceText": "Compra conjunta Ida (10-12-2026) y Regreso (15-12-2026) en Buses Sandbox completada. update-reserve respondió HTTP 200 con stops IDA (\"SANTIAGO\"->\"VALDIVIA\") y REG (\"VALDIVIA\"->\"SANTIAGO\"). Emitidos 2 boletos en una sola orden: 00U4TRF3 (Santiago->Valdivia, asiento 1) y 01S8HQ30 (Valdivia->Santiago, asiento 1).",
+    "file": "casos/C07.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:10.863Z"
+  },
+  {
+    "id": "C08",
+    "name": "Fecha de nacimiento (birth_date_required)",
+    "result": "OK",
+    "order_id": "bc6a32b8-03b1-49aa-8f02-18df0a4b50e5 (ext: 0062C6XJ, ticket: 00XVGEUZ)",
+    "evidenceText": "Servicio de Empresa De Pruebas exige fecha de nacimiento (birthdate_required: true en reserve). Se envió birth_date: \"1988-11-20\" junto con stops=\"TERMINAL SUR, SANTIAGO\" y downs=\"TERMINAL VALDIVIA\" en POST /buses/update-reserve, respondiendo HTTP 200 OK (\"Reserva actualizada\") y quedando persistido en el boleto emitido 00XVGEUZ.",
+    "file": "casos/C08.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:10.866Z"
+  },
+  {
+    "id": "C09",
+    "name": "Resultado de la compra (GET /buses/success)",
+    "result": "OK",
+    "order_id": "bc6a32b8-03b1-49aa-8f02-18df0a4b50e5 (ext: 0062C6XJ, ticket: 00XVGEUZ)",
+    "evidenceText": "GET /buses/success?order_id=bc6a32b8-03b1-49aa-8f02-18df0a4b50e5 retornó 200 OK con orden 0062C6XJ, boleto emitido 00XVGEUZ, stops=\"TERMINAL SUR, SANTIAGO\", downs=\"TERMINAL VALDIVIA\", email=\"carlos.gonzalez@boletos.la\", payment_status=\"PAGADO\", cancelable=true y cancel_deadline=\"2026-12-10T06:15:00-03:00\".",
+    "file": "casos/C09.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:10.869Z"
+  },
+  {
+    "id": "C10",
+    "name": "Descarga de PDFs (download-ticket y download-boarding-card)",
+    "result": "OK",
+    "order_id": "0062C6XJ (uuid: bc6a32b8-03b1-49aa-8f02-18df0a4b50e5, ticket: 00XVGEUZ)",
+    "evidenceText": "PDFs descargados y adjuntos en la carpeta casos/: casos/C10-boleto.pdf (85868 bytes) y casos/C10-tarjeta-embarque.pdf (71491 bytes), ambos con datos nominativos del pasajero Carlos Gonzalez y código QR legible.",
+    "file": "casos/C10.json",
+    "extraFiles": [
+      "casos/C10-boleto.pdf",
+      "casos/C10-tarjeta-embarque.pdf"
+    ],
+    "timestamp": "2026-11-25T19:37:14.564Z"
   },
   {
     "id": "C11",
     "name": "Viaje con transbordo (is_transfer: true)",
     "result": "No aplica",
+    "order_id": "N/A (No aplica)",
     "evidenceText": "Nuestra plataforma opera exclusivamente rutas interurbanas directas punto a punto en Chile sin escalas con cambio de bus.",
-    "file": "C11.json",
-    "observation": "No aplica al modelo de negocio.",
-    "timestamp": "2026-11-23T20:34:35.855Z"
+    "file": "casos/C11.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:14.567Z"
   },
   {
     "id": "C12",
     "name": "Venta en México (MXN)",
     "result": "No aplica",
+    "order_id": "N/A (No aplica)",
     "evidenceText": "La integración opera de manera exclusiva en el mercado nacional de Chile en moneda CLP.",
-    "file": "C12.json",
-    "observation": "No aplica al modelo de negocio.",
-    "timestamp": "2026-11-23T20:34:35.857Z"
+    "file": "casos/C12.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:14.568Z"
   },
   {
     "id": "E01",
     "name": "Reserva expirada en update-reserve",
     "result": "OK",
-    "evidenceText": "update-reserve sobre orden vencida/inexistente respondió HTTP 404: \"No se encontró la orden con los datos proporcionados.\". El integrador notifica al usuario y retorna al mapa.",
-    "file": "E01.json",
-    "observation": "Control de expiración de reserva validado.",
-    "timestamp": "2026-11-23T20:34:36.622Z"
+    "order_id": "f3303861-c3b2-47e4-a636-ea19eb13f00e (ext: 00GQ6SZJ, ticket: d2cb8667-4b07-4026-ad6c-869d949ac069)",
+    "evidenceText": "Reserva real creada en POST /buses/reserve (2026-11-25 16:19:04, asiento 31). Tras esperar a que expirara su TTL real, POST /buses/update-reserve respondió HTTP 400: \"Tiempo de reserva agotado, vuelva a realizar su compra\". El integrador avisa al comprador y vuelve a seat-map.",
+    "file": "casos/E01.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:15.058Z"
   },
   {
     "id": "E02",
     "name": "Datos inválidos en update-reserve",
     "result": "OK",
-    "evidenceText": "Petición con campos vacíos rechazada por backend (HTTP 500). Validación local en front previene el envío hacia pasarela.",
-    "file": "E02.json",
-    "observation": "Validación de datos de pasajero.",
-    "timestamp": "2026-11-23T20:34:37.822Z"
+    "order_id": "04ea73d7-2a04-47a5-9a86-4f5f694f11fe (ext: 02FKJ6D0, ticket: 59d4203d-c0a0-4b79-9b40-13283d961eb3)",
+    "evidenceText": "Sobre reserva activa 04ea73d7-2a04-47a5-9a86-4f5f694f11fe, POST /buses/update-reserve con datos vacíos/inválidos respondió HTTP 500: \"Error al actualizar las reservas\" (details: \"El teléfono es requerido (and 5 more errors)\"). El integrador muestra el error y NO envía a pagar (is_paid: false).",
+    "file": "casos/E02.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:16.396Z"
   },
   {
     "id": "E03",
     "name": "Asiento ya tomado en reserve",
     "result": "OK",
-    "evidenceText": "Intento de reserva de asiento ya adquirido respondió HTTP 400: \"El asiento 32 ya se encuentra reservado, pruebe con otros asientos\". El integrador refresca el mapa.",
-    "file": "E03.json",
-    "observation": "Control de colisión de asientos.",
-    "timestamp": "2026-11-23T20:34:38.892Z"
+    "order_id": "N/A (Colisión sobre asiento 32 de orden bc6a32b8-03b1-49aa-8f02-18df0a4b50e5)",
+    "evidenceText": "POST /buses/reserve sobre el asiento 32 (ya reservado en C05) respondió HTTP 400: \"El asiento 32 ya se encuentra reservado, pruebe con otros asientos\". El integrador refresca el mapa de asientos y solicita elegir otro asiento.",
+    "file": "casos/E03.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:16.879Z"
   },
   {
     "id": "E04",
     "name": "Pago rechazado en la pasarela",
     "result": "OK",
-    "evidenceText": "Cuando la pasarela rechaza la transacción, el backend del integrador NO envía notificación con status \"paid\". La orden queda en HOLD y expira automáticamente tras los 15 min sin emitir boleto.",
-    "file": "E04.json",
-    "observation": "Consistencia transaccional garantizada.",
-    "timestamp": "2026-11-23T20:34:38.894Z"
+    "order_id": "d5903d5a-c907-494e-ac82-7664e8caa56c (ext: 007AJSSE, ticket: 0ff89dba-1537-4ec2-be2e-391c3f1a9ce6)",
+    "evidenceText": "Orden real creada (d5903d5a-c907-494e-ac82-7664e8caa56c) y actualizada (update-reserve HTTP 200). Ante rechazo de cobro en pasarela (response_code=-1, status=REJECTED), el backend registró el rechazo y NO envió payment/notification. Verificado en GET /payment-status: is_paid=false, is_confirmed=false y GET /success sin boletos emitidos.",
+    "file": "casos/E04.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:18.674Z"
   },
   {
     "id": "E05",
     "name": "Notificación de pago repetida (idempotencia)",
     "result": "OK",
-    "evidenceText": "Segunda llamada de notificación respondió HTTP 201. No se duplicaron boletos en la orden c8819535-33f8-41bd-8896-c4996e1f3e54.",
-    "file": "E05.json",
-    "observation": "Idempotencia de notificación verificada.",
-    "timestamp": "2026-11-23T20:34:39.660Z"
+    "order_id": "bc6a32b8-03b1-49aa-8f02-18df0a4b50e5 (ext: 0062C6XJ, ticket: 00XVGEUZ)",
+    "evidenceText": "Segunda llamada a POST /buses/payment/notification para la orden bc6a32b8-03b1-49aa-8f02-18df0a4b50e5 respondió HTTP 201 (\"La orden ya fue notificada como pagada.\"). Verificado en GET /success que existe solo 1 boleto (00XVGEUZ), sin duplicados.",
+    "file": "casos/E05.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:19.209Z"
   },
   {
     "id": "E06",
-    "name": "Timeout o error 5xx en notificación",
+    "name": "Timeout o error 5xx en notificación (Política y logs de reintentos)",
     "result": "OK",
-    "evidenceText": "Política de reintentos configurada: 3 intentos automáticos con retroceso exponencial (2s, 4s, 8s). Se registran logs de cada intento.",
-    "file": "E06.json",
-    "observation": "Política de reintentos documentada.",
-    "timestamp": "2026-11-23T20:34:39.661Z"
+    "order_id": "d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee (ext: 000A2JCN, ticket: 007PGQ8T)",
+    "evidenceText": "Política de backoff exponencial (2s, 4s, 8s) ejecutada sobre la orden real d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee: Intento 1 falló con HTTP 503 (espera 2000ms), Intento 2 falló con HTTP 502 (espera 4000ms), Intento 3 respondió HTTP 200 en QA y emitió el boleto 007PGQ8T (is_paid=true, is_confirmed=true).",
+    "file": "casos/E06.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:30.058Z"
   },
   {
     "id": "E07",
-    "name": "update-reserve sobre orden ya pagada",
+    "name": "update-reserve sobre una orden ya pagada",
     "result": "OK",
-    "evidenceText": "Petición respondió HTTP 400: details=\"ORDER_ALREADY_PAID_OR_CONFIRMED\".",
-    "file": "E07.json",
-    "observation": "Bloqueo de modificación sobre órdenes confirmadas.",
-    "timestamp": "2026-11-23T20:34:40.620Z"
+    "order_id": "bc6a32b8-03b1-49aa-8f02-18df0a4b50e5 (ext: 0062C6XJ, ticket: 00XVGEUZ)",
+    "evidenceText": "POST /buses/update-reserve sobre la orden ya pagada bc6a32b8-03b1-49aa-8f02-18df0a4b50e5 respondió HTTP 400 con details: \"ORDER_ALREADY_PAID_OR_CONFIRMED\".",
+    "file": "casos/E07.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:30.303Z"
   },
   {
     "id": "E08",
     "name": "Límite de tasa (429 RATE_LIMITED / TOO_MANY_HOLDS)",
     "result": "OK",
-    "evidenceText": "El integrador maneja status 429 pausando las peticiones concurrentes y notificando al usuario en caso de TOO_MANY_HOLDS para esperar la liberación de las reservas previas.",
-    "file": "E08.json",
-    "observation": "Gestión de backpressure y rate-limits.",
-    "timestamp": "2026-11-23T20:34:40.627Z"
+    "order_id": "N/A (Control de tasa; session: f8cc8b28-b700-4bf7-8426-9781e87a7206)",
+    "evidenceText": "Capturada respuesta real HTTP 429 en Chilepasajes QA al alcanzar el límite de reservas simultáneas en POST /buses/reserve: {\"message\": \"Demasiadas reservas activas. Espera unos minutos antes de volver a intentar.\", \"error_code\": 429, \"error_key\": \"TOO_MANY_HOLDS\"}, además de RESERVATION_LIMIT_EXCEEDED (HTTP 400) y manejo de RATE_LIMITED (HTTP 429) con espera de 4000ms (Retry-After) y recuperación única HTTP 200 OK sin insistir en bucle.",
+    "file": "casos/E08.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:42:17.776Z"
   },
   {
     "id": "P01",
     "name": "Consultar cancelable y cancel_deadline en GET /success",
     "result": "OK",
-    "evidenceText": "En orden c8819535-33f8-41bd-8896-c4996e1f3e54, boleto 01746DBE presenta cancelable: true.",
-    "file": "P01.json",
-    "observation": "Validación previa a la solicitud de cancelación.",
-    "timestamp": "2026-11-23T20:34:40.629Z"
+    "order_id": "d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee (ext: 000A2JCN, ticket: 007PGQ8T)",
+    "evidenceText": "Consultado GET /buses/success?order_id=d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee previo a la anulación: el boleto 007PGQ8T (pasajero: Camila Vega, RUT 193847561) presenta cancelable: true y cancel_deadline: \"2026-12-10T06:15:00-03:00\".",
+    "file": "casos/P01.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:30.307Z"
   },
   {
     "id": "P02",
     "name": "Anular un boleto pagado (POST /external/cancel-ticket)",
     "result": "OK",
-    "evidenceText": "order_id=01ZVZP4Q, ticket_id=01746DBE. HTTP 200: \"Anulación realizada.\".",
-    "file": "P02.json",
-    "observation": "Anulación exitosa en GDS con permiso available_cancel.",
-    "timestamp": "2026-11-23T20:34:41.712Z"
+    "order_id": "000A2JCN (uuid: d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee, ticket: 007PGQ8T)",
+    "evidenceText": "POST /buses/external/cancel-ticket con order_id=\"000A2JCN\" y ticket_id=\"007PGQ8T\" respondió HTTP 200: \"Anulación realizada.\".",
+    "file": "casos/P02.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:30.895Z"
   },
   {
     "id": "P03",
     "name": "Anular el mismo boleto otra vez (reintento)",
     "result": "OK",
-    "evidenceText": "HTTP 400: \"El boleto ya fue anulado\". El sistema rechaza la anulación duplicada.",
-    "file": "P03.json",
-    "observation": "Idempotencia y validación de estado previo.",
-    "timestamp": "2026-11-23T20:34:41.969Z"
+    "order_id": "000A2JCN (uuid: d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee, ticket: 007PGQ8T)",
+    "evidenceText": "Segundo intento de anulación sobre el boleto 007PGQ8T respondió HTTP 400: \"El boleto ya fue anulado\" (details: \"El boleto ya tiene una cancelación registrada.\").",
+    "file": "casos/P03.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:31.135Z"
   },
   {
     "id": "P04",
     "name": "Anular fuera de plazo (servicio expirado)",
     "result": "OK",
-    "evidenceText": "HTTP 400: \"El boleto ya fue anulado (El boleto ya tiene una cancelación registrada.)\". El integrador muestra la expiración al pasajero.",
-    "file": "P04.json",
-    "observation": "Validación de política de horario límite de anulación.",
-    "timestamp": "2026-11-23T20:34:42.299Z"
+    "order_id": "037H5BVZ (uuid: ee2644b7-9fc6-4d3b-b8b1-7901173b5732, ticket: 02NEGSHQ)",
+    "evidenceText": "POST /buses/external/cancel-ticket sobre boleto con salida expirada (02NEGSHQ) respondió HTTP 400: \"Este ticket no es anulable\", details: \"Este pasaje no es posible anularlo, la hora de salida del servicio se encuentra expirada\". El integrador muestra el motivo al pasajero.",
+    "file": "casos/P04.json",
+    "extraFiles": [],
+    "timestamp": "2026-11-25T19:37:31.391Z"
   }
 ]

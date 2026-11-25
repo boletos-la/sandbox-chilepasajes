@@ -1,45 +1,131 @@
 {
   "test_id": "C08",
   "title": "Viaje que exige fecha de nacimiento (birth_date_required)",
-  "executed_at": "2026-11-23T20:34:25.535Z",
-  "order_id": "c8819535-33f8-41bd-8896-c4996e1f3e54",
-  "endpoint": "POST /buses/update-reserve",
-  "request": {
+  "executed_at": "2026-11-25T19:37:10.863Z",
+  "order_id": "bc6a32b8-03b1-49aa-8f02-18df0a4b50e5",
+  "external_order_id": "0062C6XJ",
+  "ticket_id": "00XVGEUZ",
+  "birthdate_required_in_reserve": true,
+  "birth_date_sent": "1988-11-20",
+  "seat_map_stops_used": {
+    "stops": "TERMINAL SUR, SANTIAGO",
+    "downs": "TERMINAL VALDIVIA"
+  },
+  "step1_reserve_ticket_extract": {
+    "ticket_id": "d18d4981-52c9-4ac2-8229-c43d47b047d4",
+    "company_ticket_id": "32852",
+    "order_id": "bc6a32b8-03b1-49aa-8f02-18df0a4b50e5",
+    "session": "a8c0c6be-764d-4bfc-ae4e-023b8c0e8be6",
+    "price": 17100,
+    "extra_fee": 0,
+    "price_usd": 18.71,
+    "usd_extra_fee": 0,
+    "city_origin_name": "santiago",
+    "city_destination_name": "valdivia",
+    "city_origin_id": 100,
+    "city_destination_id": 29400,
+    "departure_date": "2026-12-10T10:15:00-03:00",
+    "seat": 32,
+    "seat_type": "SALON CAMA",
+    "stops": "Terminal Sur, Santiago",
+    "downs": "Terminal Valdivia",
+    "travel_dir": "IDA",
+    "pet": false,
+    "canilpar": 0,
+    "ing_kms": false,
+    "birthdate_required": true
+  },
+  "step2_update_reserve_request": {
     "client": {
-      "order_id": "c8819535-33f8-41bd-8896-c4996e1f3e54",
-      "session_id": "20e51c5f-b960-42c5-8a39-160e17232ca9",
+      "order_id": "bc6a32b8-03b1-49aa-8f02-18df0a4b50e5",
+      "session_id": "a8c0c6be-764d-4bfc-ae4e-023b8c0e8be6",
       "cod_phone": "+56",
       "phone": "987654321",
-      "email": "acreditacion@chilepasajes.cl",
+      "email": "carlos.gonzalez@boletos.la",
       "payment_method": "WEBPAY",
       "lang": "es"
     },
     "reserves": [
       {
-        "ticket_id": "27a200db-be51-4d2c-9cd1-12a7b9836755",
+        "ticket_id": "d18d4981-52c9-4ac2-8229-c43d47b047d4",
         "document": "164829103",
         "document_type": "RUT",
         "first_name": "Carlos",
-        "last_name": "González",
+        "last_name": "Gonzalez",
         "country": "CL",
         "birth_date": "1988-11-20",
         "cod_phone": "+56",
         "phone": "987654321",
-        "stops": "Terminal Sur, Santiago",
-        "downs": "Terminal de Buses Valdivia"
+        "stops": "TERMINAL SUR, SANTIAGO",
+        "downs": "TERMINAL VALDIVIA"
       }
     ],
     "products": [],
     "frecuent_client_code": 0
   },
-  "response": {
-    "success": false,
-    "response": {
-      "message": "Paradas no válidas para el servicio",
-      "error_code": 400,
-      "details": null,
-      "error_key": null
+  "step2_update_reserve_response": {
+    "status": 200,
+    "body": {
+      "success": true,
+      "response": {
+        "idpago": "bc6a32b8-03b1-49aa-8f02-18df0a4b50e5",
+        "session": "a8c0c6be-764d-4bfc-ae4e-023b8c0e8be6",
+        "monto": 17100,
+        "puntos": 3420,
+        "payment_method": "WEBPAY",
+        "is_paid_by_coupon": false,
+        "is_paid_by_commercial_credit": false,
+        "external_cab_id": "0062C6XJ"
+      }
     }
   },
-  "observation": "Campo birth_date (\"1988-11-20\") validado y almacenado correctamente en la reserva."
+  "step3_confirmed_order_success": {
+    "success": true,
+    "response": {
+      "order_id": "0062C6XJ",
+      "tickets": [
+        {
+          "ticket_id": "00XVGEUZ",
+          "company_name": "Empresa de Pruebas",
+          "payment_method": "WEBPAY",
+          "order_id": "0062C6XJ",
+          "price": 17100,
+          "currency": "CLP",
+          "price_usd": 18.71,
+          "departure_city": "Santiago",
+          "destination_city": "Valdivia",
+          "seat": 32,
+          "carriage": null,
+          "departure_date": "2026-12-10T10:15:00-03:00",
+          "departure_date_control": "2026-12-10T10:15:00-03:00",
+          "arrives_date": "2026-12-10T22:05:00-03:00",
+          "seat_type": "SALON CAMA",
+          "stops": "TERMINAL SUR, SANTIAGO",
+          "downs": "TERMINAL VALDIVIA",
+          "company_type": "BUS",
+          "cancelable": true,
+          "cancel_message": "",
+          "cancel_deadline": "2026-12-10T06:15:00-03:00",
+          "changeable": false,
+          "change_stop": false,
+          "pet": 0
+        }
+      ],
+      "products": [],
+      "points": 3420,
+      "amount": "$ 17.100",
+      "amount_value": 17100,
+      "currency": "CLP",
+      "tax": "$ 0",
+      "email": "carlos.gonzalez@boletos.la",
+      "method": "WEBPAY",
+      "complement": "pasajes",
+      "payment_status": "PAGADO",
+      "url": "https://www.booking.com/searchresults.es.html?dest_id=-903932&no_rooms=1&group_adults=1&ss=Valdivia",
+      "show_booking": true,
+      "surplus_until_date": null,
+      "surplus_coupon": null,
+      "surplus_amount": null
+    }
+  }
 }

@@ -34,9 +34,11 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
 }) => {
   // Buyer state
   const [buyerName, setBuyerName] = useState("");
+  const [buyerEmail, setBuyerEmail] = useState("");
   const [buyerPhone, setBuyerPhone] = useState("+56 9 ");
   const [buyerDocType, setBuyerDocType] = useState<"RUT" | "PASAPORTE" | "DNI">("RUT");
   const [buyerDocNum, setBuyerDocNum] = useState("");
+  const [buyerBirthDate, setBuyerBirthDate] = useState("1990-05-15");
 
   // Checkbox: Buyer is Passenger 1
   const [buyerIsPax1, setBuyerIsPax1] = useState(true);
@@ -48,12 +50,13 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
       name: "",
       document_type: "RUT",
       document_number: "",
+      birth_date: "1990-05-15",
       price: seat.price,
       seat_type: seat.type,
       floor: seat.floor,
       idreserve: seat.idreserve,
-      stops: stops?.subida || service.origin_terminal,
-      downs: stops?.bajada || service.destination_terminal,
+      stops: stops?.subida || "",
+      downs: stops?.bajada || "",
     }))
   );
 
@@ -89,12 +92,20 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
     setPassengers(copy);
   };
 
+  const handlePaxBirthDateChange = (index: number, val: string) => {
+    const copy = [...passengers];
+    copy[index].birth_date = val;
+    setPassengers(copy);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const errors: string[] = [];
 
     // Validate Buyer
     if (!buyerName.trim()) errors.push("Ingresa el nombre del comprador.");
+    if (!buyerEmail.trim() || !buyerEmail.includes("@"))
+      errors.push("Ingresa un correo electrónico válido del comprador.");
     if (!buyerPhone.trim() || buyerPhone.length < 8)
       errors.push("Ingresa un teléfono de contacto válido.");
 
@@ -106,17 +117,23 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
       errors.push("Ingresa el número de documento del comprador.");
     }
 
-    // Sync Passenger 1 if buyer is pax 1
-    const currentPax = [...passengers];
+    // Sync Passenger 1 if buyer is pax 1, y asegurar stops/downs exactos del seat-map
+    const currentPax = passengers.map((p) => ({
+      ...p,
+      stops: stops?.subida || p.stops,
+      downs: stops?.bajada || p.downs,
+    }));
     if (buyerIsPax1 && currentPax.length > 0) {
       currentPax[0].name = buyerName;
       currentPax[0].document_type = buyerDocType;
       currentPax[0].document_number = buyerDocNum;
+      currentPax[0].birth_date = buyerBirthDate;
     }
 
     // Validate Passengers
     currentPax.forEach((p, idx) => {
       if (!p.name.trim()) errors.push(`Ingresa el nombre para el Pasajero ${idx + 1} (Asiento ${p.seat_number}).`);
+      if (!p.birth_date) errors.push(`Ingresa la fecha de nacimiento para el Pasajero ${idx + 1}.`);
       if (p.document_type === "RUT") {
         if (!validateChileanRut(p.document_number)) {
           errors.push(`El RUT del Pasajero ${idx + 1} no es válido.`);
@@ -136,6 +153,7 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
     onProceed(
       {
         name: buyerName.trim(),
+        email: buyerEmail.trim(),
         phone: buyerPhone.trim(),
         document_type: buyerDocType,
         document_number: buyerDocNum.trim(),
@@ -256,7 +274,7 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
             </div>
 
             {/* Número Documento */}
-            <div className="sm:col-span-2">
+            <div>
               <label className="block text-xs font-bold text-slate-700 mb-1">
                 {buyerDocType === "RUT" ? "RUT (con dígito verificador) *" : "Nº Documento *"}
               </label>
@@ -266,6 +284,35 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
                 value={buyerDocNum}
                 onChange={(e) => handleBuyerDocChange(e.target.value)}
                 className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-[#ff6700] outline-none font-mono"
+                required
+              />
+            </div>
+
+            {/* Correo Electrónico */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Correo Electrónico *
+              </label>
+              <input
+                type="email"
+                placeholder="comprador@correo.cl"
+                value={buyerEmail}
+                onChange={(e) => setBuyerEmail(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-[#ff6700] outline-none"
+                required
+              />
+            </div>
+
+            {/* Fecha de Nacimiento */}
+            <div>
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Fecha de Nacimiento *
+              </label>
+              <input
+                type="date"
+                value={buyerBirthDate}
+                onChange={(e) => setBuyerBirthDate(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm font-semibold text-slate-800 focus:ring-2 focus:ring-[#ff6700] outline-none"
                 required
               />
             </div>
@@ -339,7 +386,7 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-12 gap-3">
-                      <div className="sm:col-span-6">
+                      <div className="sm:col-span-4">
                         <label className="block text-xs font-bold text-slate-600 mb-1">
                           Nombre Completo Pasajero {idx + 1} *
                         </label>
@@ -353,7 +400,7 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
                         />
                       </div>
 
-                      <div className="sm:col-span-3">
+                      <div className="sm:col-span-2">
                         <label className="block text-xs font-bold text-slate-600 mb-1">
                           Tipo Doc.
                         </label>
@@ -378,6 +425,19 @@ export const Step3Passengers: React.FC<Step3PassengersProps> = ({
                           value={pax.document_number}
                           onChange={(e) => handlePaxDocChange(idx, e.target.value)}
                           className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#ff6700] outline-none font-mono"
+                          required
+                        />
+                      </div>
+
+                      <div className="sm:col-span-3">
+                        <label className="block text-xs font-bold text-slate-600 mb-1">
+                          Fecha Nac. *
+                        </label>
+                        <input
+                          type="date"
+                          value={pax.birth_date || "1990-05-15"}
+                          onChange={(e) => handlePaxBirthDateChange(idx, e.target.value)}
+                          className="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-2 text-xs font-semibold text-slate-800 focus:ring-2 focus:ring-[#ff6700] outline-none"
                           required
                         />
                       </div>

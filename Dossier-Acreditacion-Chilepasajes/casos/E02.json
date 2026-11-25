@@ -1,40 +1,123 @@
 {
   "test_id": "E02",
-  "title": "Datos inválidos en update-reserve",
-  "executed_at": "2026-11-23T20:34:37.821Z",
-  "request": {
-    "client": {
-      "order_id": "c8819535-33f8-41bd-8896-c4996e1f3e54",
-      "session_id": "20e51c5f-b960-42c5-8a39-160e17232ca9",
-      "cod_phone": "+56",
-      "phone": "",
-      "email": "invalido",
-      "payment_method": "WEBPAY",
-      "lang": "es"
-    },
-    "reserves": [
-      {
-        "ticket_id": "27a200db-be51-4d2c-9cd1-12a7b9836755",
-        "document": "",
-        "document_type": "RUT",
-        "first_name": "",
-        "last_name": "",
-        "country": "CL"
+  "title": "Datos inválidos en update-reserve (pasajero sin nombre)",
+  "executed_at": "2026-11-25T19:37:16.395Z",
+  "order_id": "04ea73d7-2a04-47a5-9a86-4f5f694f11fe",
+  "external_order_id": "02FKJ6D0",
+  "ticket_id": "59d4203d-c0a0-4b79-9b40-13283d961eb3",
+  "step1_reserve": {
+    "status": 200,
+    "response": {
+      "success": true,
+      "response": {
+        "order": {
+          "order_id": "04ea73d7-2a04-47a5-9a86-4f5f694f11fe",
+          "session": "c2c7f1b9-7fce-49fb-ba72-eecfd11aed4e",
+          "purchase_date": "2026-11-25 16:37:16",
+          "total_purchase": 17100,
+          "tickets": [
+            {
+              "ticket_id": "59d4203d-c0a0-4b79-9b40-13283d961eb3",
+              "company_ticket_id": "32856",
+              "order_id": "04ea73d7-2a04-47a5-9a86-4f5f694f11fe",
+              "session": "c2c7f1b9-7fce-49fb-ba72-eecfd11aed4e",
+              "price": 17100,
+              "extra_fee": 0,
+              "price_usd": 18.71,
+              "usd_extra_fee": 0,
+              "city_origin_name": "santiago",
+              "city_destination_name": "valdivia",
+              "city_origin_id": 100,
+              "city_destination_id": 29400,
+              "departure_date": "2026-12-10T10:15:00-03:00",
+              "seat": 36,
+              "seat_type": "SALON CAMA",
+              "stops": "Terminal Sur, Santiago",
+              "downs": "Terminal Valdivia",
+              "travel_dir": "IDA",
+              "pet": false,
+              "canilpar": 0,
+              "ing_kms": false,
+              "birthdate_required": true
+            }
+          ],
+          "frequent_client": true,
+          "birth_date_required": false,
+          "points": 3420,
+          "wtsp_fee": {
+            "apply": false,
+            "fee_amount": 0,
+            "fee_currency": "",
+            "fee_message": ""
+          }
+        }
       }
-    ],
-    "products": [],
-    "frecuent_client_code": 0
+    }
   },
-  "response": {
+  "step2_invalid_update_reserve": {
+    "endpoint": "POST /buses/update-reserve",
     "status": 500,
-    "body": {
+    "request": {
+      "client": {
+        "order_id": "04ea73d7-2a04-47a5-9a86-4f5f694f11fe",
+        "session_id": "c2c7f1b9-7fce-49fb-ba72-eecfd11aed4e",
+        "cod_phone": "+56",
+        "phone": "",
+        "email": "",
+        "payment_method": "",
+        "lang": "es"
+      },
+      "reserves": [
+        {
+          "ticket_id": "59d4203d-c0a0-4b79-9b40-13283d961eb3",
+          "document": "",
+          "document_type": "RUT",
+          "first_name": "",
+          "last_name": "",
+          "country": "CL",
+          "birth_date": "",
+          "cod_phone": "+56",
+          "phone": "",
+          "stops": "TERMINAL SUR, SANTIAGO",
+          "downs": "TERMINAL VALDIVIA"
+        }
+      ],
+      "products": [],
+      "frecuent_client_code": 0
+    },
+    "response": {
       "success": false,
       "response": {
         "message": "Error al actualizar las reservas",
         "error_code": 500,
-        "details": "El teléfono es requerido (and 4 more errors)",
+        "details": "El teléfono es requerido (and 5 more errors)",
         "error_key": null
       }
     }
-  }
+  },
+  "step3_payment_status_verification": {
+    "endpoint": "GET /buses/payment-status?order_id=04ea73d7-2a04-47a5-9a86-4f5f694f11fe",
+    "response": {
+      "success": true,
+      "response": {
+        "order_id": "04ea73d7-2a04-47a5-9a86-4f5f694f11fe",
+        "external_order_id": "02FKJ6D0",
+        "is_paid": false,
+        "is_confirmed": false,
+        "should_poll": true
+      }
+    }
+  },
+  "integrator_logs": [
+    {
+      "timestamp": "2026-11-25T19:37:16.395Z",
+      "level": "ERROR",
+      "event": "UPDATE_RESERVE_VALIDATION_FAILED",
+      "order_id": "04ea73d7-2a04-47a5-9a86-4f5f694f11fe",
+      "http_status": 500,
+      "gds_message": "Error al actualizar las reservas",
+      "gds_details": "El teléfono es requerido (and 5 more errors)",
+      "action": "Se aborta el flujo antes del pago. No se redirige a la pasarela ni se invoca payment/notification."
+    }
+  ]
 }

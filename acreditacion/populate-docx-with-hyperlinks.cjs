@@ -2,257 +2,108 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 
-// 1. Datos del integrador
-const generalInfo = {
-  "Razón social": "Boletos SpA",
-  "RUT / RFC": "77.654.321-0",
-  "Nombre comercial / sitio o app": "Chilepasajes Next App (Web / Mobile Responsive) - URL: https://main.d12cxvhqk6e0dg.amplifyapp.com/",
-  "Contacto comercial (nombre, correo, teléfono)": "Equipo Comercial, comercial@boletos.la, +56 9 8765 4321",
-  "Contacto técnico (nombre, correo, teléfono)": "Equipo Técnico / Lead Dev, soporte@boletos.la, +56 9 1234 5678",
-  "Contacto de soporte en producción (horario)": "Soporte Operacional 24/7 (soporte@boletos.la / guardia telefónica)",
-  "Seller / usuario QA asignado por Chilepasajes": "vps_integracion (API Key: sk_test_FtC48QXZHlbvE)",
-  "Mercado (Chile CLP / México MXN)": "Chile (CLP)",
-  "Pasarela de pago que usan": "Webpay Plus / MercadoPago (con webhook de confirmación segura)",
-  "Canales de venta (web, app, otro)": "Web App & Mobile PWA (Next.js 16 + React 19 SSR/BFF en AWS Amplify: https://main.d12cxvhqk6e0dg.amplifyapp.com/)",
-  "IP(s) de salida de sus servidores": "Arquitectura Serverless en AWS Amplify (SSR Compute / CloudFront). Salida dinámica desde pool de IPs AWS (us-east-1 / sa-east-1). Indicar si la pasarela de producción requiere IP estática fija (EIP/NAT Gateway) para lista blanca, o si autorizan por Bearer Token y dominio.",
-  "Fecha de las pruebas": "23-11-2026"
-};
+// 1. Datos del integrador (se mantienen las llaves para identificar las filas y dejarlas vacías)
+const generalInfoKeys = new Set([
+  'Razón social',
+  'RUT / RFC',
+  'Nombre comercial / sitio o app',
+  'Contacto comercial (nombre, correo, teléfono)',
+  'Contacto técnico (nombre, correo, teléfono)',
+  'Contacto de soporte en producción (horario)',
+  'Seller / usuario QA asignado por Chilepasajes',
+  'Mercado (Chile CLP / México MXN)',
+  'Pasarela de pago que usan',
+  'Canales de venta (web, app, otro)',
+  'IP(s) de salida de sus servidores',
+  'Fecha de las pruebas',
+]);
 
 // 2. Checklist respuestas
 const checklistAnswers = [
   {
-    prefix: "La API key se guarda solo en el backend",
-    siNo: "Sí",
-    comentario: "Validado e implementado mediante Backend-For-Frontend (BFF) en Next.js (/api/chilepasajes/[...path]). La variable CHILEPASAJES_API_KEY reside de forma 100% privada en el servidor en AWS Amplify; el navegador nunca recibe ni expone la API Key."
+    prefix: 'La API key se guarda solo en el backend',
+    siNo: 'Sí',
+    comentario:
+      'Validado e implementado mediante Backend-For-Frontend (BFF) en Next.js (/api/chilepasajes/[...path]). La variable CHILEPASAJES_API_KEY reside de forma 100% privada en el servidor en AWS Amplify; el navegador nunca recibe ni expone la API Key.',
   },
   {
-    prefix: "Se genera un session UUID nuevo por cada compra",
-    siNo: "Sí",
-    comentario: "Validado. Cada interacción de compra invoca crypto.randomUUID() en el cliente/servidor."
+    prefix: 'Se genera un session UUID nuevo por cada compra',
+    siNo: 'Sí',
+    comentario: 'Validado. Cada interacción de compra invoca crypto.randomUUID() generando un session único.',
   },
   {
-    prefix: "La notificación de pago sale del backend del integrador",
-    siNo: "Sí",
-    comentario: "Validado. El webhook de la pasarela es procesado por el backend en Next.js/AWS Amplify, y solo tras confirmación de cobro emite de servidor a servidor el POST /payment/notification."
+    prefix: 'La notificación de pago sale del backend del integrador',
+    siNo: 'Sí',
+    comentario:
+      'Validado. Solo si POST /buses/update-reserve responde HTTP 200 OK y la pasarela confirma el cobro, el backend emite de servidor a servidor el POST /buses/payment/notification. Si update-reserve o el cobro fallan, se aborta y no se notifica.',
   },
   {
-    prefix: "El monto cobrado al comprador es el total de la orden",
-    siNo: "Sí",
-    comentario: "Validado. Se cobra exactamente el monto devuelto en reserve / schedules en CLP sin discrepancias."
+    prefix: 'El monto cobrado al comprador es el total de la orden',
+    siNo: 'Sí',
+    comentario: 'Validado. Se cobra exactamente el total_purchase devuelto por Chilepasajes en POST /buses/reserve.',
   },
   {
-    prefix: "Hay reintentos de la notificación de pago ante timeout",
-    siNo: "Sí",
-    comentario: "Validado. Implementado mecanismo de 3 reintentos con backoff exponencial (2s, 4s, 8s) y logging estructurado."
+    prefix: 'Hay reintentos de la notificación de pago ante timeout',
+    siNo: 'Sí',
+    comentario:
+      'Validado (ver evidencia real en casos/E06.json). Implementados 3 reintentos automáticos con backoff exponencial (2s, 4s, 8s) ante timeout o error 5xx, con registro estructurado de cada intento.',
   },
   {
-    prefix: "Se usa el campo currency de la respuesta",
-    siNo: "Sí",
-    comentario: "Validado. El frontend y backend consumen dinámicamente el campo 'currency' ('CLP')."
+    prefix: 'Se usa el campo currency de la respuesta',
+    siNo: 'Sí',
+    comentario: 'Validado. El frontend y backend consumen dinámicamente el atributo currency ("CLP") entregado por la API.',
   },
   {
-    prefix: "El comprador ve el tiempo que le queda de reserva",
-    siNo: "Sí",
-    comentario: "Validado. Temporizador dinámico en UI sincronizado con el tiempo de expiración y aviso automático al expirar."
+    prefix: 'El comprador ve el tiempo que le queda de reserva',
+    siNo: 'Sí',
+    comentario:
+      'Validado. Temporizador regresivo en pantalla y control de HTTP 400 "Tiempo de reserva agotado, vuelva a realizar su compra" (casos/E01.json) redirigiendo a seat-map.',
   },
   {
-    prefix: "Se registra el order_id de Chilepasajes junto a la referencia propia",
-    siNo: "Sí",
-    comentario: "Validado. Se almacenan order_id, external_order_id y ticket_ids en la orden de compra."
+    prefix: 'Se registra el order_id de Chilepasajes junto a la referencia propia',
+    siNo: 'Sí',
+    comentario:
+      'Validado. Se almacenan el order_id UUID, el external_order_id (código de compra de 8 caracteres) y cada ticket_id junto a la referencia de pago.',
   },
   {
-    prefix: "Se tiene un proceso de conciliación diario",
-    siNo: "Sí",
-    comentario: "Validado. Proceso automatizado de cuadratura entre transacciones de pasarela y órdenes confirmadas en API."
+    prefix: 'Se tiene un proceso de conciliación diario',
+    siNo: 'Sí',
+    comentario: 'Validado. Proceso automatizado de cuadratura entre transacciones cobradas en pasarela y órdenes confirmadas en GDS.',
   },
   {
-    prefix: "El pasajero recibe su boleto (PDF o QR)",
-    siNo: "Sí",
-    comentario: "Validado. Descarga directa en pantalla de confirmación, visor de PDF y visualización de QR de embarque."
+    prefix: 'El pasajero recibe su boleto (PDF o QR)',
+    siNo: 'Sí',
+    comentario:
+      'Validado (ver PDFs adjuntos casos/C10-boleto.pdf y casos/C10-tarjeta-embarque.pdf). Entrega inmediata en pantalla y descarga de PDF oficial con QR legible.',
   },
   {
-    prefix: "Hay un contacto de soporte disponible en el horario de venta",
-    siNo: "Sí",
-    comentario: "Validado. Canal de atención y escalamiento continuo para resolución de incidentes de pasajeros."
-  }
+    prefix: 'Hay un contacto de soporte disponible en el horario de venta',
+    siNo: 'Sí',
+    comentario: 'Validado. Canal de atención y soporte operacional continuo para pasajeros.',
+  },
 ];
 
-// 3. Estructura exacta ordenada por cada caso:
-// Evidencia (order_id, fecha/hora, archivo)
-const caseEvidenceDetails = {
-  C01: {
-    order_id: "N/A (Consulta de catálogo previa a creación de orden)",
-    fecha_hora: "2026-11-23 17:34:20 CLST (20:34:20 UTC)",
-    archivo: "casos/C01.json",
-    detalle: "GET /buses/get-cities retornó 200 OK con 66 ciudades. Atributos search_name verificados y almacenados para el buscador.",
-    resultado: "OK"
-  },
-  C02: {
-    order_id: "N/A (Búsqueda de itinerarios de ida)",
-    fecha_hora: "2026-11-23 17:34:22 CLST (20:34:22 UTC)",
-    archivo: "casos/C02.json",
-    detalle: "GET /schedules/single retornó 7 servicios para ruta santiago -> valdivia el 26-11-2026. Tokens de servicio, currency (CLP) y precio ($3.000) verificados.",
-    resultado: "OK"
-  },
-  C03: {
-    order_id: "N/A (Búsqueda de itinerarios ida y regreso)",
-    fecha_hora: "2026-11-23 17:34:24 CLST (20:34:24 UTC)",
-    archivo: "casos/C03.json",
-    detalle: "GET /buses/schedules retornó 200 OK. Servicios de ida (IDA=7) y regreso (REG) entregados con tokens independientes por sentido.",
-    resultado: "OK"
-  },
-  C04: {
-    order_id: "N/A (Consulta de mapa de asientos; session: c1a4305a-c63e-47e2-b8d8-cfb8e196dffc)",
-    fecha_hora: "2026-11-23 17:34:25 CLST (20:34:25 UTC)",
-    archivo: "casos/C04.json",
-    detalle: "POST /buses/seat-map retornó 200 OK con layout completo de dos pisos (1 y 2), paraderos de origen y destino, y atributos idreserve en cada asiento disponible.",
-    resultado: "OK"
-  },
-  C05: {
-    order_id: "c8819535-33f8-41bd-8896-c4996e1f3e54 (ext: 01ZVZP4Q, ticket: 01746DBE)",
-    fecha_hora: "2026-11-23 17:34:28 CLST (20:34:28 UTC)",
-    archivo: "casos/C05.json",
-    detalle: "Compra completa de 1 pasajero (asiento 32). Transacción de 5 pasos verificada: reserve -> update-reserve -> pago simulado -> payment-status (is_paid: true, is_confirmed: true) -> success con boleto emitido.",
-    resultado: "OK"
-  },
-  C06: {
-    order_id: "14563b15-1ea4-4259-ae33-ba24c063f7ea (ext: 00W1HN7Y)",
-    fecha_hora: "2026-11-23 17:34:36 CLST (20:34:36 UTC)",
-    archivo: "casos/C06.json",
-    detalle: "Compra de 3 pasajeros en el mismo servicio (asientos 37, 38, 39). 3 boletos emitidos bajo la misma orden: 0133YD1U, 01T71ZT9, 02MBB81J, cada uno con su ticket_id independiente.",
-    resultado: "OK"
-  },
-  C07: {
-    order_id: "N/A (No aplica por ausencia de frecuencias de regreso en QA)",
-    fecha_hora: "2026-11-23 17:34:37 CLST (20:34:37 UTC)",
-    archivo: "casos/C07.json",
-    detalle: "En el ambiente QA para la ruta evaluada no hay frecuencias de regreso cargadas por el operador de pruebas. Funcionalidad soportada vía array de tokens en /reserve según especificación OpenAPI.",
-    resultado: "No aplica / Soportado"
-  },
-  C08: {
-    order_id: "c8819535-33f8-41bd-8896-c4996e1f3e54",
-    fecha_hora: "2026-11-23 17:34:28 CLST (20:34:28 UTC)",
-    archivo: "casos/C08.json",
-    detalle: "En orden C05 se envió birth_date: '1988-11-20' en /buses/update-reserve y fue aceptado y registrado en la reserva por el backend.",
-    resultado: "OK"
-  },
-  C09: {
-    order_id: "c8819535-33f8-41bd-8896-c4996e1f3e54 (ext: 01ZVZP4Q)",
-    fecha_hora: "2026-11-23 17:34:30 CLST (20:34:30 UTC)",
-    archivo: "casos/C09.json",
-    detalle: "GET /buses/success retornó boleto emitido 01746DBE con atributo cancelable: true, listo para entrega al comprador en pantalla y correo.",
-    resultado: "OK"
-  },
-  C10: {
-    order_id: "01ZVZP4Q (ticket: 01746DBE)",
-    fecha_hora: "2026-11-23 17:34:32 CLST (20:34:32 UTC)",
-    archivo: "casos/C10.json",
-    detalle: "Descarga de PDFs: /download-ticket (85.491 bytes) y /download-boarding-card (70.821 bytes) entregaron application/pdf binario válido con código QR legible.",
-    resultado: "OK"
-  },
-  C11: {
-    order_id: "N/A (No aplica)",
-    fecha_hora: "2026-11-23 17:34:37 CLST (20:34:37 UTC)",
-    archivo: "casos/C11.json",
-    detalle: "Nuestra plataforma opera exclusivamente rutas interurbanas directas punto a punto en Chile sin escalas con cambio de bus. No aplica a nuestro modelo de negocio.",
-    resultado: "No aplica"
-  },
-  C12: {
-    order_id: "N/A (No aplica)",
-    fecha_hora: "2026-11-23 17:34:37 CLST (20:34:37 UTC)",
-    archivo: "casos/C12.json",
-    detalle: "La integración opera de manera exclusiva en el mercado nacional de Chile en moneda CLP. No aplica a nuestro modelo de negocio.",
-    resultado: "No aplica"
-  },
-  E01: {
-    order_id: "4821a8b1-3e5f-4a30-8a29-b689a910ec76 (orden vencida simulada)",
-    fecha_hora: "2026-11-23 17:34:38 CLST (20:34:38 UTC)",
-    archivo: "casos/E01.json",
-    detalle: "update-reserve sobre orden vencida/inexistente respondió HTTP 404: 'No se encontró la orden con los datos proporcionados.'. El integrador notifica al usuario y retorna al mapa.",
-    resultado: "OK"
-  },
-  E02: {
-    order_id: "c8819535-33f8-41bd-8896-c4996e1f3e54",
-    fecha_hora: "2026-11-23 17:34:39 CLST (20:34:39 UTC)",
-    archivo: "casos/E02.json",
-    detalle: "Petición con campos requeridos de pasajero vacíos rechazada por backend (HTTP 500). Validación local en frontend previene el envío hacia pasarela.",
-    resultado: "OK"
-  },
-  E03: {
-    order_id: "N/A (Intento de reserva sobre asiento ocupado)",
-    fecha_hora: "2026-11-23 17:34:40 CLST (20:34:40 UTC)",
-    archivo: "casos/E03.json",
-    detalle: "Intento de reserva de asiento ya adquirido respondió HTTP 400: 'El asiento 32 ya se encuentra reservado, pruebe con otros asientos'. El integrador refresca el mapa.",
-    resultado: "OK"
-  },
-  E04: {
-    order_id: "N/A (Transaccional)",
-    fecha_hora: "2026-11-23 17:34:41 CLST (20:34:41 UTC)",
-    archivo: "casos/E04.json",
-    detalle: "Cuando la pasarela rechaza la transacción, el backend del integrador NO envía notificación con status 'paid'. La orden queda en HOLD y expira automáticamente tras los 15 min sin emitir boleto.",
-    resultado: "OK"
-  },
-  E05: {
-    order_id: "c8819535-33f8-41bd-8896-c4996e1f3e54",
-    fecha_hora: "2026-11-23 17:34:42 CLST (20:34:42 UTC)",
-    archivo: "casos/E05.json",
-    detalle: "Segunda llamada de notificación respondió HTTP 201. Idempotencia verificada: no se duplicaron boletos en la orden de compra.",
-    resultado: "OK"
-  },
-  E06: {
-    order_id: "N/A (Política técnica)",
-    fecha_hora: "2026-11-23 17:34:42 CLST (20:34:42 UTC)",
-    archivo: "casos/E06.json",
-    detalle: "Política de reintentos configurada: 3 intentos automáticos con retroceso exponencial (2s, 4s, 8s). Se registran logs de auditoría estructurados de cada intento.",
-    resultado: "OK"
-  },
-  E07: {
-    order_id: "c8819535-33f8-41bd-8896-c4996e1f3e54",
-    fecha_hora: "2026-11-23 17:34:43 CLST (20:34:43 UTC)",
-    archivo: "casos/E07.json",
-    detalle: "update-reserve sobre orden ya pagada respondió HTTP 400: details='ORDER_ALREADY_PAID_OR_CONFIRMED'. Modificación bloqueada de manera segura.",
-    resultado: "OK"
-  },
-  E08: {
-    order_id: "N/A (Control de tasa)",
-    fecha_hora: "2026-11-23 17:34:44 CLST (20:34:44 UTC)",
-    archivo: "casos/E08.json",
-    detalle: "Manejo de status 429 y TOO_MANY_HOLDS con retroceso exponencial y notificación al comprador para esperar liberación de reservas.",
-    resultado: "OK"
-  },
-  P01: {
-    order_id: "c8819535-33f8-41bd-8896-c4996e1f3e54 (ticket: 01746DBE)",
-    fecha_hora: "2026-11-23 17:34:45 CLST (20:34:45 UTC)",
-    archivo: "casos/P01.json",
-    detalle: "Consulta previa en GET /success. Boleto 01746DBE presenta cancelable: true, cancel_deadline registrado. Validación previa cumplida.",
-    resultado: "OK"
-  },
-  P02: {
-    order_id: "01ZVZP4Q (ticket: 01746DBE)",
-    fecha_hora: "2026-11-23 17:34:46 CLST (20:34:46 UTC)",
-    archivo: "casos/P02.json",
-    detalle: "POST /buses/external/cancel-ticket respondió HTTP 200: 'Anulación realizada.'. Boleto cancelado exitosamente en GDS con confirmación formal.",
-    resultado: "OK"
-  },
-  P03: {
-    order_id: "01ZVZP4Q (ticket: 01746DBE)",
-    fecha_hora: "2026-11-23 17:34:47 CLST (20:34:47 UTC)",
-    archivo: "casos/P03.json",
-    detalle: "Reintento de anulación del mismo boleto ya cancelado respondió HTTP 400: 'El boleto ya fue anulado'. Idempotencia de anulación verificada.",
-    resultado: "OK"
-  },
-  P04: {
-    order_id: "03A7NRWY (ticket: 01QDB2GC)",
-    fecha_hora: "2026-11-23 17:34:48 CLST (20:34:48 UTC)",
-    archivo: "casos/P04.json",
-    detalle: "Anular boleto fuera de plazo / previamente cancelado respondió HTTP 400: 'El boleto ya fue anulado (El boleto ya tiene una cancelación registrada.)'.",
-    resultado: "OK"
-  }
-};
+// 3. Cargar resultados reales de resultados-acreditacion.json
+const rawResults = JSON.parse(
+  fs.readFileSync(path.join(__dirname, 'resultados-acreditacion.json'), 'utf8')
+);
+const caseEvidenceDetails = {};
+rawResults.forEach((r) => {
+  const dt = new Date(r.timestamp);
+  const utcStr = dt.toISOString().replace('T', ' ').slice(0, 19) + ' UTC';
+  caseEvidenceDetails[r.id] = {
+    order_id: r.order_id,
+    fecha_hora: utcStr,
+    archivo: r.file || `casos/${r.id}.json`,
+    extraFiles: r.extraFiles || [],
+    detalle: r.evidenceText,
+    resultado: r.result,
+  };
+});
 
 function escapeXml(unsafe) {
   if (!unsafe) return '';
-  return unsafe
+  return String(unsafe)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -265,63 +116,86 @@ function randHex() {
 }
 
 function createParagraph(text, fontColor = null, bold = false) {
-  const lines = text.split('\n');
-  return lines.map(line => {
-    return `<w:p w:rsidR="00000000" w:rsidDel="00000000" w:rsidP="00000000" w:rsidRDefault="00000000" w:rsidRPr="00000000" w14:paraId="${randHex()}">` +
-      `<w:pPr><w:rPr/></w:pPr>` +
-      `<w:r w:rsidDel="00000000" w:rsidR="00000000" w:rsidRPr="00000000">` +
+  const lines = String(text).split('\n');
+  return lines
+    .map((line) => {
+      return (
+        `<w:p w:rsidR="00000000" w:rsidDel="00000000" w:rsidP="00000000" w:rsidRDefault="00000000" w:rsidRPr="00000000" w14:paraId="${randHex()}">` +
+        `<w:pPr><w:rPr/></w:pPr>` +
+        `<w:r w:rsidDel="00000000" w:rsidR="00000000" w:rsidRPr="00000000">` +
         `<w:rPr>` +
-          `<w:sz w:val="18"/><w:szCs w:val="18"/><w:rtl w:val="0"/>` +
-          (bold ? `<w:b w:val="1"/>` : ``) +
-          (fontColor ? `<w:color w:val="${fontColor}"/>` : ``) +
+        `<w:sz w:val="18"/><w:szCs w:val="18"/><w:rtl w:val="0"/>` +
+        (bold ? `<w:b w:val="1"/>` : ``) +
+        (fontColor ? `<w:color w:val="${fontColor}"/>` : ``) +
         `</w:rPr>` +
         `<w:t xml:space="preserve">${escapeXml(line)}</w:t>` +
-      `</w:r>` +
-    `</w:p>`;
-  }).join('');
+        `</w:r>` +
+        `</w:p>`
+      );
+    })
+    .join('');
+}
+
+function createHyperlinkRun(relId, label) {
+  return (
+    `<w:hyperlink r:id="${relId}" w:history="1">` +
+    `<w:r>` +
+    `<w:rPr>` +
+    `<w:rStyle w:val="Hyperlink"/>` +
+    `<w:color w:val="0563C1"/>` +
+    `<w:u w:val="single"/>` +
+    `<w:sz w:val="18"/><w:szCs w:val="18"/>` +
+    `</w:rPr>` +
+    `<w:t xml:space="preserve">${escapeXml(label)}</w:t>` +
+    `</w:r>` +
+    `</w:hyperlink>`
+  );
 }
 
 // Genera los 4 párrafos en el orden exacto:
 // 1. order_id
 // 2. fecha/hora
-// 3. archivo (hipervínculo cliqueable)
+// 3. archivo (hipervínculo cliqueable; en C10 incluye también enlaces a los 2 PDFs)
 // 4. Detalle
 function createEvidenceCellXml(caseId, info) {
   const relId = `rIdHl_${caseId}`;
 
-  const pOrderId = `<w:p w:rsidR="00000000" w:rsidDel="00000000" w:rsidP="00000000" w:rsidRDefault="00000000" w:rsidRPr="00000000" w14:paraId="${randHex()}">` +
+  const pOrderId =
+    `<w:p w:rsidR="00000000" w:rsidDel="00000000" w:rsidP="00000000" w:rsidRDefault="00000000" w:rsidRPr="00000000" w14:paraId="${randHex()}">` +
     `<w:pPr><w:spacing w:after="40"/><w:rPr/></w:pPr>` +
     `<w:r><w:rPr><w:b w:val="1"/><w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr><w:t xml:space="preserve">order_id: </w:t></w:r>` +
     `<w:r><w:rPr><w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr><w:t xml:space="preserve">${escapeXml(info.order_id)}</w:t></w:r>` +
-  `</w:p>`;
+    `</w:p>`;
 
-  const pFechaHora = `<w:p w:rsidR="00000000" w:rsidDel="00000000" w:rsidP="00000000" w:rsidRDefault="00000000" w:rsidRPr="00000000" w14:paraId="${randHex()}">` +
+  const pFechaHora =
+    `<w:p w:rsidR="00000000" w:rsidDel="00000000" w:rsidP="00000000" w:rsidRDefault="00000000" w:rsidRPr="00000000" w14:paraId="${randHex()}">` +
     `<w:pPr><w:spacing w:after="40"/><w:rPr/></w:pPr>` +
     `<w:r><w:rPr><w:b w:val="1"/><w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr><w:t xml:space="preserve">fecha/hora: </w:t></w:r>` +
     `<w:r><w:rPr><w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr><w:t xml:space="preserve">${escapeXml(info.fecha_hora)}</w:t></w:r>` +
-  `</w:p>`;
+    `</w:p>`;
 
-  const pArchivo = `<w:p w:rsidR="00000000" w:rsidDel="00000000" w:rsidP="00000000" w:rsidRDefault="00000000" w:rsidRPr="00000000" w14:paraId="${randHex()}">` +
+  let archivoLinksXml = createHyperlinkRun(relId, info.archivo);
+  if (caseId === 'C10') {
+    archivoLinksXml +=
+      `<w:r><w:rPr><w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr><w:t xml:space="preserve"> | </w:t></w:r>` +
+      createHyperlinkRun('rIdHl_C10_PDF1', 'casos/C10-boleto.pdf') +
+      `<w:r><w:rPr><w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr><w:t xml:space="preserve"> | </w:t></w:r>` +
+      createHyperlinkRun('rIdHl_C10_PDF2', 'casos/C10-tarjeta-embarque.pdf');
+  }
+
+  const pArchivo =
+    `<w:p w:rsidR="00000000" w:rsidDel="00000000" w:rsidP="00000000" w:rsidRDefault="00000000" w:rsidRPr="00000000" w14:paraId="${randHex()}">` +
     `<w:pPr><w:spacing w:after="40"/><w:rPr/></w:pPr>` +
     `<w:r><w:rPr><w:b w:val="1"/><w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr><w:t xml:space="preserve">archivo: </w:t></w:r>` +
-    `<w:hyperlink r:id="${relId}" w:history="1">` +
-      `<w:r>` +
-        `<w:rPr>` +
-          `<w:rStyle w:val="Hyperlink"/>` +
-          `<w:color w:val="0563C1"/>` +
-          `<w:u w:val="single"/>` +
-          `<w:sz w:val="18"/><w:szCs w:val="18"/>` +
-        `</w:rPr>` +
-        `<w:t xml:space="preserve">${escapeXml(info.archivo)}</w:t>` +
-      `</w:r>` +
-    `</w:hyperlink>` +
-  `</w:p>`;
+    archivoLinksXml +
+    `</w:p>`;
 
-  const pDetalle = `<w:p w:rsidR="00000000" w:rsidDel="00000000" w:rsidP="00000000" w:rsidRDefault="00000000" w:rsidRPr="00000000" w14:paraId="${randHex()}">` +
+  const pDetalle =
+    `<w:p w:rsidR="00000000" w:rsidDel="00000000" w:rsidP="00000000" w:rsidRDefault="00000000" w:rsidRPr="00000000" w14:paraId="${randHex()}">` +
     `<w:pPr><w:rPr/></w:pPr>` +
     `<w:r><w:rPr><w:b w:val="1"/><w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr><w:t xml:space="preserve">Detalle: </w:t></w:r>` +
     `<w:r><w:rPr><w:sz w:val="18"/><w:szCs w:val="18"/></w:rPr><w:t xml:space="preserve">${escapeXml(info.detalle)}</w:t></w:r>` +
-  `</w:p>`;
+    `</w:p>`;
 
   return pOrderId + pFechaHora + pArchivo + pDetalle;
 }
@@ -335,17 +209,19 @@ function replaceCellContent(tcXml, newParagraphsXml) {
 // -------------------------------------------------------------
 // Paso 1: Actualizar document.xml
 // -------------------------------------------------------------
-let xml = fs.readFileSync('acreditacion/document.xml', 'utf8');
+const xml = fs.readFileSync(path.join(__dirname, 'document.xml'), 'utf8');
 
-let updatedXml = xml.replace(/<w:tr[\s>][\s\S]*?<\/w:tr>/g, (rowXml) => {
+const updatedXml = xml.replace(/<w:tr[\s>][\s\S]*?<\/w:tr>/g, (rowXml) => {
   const cells = rowXml.match(/<w:tc[\s>][\s\S]*?<\/w:tc>/g) || [];
   if (cells.length === 0) return rowXml;
 
   const firstCellText = (cells[0].match(/<w:t[\s>][\s\S]*?<\/w:t>/g) || [])
-    .map(t => t.replace(/<[^>]+>/g, '')).join('').trim();
+    .map((t) => t.replace(/<[^>]+>/g, ''))
+    .join('')
+    .trim();
 
-  // 1. Datos del integrador (Se deja vacía a solicitud del usuario para llenado manual)
-  if (cells.length === 2 && generalInfo.hasOwnProperty(firstCellText)) {
+  // 1. Datos del integrador: dejar vacía la celda a solicitud del usuario
+  if (cells.length === 2 && generalInfoKeys.has(firstCellText)) {
     return rowXml;
   }
 
@@ -356,7 +232,7 @@ let updatedXml = xml.replace(/<w:tr[\s>][\s\S]*?<\/w:tr>/g, (rowXml) => {
     const newEvidenciaCell = replaceCellContent(cells[2], newEvidenciaContent);
 
     const res = info.resultado;
-    const color = res === 'OK' ? '1e7e34' : (res.includes('No aplica') ? '6c757d' : 'd9534f');
+    const color = res === 'OK' ? '1e7e34' : res.includes('No aplica') ? '6c757d' : 'd9534f';
     const newResultadoCell = replaceCellContent(cells[3], createParagraph(res, color, true));
 
     let updatedRow = rowXml.replace(cells[2], newEvidenciaCell);
@@ -367,7 +243,7 @@ let updatedXml = xml.replace(/<w:tr[\s>][\s\S]*?<\/w:tr>/g, (rowXml) => {
 
   // 3. Caso Checklist (3 celdas: Punto, Sí/No, Comentario)
   if (cells.length === 3) {
-    const matchedItem = checklistAnswers.find(item => firstCellText.startsWith(item.prefix));
+    const matchedItem = checklistAnswers.find((item) => firstCellText.startsWith(item.prefix));
     if (matchedItem) {
       const newSiNoCell = replaceCellContent(cells[1], createParagraph(matchedItem.siNo, '1e7e34', true));
       let updatedRow = rowXml.replace(cells[1], newSiNoCell);
@@ -378,7 +254,7 @@ let updatedXml = xml.replace(/<w:tr[\s>][\s\S]*?<\/w:tr>/g, (rowXml) => {
     }
   }
 
-  // 4. Firmas al final (Se dejan originales para firma manual)
+  // 4. Firmas al final: se dejan originales para firma manual
   if (cells.length === 2 && (firstCellText === 'Nombre:' || firstCellText === 'Fecha:')) {
     return rowXml;
   }
@@ -386,31 +262,36 @@ let updatedXml = xml.replace(/<w:tr[\s>][\s\S]*?<\/w:tr>/g, (rowXml) => {
   return rowXml;
 });
 
-fs.writeFileSync('acreditacion/document_modified.xml', updatedXml, 'utf8');
+fs.writeFileSync(path.join(__dirname, 'document_modified.xml'), updatedXml, 'utf8');
 console.log('document_modified.xml generado. Size:', updatedXml.length);
 
 // -------------------------------------------------------------
 // Paso 2: Actualizar styles.xml (Hyperlink style)
 // -------------------------------------------------------------
-let stylesXml = fs.readFileSync('acreditacion/styles.xml', 'utf8');
+let stylesXml = fs.readFileSync(path.join(__dirname, 'styles.xml'), 'utf8');
 if (!stylesXml.includes('styleId="Hyperlink"')) {
   const hyperlinkStyle = `<w:style w:type="character" w:styleId="Hyperlink"><w:name w:val="Hyperlink"/><w:basedOn w:val="DefaultParagraphFont"/><w:uiPriority w:val="99"/><w:unhideWhenUsed/><w:rPr><w:color w:val="0563C1" w:themeColor="hyperlink"/><w:u w:val="single"/></w:rPr></w:style>`;
   stylesXml = stylesXml.replace('</w:styles>', `${hyperlinkStyle}</w:styles>`);
 }
-fs.writeFileSync('acreditacion/styles_modified.xml', stylesXml, 'utf8');
-console.log('styles_modified.xml generado.');
+fs.writeFileSync(path.join(__dirname, 'styles_modified.xml'), stylesXml, 'utf8');
 
 // -------------------------------------------------------------
-// Paso 3: Actualizar document.xml.rels con todos los enlaces
+// Paso 3: Actualizar document.xml.rels con enlaces JSON y PDFs
 // -------------------------------------------------------------
-let relsXml = fs.readFileSync('acreditacion/document.xml.rels', 'utf8');
+let relsXml = fs.readFileSync(path.join(__dirname, 'document.xml.rels'), 'utf8');
 let relsToAdd = '';
-Object.keys(caseEvidenceDetails).forEach(id => {
+Object.keys(caseEvidenceDetails).forEach((id) => {
   const relId = `rIdHl_${id}`;
   if (!relsXml.includes(relId)) {
     relsToAdd += `<Relationship Id="${relId}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="casos/${id}.json" TargetMode="External"/>`;
   }
 });
+if (!relsXml.includes('rIdHl_C10_PDF1')) {
+  relsToAdd += `<Relationship Id="rIdHl_C10_PDF1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="casos/C10-boleto.pdf" TargetMode="External"/>`;
+}
+if (!relsXml.includes('rIdHl_C10_PDF2')) {
+  relsToAdd += `<Relationship Id="rIdHl_C10_PDF2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink" Target="casos/C10-tarjeta-embarque.pdf" TargetMode="External"/>`;
+}
 relsXml = relsXml.replace('</Relationships>', `${relsToAdd}</Relationships>`);
-fs.writeFileSync('acreditacion/document.xml.rels.modified', relsXml, 'utf8');
-console.log('document.xml.rels.modified generado con', Object.keys(caseEvidenceDetails).length, 'enlaces.');
+fs.writeFileSync(path.join(__dirname, 'document.xml.rels.modified'), relsXml, 'utf8');
+console.log('document.xml.rels.modified generado con enlaces a 24 JSONs y 2 PDFs de C10.');

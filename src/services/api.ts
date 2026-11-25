@@ -138,7 +138,8 @@ export function updateSavedTicket(ticketIdentifier: string, patch: Partial<Issue
  */
 export async function apiFetch<T>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
+  rateLimitRetried: boolean = false
 ): Promise<{ data: T; status: number }> {
   const config = getApiConfig();
   const startTime = performance.now();
@@ -196,9 +197,19 @@ export async function apiFetch<T>(
       isMockFallback: false,
     });
 
+    // Manejo de Rate Limit (429 RATE_LIMITED): esperar y reintentar 1 vez sin bucle infinito
+    if (status === 429 && !rateLimitRetried) {
+      const retryAfterHeader = res.headers.get("retry-after");
+      const waitMs = retryAfterHeader ? Number(retryAfterHeader) * 1000 : 3000;
+      console.warn(`[RATE_LIMITED 429] Esperando ${waitMs}ms antes de reintento único...`);
+      await new Promise((resolve) => setTimeout(resolve, waitMs));
+      return apiFetch<T>(endpoint, options, true);
+    }
+
     if (!res.ok) {
       const detailsMsg = responseBody?.response?.details || responseBody?.details;
       const mainMsg = responseBody?.response?.message || responseBody?.message;
+      const errorKey = responseBody?.response?.error_key || responseBody?.error_key;
       const errMsg =
         detailsMsg && mainMsg && typeof detailsMsg === "string" && !detailsMsg.startsWith("{")
           ? `${mainMsg} (${detailsMsg})`
@@ -206,6 +217,7 @@ export async function apiFetch<T>(
 
       const err = new Error(errMsg);
       (err as any).status = status;
+      (err as any).error_key = errorKey;
       (err as any).response = responseBody;
       throw err;
     }
@@ -722,18 +734,39 @@ export async function notifyPayment(payload: {
   paid_currency?: string;
   payment_method?: string;
 }): Promise<any> {
-  const res = await apiFetch<any>("/buses/payment/notification", {
-    method: "POST",
-    body: JSON.stringify({
-      status: payload.status,
-      merchant_order_id: payload.merchant_order_id,
-      order_id: payload.order_id,
-      paid_amount: payload.paid_amount,
-      paid_currency: payload.paid_currency || "CLP",
-      payment_method: payload.payment_method || "SIMULACION",
-    }),
-  });
-  return res.data;
+  const maxRetries = 3;
+  const backoffDelays = [2000, 4000, 8000];
+  let lastError: any = null;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const res = await apiFetch<any>("/buses/payment/notification", {
+        method: "POST",
+        body: JSON.stringify({
+          status: payload.status,
+          merchant_order_id: payload.merchant_order_id,
+          order_id: payload.order_id,
+          paid_amount: payload.paid_amount,
+          paid_currency: payload.paid_currency || "CLP",
+          payment_method: payload.payment_method || "SIMULACION",
+        }),
+      });
+      return res.data;
+    } catch (err: any) {
+      lastError = err;
+      const isRetryable = !err.status || err.status >= 500 || err.status === 408 || err.status === 429;
+      if (!isRetryable || attempt === maxRetries) {
+        throw err;
+      }
+      const delayMs = backoffDelays[attempt - 1] || 8000;
+      console.warn(
+        `[notifyPayment] Intento ${attempt}/${maxRetries} falló (status=${err.status || "TIMEOUT"}). Reintentando en ${delayMs}ms...`
+      );
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+
+  throw lastError;
 }
 
 // =============================================================
@@ -841,11 +874,20 @@ export async function confirmReservation(payload: {
   const buyerLastName = buyer.last_name || buyerNameParts.slice(1).join(" ") || "Cliente";
 
   // 1. POST /buses/update-reserve en el GDS
+  // CRÍTICO: stops y downs deben usar exactamente el name entregado por seat-map en stops.subida y stops.bajada
   const updateReservesPayload = meta.passengers.map((p, idx) => {
     const tkt = meta.tickets[idx] || meta.tickets[0];
     const pNameParts = (p.name || "").trim().split(" ");
     const pFirst = p.first_name || pNameParts[0] || buyerFirstName;
     const pLast = p.last_name || pNameParts.slice(1).join(" ") || buyerLastName;
+    const exactStopSubida = p.stops || tkt?.stops;
+    const exactStopBajada = p.downs || tkt?.downs;
+
+    if (!exactStopSubida || !exactStopBajada) {
+      throw new Error(
+        "No se recibieron las paradas exactas (stops.subida / stops.bajada) del mapa de asientos. Operación abortada antes del cobro."
+      );
+    }
 
     return {
       ticket_id: tkt?.ticket_id || meta.order_id,
@@ -857,14 +899,15 @@ export async function confirmReservation(payload: {
       birth_date: p.birth_date || "1995-01-01",
       cod_phone: "+56",
       phone: buyer.phone.replace(/[^0-9]/g, ""),
-      stops: p.stops || tkt?.stops || meta.service.origin_terminal,
-      downs: p.downs || tkt?.downs || meta.service.destination_terminal,
+      stops: exactStopSubida,
+      downs: exactStopBajada,
     };
   });
 
   const cleanPhone = buyer.phone.replace(/[^0-9]/g, "");
 
-  await updateReserve({
+  // Si update-reserve falla (ej. HTTP 400 o success: false), lanza excepción y NUNCA se cobra ni se envía payment/notification
+  const updateRes = await updateReserve({
     client: {
       order_id: meta.order_id,
       session_id: meta.session,
@@ -879,7 +922,13 @@ export async function confirmReservation(payload: {
     frecuent_client_code: 0,
   });
 
-  // 2. POST /buses/payment/notification en el GDS
+  if (updateRes && updateRes.success === false) {
+    throw new Error(
+      updateRes.message || "Error al registrar datos de pasajeros en update-reserve. No se realizó ningún cargo."
+    );
+  }
+
+  // 2. POST /buses/payment/notification en el GDS (solo se ejecuta si update-reserve respondió con éxito)
   await notifyPayment({
     status: "paid",
     merchant_order_id: meta.order_id,

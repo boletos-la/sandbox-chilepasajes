@@ -1,13 +1,15 @@
 {
   "test_id": "E03",
-  "title": "Asiento ya tomado en reserve",
-  "executed_at": "2026-11-23T20:34:38.891Z",
+  "title": "Asiento ya tomado o reserva rechazada en reserve",
+  "executed_at": "2026-11-25T19:37:16.874Z",
+  "seat_attempted": 32,
+  "already_taken_in_order": "bc6a32b8-03b1-49aa-8f02-18df0a4b50e5",
   "request": {
-    "session": "4f718ed4-14a8-4fe8-8fe7-d50bd42eecff",
+    "session": "894b0f8a-d2b5-4574-8be8-15a218f332ff",
     "complement": "pasajes",
     "device": "P",
     "reserves": [
-      "eyJpdiI6IkUrQlhyQTlDK3NyMExWN0tmam5mSlE9PSIsInZhbHVlIjoiK2d4TzV5d3JoV3lMUkM0M0xIdGtCYXoyZ2d0YUpKR0pIcytSRDJSM3dLcjhqUzJHM0dVV3Y3TlRIZUtXcHgrTWdQR3pPYk1Mb3UvRjljOFpWS2lPbSt3MmVDLzhPRndNTWVFcVBVUmxYbHhON0U1QnNiZ2pvVlA3cW9iVEVsUXFmSUJKcG9YMXpHVU5LNnVVZnkzZ1FZTVJTNHJTV0tDdHBuRzNsRHNmVmNEcWdHeUNrOGIrNUo5Z0ZoenE2K3l2SkkwTGZHVkV3SEtJaWxtZzFobFhyRTNsSGpaZU92S2dEQkZUY0d6OFh0VUtQa0RWbEpUeDVpYnQxVzFxS0pSeFRjVDUvTkdxRDRsY3hUTWo3eVBNTWl2TzMxTEkxTDdjQjhnUTZtYy9CVDhtbk5rQXJvRDJCb1JXbEtpTjh6R3g5K2RwTkl1YXM5SVRGZUZsNXlxaEhtNUl4SFZoTzU1aHFpYk1hdmdoMXNFK1pRU0NPSUdIMThxanBWWmFZTmV2U1lXa3RrSGpvL1JsOXFjVE9tWWZ1T0VidXVYa0wwSWNDbWNXUThvY1M2cFlSRjNUdHVzRk5Od0VVM3JqVHcwVTdvMnJTcGlYajlEWGV6V2pFNDU4RnRreEVYVHF2dDNqUE9hbU9iRlNyZzIyTEtSSnVsM2s0WFNObm9wOWc3RTZRbUw1NVhEYzZNd2NmZUhxMnBHaVpnYWFORTBGZ1J4TnFmcU15bmRxVVBMVlArM1VsNU54Mmhhekh2T1RETlhqcEJmRXJkUGxweENjTGVwZTB4YkZDSWJDM1EyYk8xNllQWEdFR2lSMWgvT2hMN0hwMEZ2TjF0a29qQTRtSkx6ZmdUWjRvaTlhbE4va3Q1OWxlS0pKRE1tb1BuM2Uvb1RRNVAxa3ZRWmhvWjFldy9ieXFqdWdMcUVBeGo5cHRIWW1oVk9jaDJONHpzaWh4ZERtRVZua3hFNFZrVExiZlF5SjIwdHErNDVqcnRiQTkzNXVFZXllU0RhRHlTT2xRQktDVTRUYVkxQVJ3ci9sYTdiTVJxQkZRZz09IiwibWFjIjoiZmZhYTAxOTAxYmNjMTdkNzBmY2M1OGI0MDcwMGQ3NDU0N2U0ZGUxZDliMTc1ZTgyYzAwYzk4NGNhZGIyZTM2ZiIsInRhZyI6IiJ9"
+      "eyJpdiI6Im9jRk80Mm9PZThQUllpdFg5ZmFrTFE9PSIsInZhbHVlIjoickU2d1d4TmxSRkdBaHZYWk9UV3djSENQY2RwVm8wUXAwczg0SFRaMkVvbExraUM0d3Nxa3FhM1NMWGNvamhaeEswY2xzM1VMa1BoYmtES3diUk0rem82amtqUlQ0OEJ2OHBPM2RRMm5xSmsvY0FWVVkrbjd6UmdtSWJndytZajY2bEV4WXlCWFQzTmhCc3VJSWdSQkxycW5tMFJ6OGxTOGRZU2dBdzhSbktoT1A5TjVqOVdrN1BwMEFTSWxZYzU1dTVhNFFoVDBnZlFSclRXNjlFZHNqWDkrZTM0clhCbVBvMDdWaFR5Nm00Y29SQ2RVREt4ZmdjN3puWkVXU1pDR1FmaDhJYlpOUmdVUC8rSlFpNkhyT0VvS2tzc1ZnRWppckFQckFlQzZvUzR6eHFheVo0Si9HQ05EaVNiWkhZZE8yUXdQM1BnRkxNOStqdnZGNnRCNFR1d1NoUnQvcjR0SnhpRXBGbXpmUlp4cUQ1SVVuZGhFYXh6K1pHUEJYVDNRR1RQMjJzSXlIL3FzdEdYVytRNWdhN1VQekgwNERZUWhXbVpiREFLdnpLUG5CdnJ5aG9IVTV0Ri9LTnVhbHA2OFErdFJLU0tEOFJOSEtMbGlha3NFV0E9PSIsIm1hYyI6ImYxNWIzM2RmNjg1MmEyM2ZjYWMzNzUzYjFhZDNhMjFiNGZjYTljNzVlZTc0MTA1OGNkODVkNWI2MWY4MGNlOTEiLCJ0YWciOiIifQ=="
     ]
   },
   "response": {
@@ -21,5 +23,16 @@
         "error_key": "SEAT_TAKEN"
       }
     }
-  }
+  },
+  "integrator_logs": [
+    {
+      "timestamp": "2026-11-25T19:37:16.874Z",
+      "level": "WARN",
+      "event": "SEAT_ALREADY_TAKEN_400",
+      "seat": 32,
+      "http_status": 400,
+      "gds_message": "El asiento 32 ya se encuentra reservado, pruebe con otros asientos",
+      "action": "Se notifica al comprador y se invoca POST /buses/seat-map para refrescar la disponibilidad de asientos."
+    }
+  ]
 }

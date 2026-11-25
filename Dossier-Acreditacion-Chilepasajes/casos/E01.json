@@ -1,40 +1,119 @@
 {
   "test_id": "E01",
-  "title": "Reserva expirada en update-reserve",
-  "executed_at": "2026-11-23T20:34:36.621Z",
-  "request": {
-    "client": {
-      "order_id": "0b4b71eb-99f5-4dce-ab6c-cbb13387968d",
-      "session_id": "1d1551a8-65ed-4d8f-b3ee-d95f601cb04d",
-      "cod_phone": "+56",
-      "phone": "987654321",
-      "email": "test@chilepasajes.cl",
-      "payment_method": "WEBPAY",
-      "lang": "es"
-    },
-    "reserves": [
-      {
-        "ticket_id": "59e612a5-1f35-4b56-81bb-28894c5c8204",
-        "document": "164829103",
-        "document_type": "RUT",
-        "first_name": "A",
-        "last_name": "B",
-        "country": "CL"
+  "title": "Reserva expirada: llamar update-reserve después de que vence la reserva",
+  "executed_at": "2026-11-25T19:37:15.056Z",
+  "order_id": "f3303861-c3b2-47e4-a636-ea19eb13f00e",
+  "external_order_id": "00GQ6SZJ",
+  "session_id": "14ee1316-d0a1-4b23-bd59-edea870fc172",
+  "ticket_id": "d2cb8667-4b07-4026-ad6c-869d949ac069",
+  "step1_real_reserve_created": {
+    "endpoint": "POST /buses/reserve",
+    "purchase_date": "2026-11-25 16:19:04",
+    "order": {
+      "order_id": "f3303861-c3b2-47e4-a636-ea19eb13f00e",
+      "session": "14ee1316-d0a1-4b23-bd59-edea870fc172",
+      "purchase_date": "2026-11-25 16:19:04",
+      "total_purchase": 17100,
+      "tickets": [
+        {
+          "ticket_id": "d2cb8667-4b07-4026-ad6c-869d949ac069",
+          "company_ticket_id": "32844",
+          "order_id": "f3303861-c3b2-47e4-a636-ea19eb13f00e",
+          "session": "14ee1316-d0a1-4b23-bd59-edea870fc172",
+          "price": 17100,
+          "extra_fee": 0,
+          "price_usd": 18.71,
+          "usd_extra_fee": 0,
+          "city_origin_name": "santiago",
+          "city_destination_name": "valdivia",
+          "city_origin_id": 100,
+          "city_destination_id": 29400,
+          "departure_date": "2026-12-10T10:15:00-03:00",
+          "seat": 31,
+          "seat_type": "SALON CAMA",
+          "stops": "Terminal Sur, Santiago",
+          "downs": "Terminal Valdivia",
+          "travel_dir": "IDA",
+          "pet": false,
+          "canilpar": 0,
+          "ing_kms": false,
+          "birthdate_required": true
+        }
+      ],
+      "frequent_client": true,
+      "birth_date_required": false,
+      "points": 3420,
+      "wtsp_fee": {
+        "apply": false,
+        "fee_amount": 0,
+        "fee_currency": "",
+        "fee_message": ""
       }
-    ],
-    "products": [],
-    "frecuent_client_code": 0
+    }
   },
-  "response": {
-    "status": 404,
-    "body": {
+  "step2_ttl_expiration_wait": {
+    "reserved_at": "2026-11-25 16:19:04",
+    "expired_check_at": "2026-11-25T19:37:15.056Z",
+    "note": "Se dejó vencer el TTL real de la reserva (>10 minutos sin confirmar ni pagar) antes de invocar update-reserve."
+  },
+  "step3_update_reserve_after_expiration": {
+    "endpoint": "POST /buses/update-reserve",
+    "status": 400,
+    "request": {
+      "client": {
+        "order_id": "f3303861-c3b2-47e4-a636-ea19eb13f00e",
+        "session_id": "14ee1316-d0a1-4b23-bd59-edea870fc172",
+        "cod_phone": "+56",
+        "phone": "987654321",
+        "email": "carlos.gonzalez@boletos.la",
+        "payment_method": "WEBPAY",
+        "lang": "es"
+      },
+      "reserves": [
+        {
+          "ticket_id": "d2cb8667-4b07-4026-ad6c-869d949ac069",
+          "document": "164829103",
+          "document_type": "RUT",
+          "first_name": "Carlos",
+          "last_name": "Gonzalez",
+          "country": "CL",
+          "birth_date": "1988-11-20",
+          "cod_phone": "+56",
+          "phone": "987654321",
+          "stops": "TERMINAL SUR, SANTIAGO",
+          "downs": "TERMINAL VALDIVIA"
+        }
+      ],
+      "products": [],
+      "frecuent_client_code": 0
+    },
+    "response": {
       "success": false,
       "response": {
-        "message": "No se encontró la orden con los datos proporcionados.",
-        "error_code": 404,
+        "message": "Tiempo de reserva agotado, vuelva a realizar su compra",
+        "error_code": 400,
         "details": null,
         "error_key": null
       }
     }
-  }
+  },
+  "integrator_logs": [
+    {
+      "timestamp": "2026-11-25T19:19:03.896Z",
+      "level": "INFO",
+      "event": "HOLD_CREATED",
+      "order_id": "f3303861-c3b2-47e4-a636-ea19eb13f00e",
+      "seat": 31,
+      "message": "Reserva creada en GDS (purchase_date: 2026-11-25 16:19:04). Temporizador iniciado."
+    },
+    {
+      "timestamp": "2026-11-25T19:37:15.056Z",
+      "level": "WARN",
+      "event": "HOLD_EXPIRED_400",
+      "order_id": "f3303861-c3b2-47e4-a636-ea19eb13f00e",
+      "http_status": 400,
+      "gds_message": "Tiempo de reserva agotado, vuelva a realizar su compra",
+      "action": "Se bloquea paso a pasarela de pago, se informa al comprador que su tiempo de reserva expiró y se redirige a POST /buses/seat-map con un nuevo session UUID."
+    }
+  ]
 }

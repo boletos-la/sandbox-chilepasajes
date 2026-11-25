@@ -1,0 +1,47 @@
+{
+  "created_at": "2026-11-25T19:19:03.896Z",
+  "session": "14ee1316-d0a1-4b23-bd59-edea870fc172",
+  "stopsSubida": "TERMINAL SUR, SANTIAGO",
+  "stopsBajada": "TERMINAL VALDIVIA",
+  "order": {
+    "order_id": "f3303861-c3b2-47e4-a636-ea19eb13f00e",
+    "session": "14ee1316-d0a1-4b23-bd59-edea870fc172",
+    "purchase_date": "2026-11-25 16:19:04",
+    "total_purchase": 17100,
+    "tickets": [
+      {
+        "ticket_id": "d2cb8667-4b07-4026-ad6c-869d949ac069",
+        "company_ticket_id": "32844",
+        "order_id": "f3303861-c3b2-47e4-a636-ea19eb13f00e",
+        "session": "14ee1316-d0a1-4b23-bd59-edea870fc172",
+        "price": 17100,
+        "extra_fee": 0,
+        "price_usd": 18.71,
+        "usd_extra_fee": 0,
+        "city_origin_name": "santiago",
+        "city_destination_name": "valdivia",
+        "city_origin_id": 100,
+        "city_destination_id": 29400,
+        "departure_date": "2026-12-10T10:15:00-03:00",
+        "seat": 31,
+        "seat_type": "SALON CAMA",
+        "stops": "Terminal Sur, Santiago",
+        "downs": "Terminal Valdivia",
+        "travel_dir": "IDA",
+        "pet": false,
+        "canilpar": 0,
+        "ing_kms": false,
+        "birthdate_required": true
+      }
+    ],
+    "frequent_client": true,
+    "birth_date_required": false,
+    "points": 3420,
+    "wtsp_fee": {
+      "apply": false,
+      "fee_amount": 0,
+      "fee_currency": "",
+      "fee_message": ""
+    }
+  }
+}

@@ -1,11 +1,225 @@
 {
   "test_id": "E06",
-  "title": "Notificación con timeout o error 5xx de Chilepasajes",
-  "executed_at": "2026-11-23T20:34:39.660Z",
-  "policy": {
-    "max_retries": 3,
-    "backoff": "exponential (2s, 4s, 8s)",
-    "logging": "Structured audit log with merchant_order_id, response code and timestamp",
-    "alerting": "Slack / Sentry notification on permanent exhaustion"
+  "title": "Notificación con timeout o error 5xx de Chilepasajes (Reintentos con Backoff Exponencial)",
+  "executed_at": "2026-11-25T19:37:30.056Z",
+  "order_id": "d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee",
+  "external_order_id": "000A2JCN",
+  "ticket_id": "007PGQ8T",
+  "retry_policy": {
+    "max_attempts": 3,
+    "backoff_strategy": "exponential (2000ms, 4000ms, 8000ms)",
+    "retry_conditions": "Network Timeout (ETIMEDOUT), HTTP 408, HTTP 429, HTTP 5xx (500, 502, 503, 504)"
+  },
+  "steps": {
+    "step1_reserve": {
+      "status": 200,
+      "response": {
+        "success": true,
+        "response": {
+          "order": {
+            "order_id": "d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee",
+            "session": "c61fe9dc-9661-41d3-bb33-edf4a4b236d2",
+            "purchase_date": "2026-11-25 16:37:20",
+            "total_purchase": 17100,
+            "tickets": [
+              {
+                "ticket_id": "b4e86646-aac6-4370-8699-61be9f87a306",
+                "company_ticket_id": "32858",
+                "order_id": "d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee",
+                "session": "c61fe9dc-9661-41d3-bb33-edf4a4b236d2",
+                "price": 17100,
+                "extra_fee": 0,
+                "price_usd": 18.71,
+                "usd_extra_fee": 0,
+                "city_origin_name": "santiago",
+                "city_destination_name": "valdivia",
+                "city_origin_id": 100,
+                "city_destination_id": 29400,
+                "departure_date": "2026-12-10T10:15:00-03:00",
+                "seat": 38,
+                "seat_type": "SALON CAMA",
+                "stops": "Terminal Sur, Santiago",
+                "downs": "Terminal Valdivia",
+                "travel_dir": "IDA",
+                "pet": false,
+                "canilpar": 0,
+                "ing_kms": false,
+                "birthdate_required": true
+              }
+            ],
+            "frequent_client": true,
+            "birth_date_required": false,
+            "points": 3420,
+            "wtsp_fee": {
+              "apply": false,
+              "fee_amount": 0,
+              "fee_currency": "",
+              "fee_message": ""
+            }
+          }
+        }
+      }
+    },
+    "step2_update_reserve": {
+      "status": 200,
+      "request": {
+        "client": {
+          "order_id": "d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee",
+          "session_id": "c61fe9dc-9661-41d3-bb33-edf4a4b236d2",
+          "cod_phone": "+56",
+          "phone": "954321098",
+          "email": "camila.vega@boletos.la",
+          "payment_method": "WEBPAY",
+          "lang": "es"
+        },
+        "reserves": [
+          {
+            "ticket_id": "b4e86646-aac6-4370-8699-61be9f87a306",
+            "document": "193847561",
+            "document_type": "RUT",
+            "first_name": "Camila",
+            "last_name": "Vega",
+            "country": "CL",
+            "birth_date": "1993-02-10",
+            "cod_phone": "+56",
+            "phone": "954321098",
+            "stops": "TERMINAL SUR, SANTIAGO",
+            "downs": "TERMINAL VALDIVIA"
+          }
+        ],
+        "products": [],
+        "frecuent_client_code": 0
+      },
+      "response": {
+        "success": true,
+        "response": {
+          "idpago": "d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee",
+          "session": "c61fe9dc-9661-41d3-bb33-edf4a4b236d2",
+          "monto": 17100,
+          "puntos": 3420,
+          "payment_method": "WEBPAY",
+          "is_paid_by_coupon": false,
+          "is_paid_by_commercial_credit": false,
+          "external_cab_id": "000A2JCN"
+        }
+      }
+    },
+    "step3_payment_notification_attempts": [
+      {
+        "attempt": 1,
+        "timestamp": "2026-11-25T19:37:21.361Z",
+        "durationMs": 24,
+        "http_status": 503,
+        "outcome": "RETRY_SCHEDULED",
+        "backoff_wait_ms": 2000,
+        "response": {
+          "success": false,
+          "response": {
+            "message": "Service Unavailable - Temporary upstream timeout",
+            "error_code": 503,
+            "details": "GATEWAY_TIMEOUT",
+            "error_key": null
+          }
+        },
+        "log_message": "[RETRY_WORKER] Intento 1/3 falló con HTTP 503 (Service Unavailable - Temporary upstream timeout). Aplicando backoff exponencial: esperando 2000ms antes del intento 2..."
+      },
+      {
+        "attempt": 2,
+        "timestamp": "2026-11-25T19:37:23.400Z",
+        "durationMs": 9,
+        "http_status": 502,
+        "outcome": "RETRY_SCHEDULED",
+        "backoff_wait_ms": 4000,
+        "response": {
+          "success": false,
+          "response": {
+            "message": "Bad Gateway - Upstream error",
+            "error_code": 502,
+            "details": "UPSTREAM_502",
+            "error_key": null
+          }
+        },
+        "log_message": "[RETRY_WORKER] Intento 2/3 falló con HTTP 502 (Bad Gateway - Upstream error). Aplicando backoff exponencial: esperando 4000ms antes del intento 3..."
+      },
+      {
+        "attempt": 3,
+        "timestamp": "2026-11-25T19:37:27.418Z",
+        "durationMs": 337,
+        "http_status": 200,
+        "outcome": "SUCCESS",
+        "response": {
+          "success": true,
+          "response": {
+            "message": "Notificación procesada correctamente"
+          }
+        },
+        "log_message": "[RETRY_WORKER] Intento 3/3 exitoso (HTTP 200). Notificación de pago confirmada en Chilepasajes QA para orden d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee."
+      }
+    ],
+    "step4_payment_status": {
+      "status": 200,
+      "response": {
+        "success": true,
+        "response": {
+          "order_id": "d737ac5c-4c2e-4b29-bf2c-ddb8fe9c54ee",
+          "external_order_id": "000A2JCN",
+          "is_paid": true,
+          "is_confirmed": true,
+          "should_poll": true
+        }
+      }
+    },
+    "step5_success": {
+      "status": 200,
+      "response": {
+        "success": true,
+        "response": {
+          "order_id": "000A2JCN",
+          "tickets": [
+            {
+              "ticket_id": "007PGQ8T",
+              "company_name": "Empresa de Pruebas",
+              "payment_method": "WEBPAY",
+              "order_id": "000A2JCN",
+              "price": 17100,
+              "currency": "CLP",
+              "price_usd": 18.71,
+              "departure_city": "Santiago",
+              "destination_city": "Valdivia",
+              "seat": 38,
+              "carriage": null,
+              "departure_date": "2026-12-10T10:15:00-03:00",
+              "departure_date_control": "2026-12-10T10:15:00-03:00",
+              "arrives_date": "2026-12-10T22:05:00-03:00",
+              "seat_type": "SALON CAMA",
+              "stops": "TERMINAL SUR, SANTIAGO",
+              "downs": "TERMINAL VALDIVIA",
+              "company_type": "BUS",
+              "cancelable": true,
+              "cancel_message": "",
+              "cancel_deadline": "2026-12-10T06:15:00-03:00",
+              "changeable": false,
+              "change_stop": false,
+              "pet": 0
+            }
+          ],
+          "products": [],
+          "points": 3420,
+          "amount": "$ 17.100",
+          "amount_value": 17100,
+          "currency": "CLP",
+          "tax": "$ 0",
+          "email": "camila.vega@boletos.la",
+          "method": "WEBPAY",
+          "complement": "pasajes",
+          "payment_status": "PAGADO",
+          "url": "https://www.booking.com/searchresults.es.html?dest_id=-903932&no_rooms=1&group_adults=1&ss=Valdivia",
+          "show_booking": true,
+          "surplus_until_date": null,
+          "surplus_coupon": null,
+          "surplus_amount": null
+        }
+      }
+    }
   }
 }
