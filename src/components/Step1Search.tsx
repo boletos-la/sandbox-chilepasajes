@@ -601,7 +601,7 @@ export const Step1Search: React.FC<Step1SearchProps> = ({ onSelectService }) => 
             </div>
           ) : (
             <div className="space-y-3">
-              {filteredServices.map((service) => {
+              {filteredServices.map((service, srvIdx) => {
                 const depTime =
                   service.departs_at_hour ||
                   (service.departure_time.includes("T")
@@ -615,7 +615,7 @@ export const Step1Search: React.FC<Step1SearchProps> = ({ onSelectService }) => 
 
                 return (
                   <div
-                    key={service.service_id}
+                    key={`${service.service_id}-${service.token ? service.token.slice(-10) : srvIdx}`}
                     className="bg-white rounded-2xl border border-slate-200 p-5 hover:border-[#ff6700]/50 hover:shadow-md transition-all group"
                   >
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
@@ -685,9 +685,9 @@ export const Step1Search: React.FC<Step1SearchProps> = ({ onSelectService }) => 
                         {/* Amenities */}
                         {service.amenities.length > 0 && (
                           <div className="flex items-center gap-2 text-xs text-slate-500 pt-1 flex-wrap">
-                            {service.amenities.map((am) => (
+                            {service.amenities.map((am, amIdx) => (
                               <span
-                                key={am}
+                                key={`${service.service_id}-am-${am}-${amIdx}`}
                                 className="flex items-center gap-1 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 text-[11px]"
                               >
                                 {amenityIcons[am] || <Bus className="w-3 h-3" />}
@@ -702,9 +702,9 @@ export const Step1Search: React.FC<Step1SearchProps> = ({ onSelectService }) => 
                       <div className="lg:border-l lg:border-slate-100 lg:pl-6 flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-4 shrink-0">
                         {/* Classes pills */}
                         <div className="flex flex-wrap lg:flex-col gap-2">
-                          {service.seat_classes.map((cls) => (
+                          {service.seat_classes.map((cls, clsIdx) => (
                             <div
-                              key={cls.type}
+                              key={`${cls.type}-${clsIdx}`}
                               className="text-left lg:text-right bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5"
                             >
                               <div className="flex items-center lg:justify-end gap-1.5">

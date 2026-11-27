@@ -495,8 +495,16 @@ export function mapGdsServiceToBusService(
       },
     ],
     amenities: Array.isArray(srv.amenities)
-      ? srv.amenities.map((a: any) =>
-          typeof a === "string" ? a : a.name || a.title || "Servicio"
+      ? Array.from(
+          new Set(
+            srv.amenities
+              .map((a: any) =>
+                typeof a === "string"
+                  ? a
+                  : a.label || a.name || a.title || a.key || ""
+              )
+              .filter(Boolean)
+          )
         )
       : [],
     token: srv.token,

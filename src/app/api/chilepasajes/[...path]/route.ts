@@ -2,27 +2,55 @@ import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-const BASE_URL = (
-  process.env.CHILEPASAJES_BASE_URL ||
-  process.env.NEXT_PUBLIC_CHILEPASAJES_BASE_URL ||
-  ""
-).replace(/\/+$/, "");
+function getResolvedConfig() {
+  const env = (
+    process.env.CHILEPASAJES_ENV ||
+    process.env.NEXT_PUBLIC_CHILEPASAJES_ENV ||
+    "prod"
+  ).toLowerCase();
 
-const API_KEY = (
-  process.env.CHILEPASAJES_API_KEY ||
-  process.env.NEXT_PUBLIC_CHILEPASAJES_API_KEY ||
-  ""
-).trim();
+  let baseUrl = "";
+  let apiKey = "";
+
+  if (env === "prod" || env === "production") {
+    baseUrl =
+      process.env.CHILEPASAJES_PROD_BASE_URL ||
+      process.env.CHILEPASAJES_BASE_URL ||
+      process.env.NEXT_PUBLIC_CHILEPASAJES_BASE_URL ||
+      "https://back-prod.enbus.cl/api/v1";
+    apiKey =
+      process.env.CHILEPASAJES_PROD_API_KEY ||
+      process.env.CHILEPASAJES_API_KEY ||
+      "";
+  } else {
+    baseUrl =
+      process.env.CHILEPASAJES_DEV_BASE_URL ||
+      process.env.CHILEPASAJES_BASE_URL ||
+      process.env.NEXT_PUBLIC_CHILEPASAJES_BASE_URL ||
+      "https://back-qas.enbus.cl/api/v1";
+    apiKey =
+      process.env.CHILEPASAJES_DEV_API_KEY ||
+      process.env.CHILEPASAJES_API_KEY ||
+      "";
+  }
+
+  return {
+    baseUrl: baseUrl.replace(/\/+$/, ""),
+    apiKey: apiKey.trim(),
+  };
+}
 
 async function handleProxy(
   req: NextRequest,
   context: { params: Promise<{ path: string[] }> }
 ) {
-  if (!BASE_URL || !API_KEY) {
+  const { baseUrl, apiKey } = getResolvedConfig();
+
+  if (!baseUrl || !apiKey) {
     return NextResponse.json(
       {
         error: "Configuración incompleta",
-        message: "Las variables de entorno CHILEPASAJES_BASE_URL y CHILEPASAJES_API_KEY son obligatorias y no están definidas.",
+        message: "Las variables de entorno de Chilepasajes para este entorno no están definidas.",
       },
       { status: 500 }
     );
@@ -32,7 +60,7 @@ async function handleProxy(
   const pathStr = Array.isArray(path) ? path.join("/") : "";
   const urlObj = new URL(req.url);
   const search = urlObj.search || "";
-  const targetUrl = `${BASE_URL}/${pathStr}${search}`;
+  const targetUrl = `${baseUrl}/${pathStr}${search}`;
 
   const forwardHeaders: Record<string, string> = {
     Accept: req.headers.get("accept") || "application/json",
@@ -45,7 +73,7 @@ async function handleProxy(
 
   // La API Key se inyecta de forma 100% segura únicamente en el servidor
   if (!pathStr.includes("payment/notification")) {
-    forwardHeaders["Authorization"] = `Bearer ${API_KEY}`;
+    forwardHeaders["Authorization"] = `Bearer ${apiKey}`;
   }
 
   let body: BodyInit | undefined = undefined;

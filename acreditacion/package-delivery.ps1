@@ -1,4 +1,4 @@
-﻿Add-Type -AssemblyName System.IO.Compression.FileSystem
+Add-Type -AssemblyName System.IO.Compression.FileSystem
 
 $baseDir = "c:\Users\EQUIPO2\Desktop\test-chilepasajes"
 $zipPackage = Join-Path $baseDir "Dossier-Acreditacion-Chilepasajes.zip"
